@@ -1,0 +1,18 @@
+{
+  "author": "Michelle Bu",
+  "name": "cs61as",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:michellebu/cs61as-revamp.git"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": "~v0.4.10"
+  },
+  "dependencies":{
+    "express":"",
+    "ejs":""
+  },
+  "devDependencies": {}
+}
