@@ -2,3 +2,66 @@ html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,pre,code,form,fields
 a {outline: none;} /* Gets rid of Firefox's dotted borders */
 a img {border: none;} /* Gets rid of IE's blue borders */
 
+@font-face {
+	font-family: 'League Gothic';
+	src: url('/fonts/boldfont.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+body, html {
+  font-family: 'Open Sans', Arial;
+  font-size: 15px;
+  line-height: 30px;
+  background-color: rgba(40,52,59,1);
+}
+
+#title {
+   font-family: 'League Gothic', Arial;
+   font-size: 150px;
+   text-shadow: 0px 7px 0px #fff;
+   color: rgba(200,215,220,1);
+   padding-top: 150px;
+}
+
+#splash, #topbar {
+  color: #ccc;
+  background: rgb(242,245,246); /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%, rgba(227,234,237,1) 37%, rgba(200,215,220,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(242,245,246,1)), color-stop(37%,rgba(227,234,237,1)), color-stop(100%,rgba(200,215,220,1))); /* Chrome,Safari4+ */
+  background: -webkit-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* Opera 12+ */
+  background: -ms-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* IE10+ */
+  background: radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  height: 500px;
+  text-align: center;
+  top: 0px;
+  width: 100%;
+  box-shadow: 0px 2px 15px #000;
+  -webkit-box-shadow: 0px 2px 15px #000;
+  -moz-box-shadow: 0px 2px 15px #000;
+  border-bottom: 1px solid #fff;
+}
+
+#topbar {
+  height: 100px;
+}
+
+#info {
+  color: #fff;
+  margin: 0 auto;
+  width: 700px;
+  margin-bottom: 50px;
+  text-shadow: 0px 1px 0px #000;
+  letter-spacing: 1px;
+}
+
+#info h1 {
+  font-family: 'League Gothic';
+  font-weight: normal;
+  text-transform: uppercase;
+  font-size: 40px;
+  text-shadow: 0px 1px 0px rgba(256, 256, 256, 1);
+  color: #9aa7b0;
+}

@@ -7,7 +7,7 @@
 <meta name="description" content=""> 
 <meta name="keywords" content=""> 
  
- 
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 <link href="/css/style.css" rel="stylesheet" type="text/css"> 
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script> 
@@ -16,15 +16,8 @@
 </head> 
  
 <body> 
-  <div id="topbar">
-    <div id="title">CS61AS</div>
-    <a href="/settings">Settings</a>
-  </div>
-
+  <%-partial('partials/header.ejs')%>
   <%-body%>
-  
-  <div id="bottombar">
-    <a href="/home">Announcements</a>
-  </div>
+  <%-partial('partials/footer.ejs')%>
 </body> 
 </html> 
