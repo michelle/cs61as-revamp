@@ -10,8 +10,9 @@ a img {border: none;} /* Gets rid of IE's blue borders */
 }
 
 body, html {
-  font-family: 'Open Sans', Arial;
-  font-size: 15px;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: 200;
+  font-size: 18px;
   line-height: 30px;
   background-color: rgba(40,52,59,1);
 }
@@ -21,7 +22,7 @@ body, html {
    font-size: 150px;
    text-shadow: 0px 7px 0px #fff;
    color: #9aa7b0;
-   padding-top: 150px;
+   padding-top: 130px;
 }
 
 #splash, #topbar {
@@ -34,7 +35,6 @@ body, html {
   background: -ms-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* IE10+ */
   background: radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-  height: 500px;
   text-align: center;
   top: 0px;
   width: 100%;
@@ -44,8 +44,15 @@ body, html {
   border-bottom: 1px solid #fff;
 }
 
+#splash {
+  min-height: 350px;
+  position: relative;
+  padding: 0px;
+}
+
 #topbar {
   height: 100px;
+  position: fixed;
 }
 
 #info {
@@ -58,10 +65,61 @@ body, html {
 }
 
 #info h1 {
+  margin-top: 50px;
   font-family: 'League Gothic';
   font-weight: normal;
   text-transform: uppercase;
   font-size: 40px;
   text-shadow: none;
   color: #9aa7b0;
+}
+
+#login {
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  bottom: 0px;
+  left: 0px;
+  position: absolute;
+}
+
+#showlogin {
+  background-color: transparent;
+  border: 0px;
+  cursor: pointer;
+  font-family: 'League Gothic';
+  font-size: 50px;
+  color: rgba(200,215,220,1);
+  text-shadow: 0px 1px 0px #fff;
+}
+
+#loginform {
+  display: none;
+  font-size: 20px;
+  line-height: 50px;
+  color: #9aa7b0;
+}
+
+#loginform input {
+  border: 0px;
+  height: 30px;
+  padding: 5px;
+  border-bottom: 3px solid rgba(200,215,220,1);
+}
+
+#loginalign {
+  width: 280px;
+  margin: 100px auto;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.clear {
+  clear: both;
 }
