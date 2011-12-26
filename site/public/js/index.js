@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	$('#showlogin').click(function(){
 	  $('#showlogin').attr('disabled', 'disabled');
-	  $('#loginform').slideToggle(300);
+	  $('#loginform').slideToggle(500);
 	  $('#showlogin').fadeToggle(300);
 	});
 	
