@@ -14,7 +14,8 @@ body, html {
   font-weight: 200;
   font-size: 18px;
   line-height: 30px;
-  background-color: rgba(40,52,59,1);
+  background-color: #22282b;
+  letter-spacing: 1px;
 }
 
 #title {
@@ -61,7 +62,6 @@ body, html {
   width: 700px;
   margin-bottom: 50px;
   text-shadow: 0px 1px 0px #000;
-  letter-spacing: 1px;
 }
 
 #info h1 {
@@ -104,12 +104,17 @@ body, html {
   border: 0px;
   height: 30px;
   padding: 5px;
-  border-bottom: 3px solid rgba(200,215,220,1);
+  box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
+  -webkit-box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
+  -moz-box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
 }
 
 #loginalign {
   width: 280px;
   margin: 100px auto;
+  font-weight: 400;
+  font-size: 22px;
+  text-shadow: 0px 1px 0px #fff;
 }
 
 .left {
@@ -122,4 +127,17 @@ body, html {
 
 .clear {
   clear: both;
+}
+
+.mybutton {
+  background-color: #9aa7b0;
+  width: 100px;
+  height: 50px;
+  border: 0px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #fff;
+  border-radius: 0px 0px 15px 15px;
 }
