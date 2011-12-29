@@ -21,4 +21,9 @@ $(document).ready(function(){
  
     $('html, body').animate({scrollTop:target_top}, 500);
   });
+  
+  /** Hidden Lambda. */
+  $('#title').click(function() {
+    $(this).html('CS61<span id="lambda">λ</span>S');
+  });
 });

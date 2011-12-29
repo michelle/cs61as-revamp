@@ -28,12 +28,6 @@ function defineModels(mongoose, fn) {
     salt: String
   });
 
-  /** Converts _id if needed. */
-  User.virtual('id')
-    .get(function() {
-      return this._id.toHexString();
-    });
-
   /** Password conversion. */
   User.virtual('password')
     .set(function(password) {

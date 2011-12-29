@@ -25,7 +25,7 @@ schema.defineModels(mongoose, function() {
 db = mongoose.connect(app.set('db-uri'));
 
 /** Set up server, session management. */
-app.use(express.favicon());
+app.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000 })); 
 app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({
@@ -60,21 +60,21 @@ app.get('/', loadUser, function(req, res){
 });
 
 /** Default view iff not logged in. */
-app.get('/home', function(req, res){
-  res.render('index', {page: 'home', user: new User()});
+app.get('/home', function(req, res) {
+  res.render('index', { page: 'home', user: new User() });
 });
 
 /** Student dashboard. */
 // TODO: TA dashboard.
-app.get('/dashboard', loadUser, function(req, res){
-  res.render('dashboard', {page: 'dashboard', currentUser: req.currentUser});
+app.get('/dashboard', loadUser, function(req, res) {
+  res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser });
 });
 
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   User.findOne({ username: req.body.user.username }, function(err, user) {
     if (user && user.authenticate(req.body.user.password)) {
-      req.session.user_id = user.id;
+      req.session.user_id = user._id;
       res.redirect('/dashboard');
     } else {
       // TODO: Show error
@@ -82,6 +82,8 @@ app.post('/login', function(req, res) {
     }
   }); 
 });
+
+// TODO: logout
 
 /** Start server. */
 var port = process.env.PORT || 8084;

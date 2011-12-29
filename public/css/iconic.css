@@ -8,8 +8,8 @@
 
 .iconic {
 	color: inherit;
-	font-size: 55px;
-	line-height: 60px;
+	font-size: inherit;
+	line-height: inherit;
 	font-family: "IconicStroke";
 }
 

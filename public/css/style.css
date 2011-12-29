@@ -16,6 +16,7 @@ body, html {
   line-height: 30px;
   background-color: #22282b;
   letter-spacing: 1px;
+  height: 90%;
 }
 
 #title {
@@ -38,7 +39,7 @@ body, html {
                0 20px 20px rgba(200,215,220,.25);
 }
 
-#splash, #topbar {
+#splash, #topbar, #bottombar {
   color: #ccc;
   background: rgb(242,245,246); /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%, rgba(227,234,237,1) 37%, rgba(200,215,220,1) 100%); /* FF3.6+ */
@@ -49,12 +50,12 @@ body, html {
   background: radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%,rgba(227,234,237,1) 37%,rgba(200,215,220,1) 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
   text-align: center;
-  top: 0px;
   width: 100%;
   box-shadow: 0px 2px 15px #000;
   -webkit-box-shadow: 0px 2px 15px #000;
   -moz-box-shadow: 0px 2px 15px #000;
   border-bottom: 1px solid #fff;
+  z-index: 100;
 }
 
 #splash {
@@ -63,12 +64,65 @@ body, html {
   padding: 0px;
 }
 
-#topbar {
-  height: 100px;
+#splash button:hover, #login a:hover {
+  color: #9aa7b0;
+}
+
+#topbar, #bottombar {
   position: fixed;
 }
 
+#bottombar {
+  bottom: 0px;
+  border-top: 1px solid #fff;
+  border-bottom: 0px;
+  padding: 10px;
+  height: 30px;
+}
+
+#topbar {
+  top: 0px;
+  height: 50px;
+}
+
+#topcontainer {
+  margin: 0 auto;
+  width: 90%;
+  padding: 10px 0px;
+  top: 0px;
+  line-height: 30px;
+}
+
+#topbar a, #bottombar a {
+  color: #9aa7b0;
+  font-size: 30px;
+  text-shadow: 0px 1px 0px #fff;
+  margin: 10px;
+  line-height: 30px;
+  letter-spacing: 2px;
+  -webkit-transition: color 0.2s linear;
+  -moz-transition: color 0.2s linear;
+  -o-transition: color 0.2s linear;
+  transition: color 0.2s linear;
+}
+
+#topbar a:hover, #bottombar a:hover {
+  color: rgba(200,215,220,1);
+}
+
+.up, #bottombar a {
+  text-transform: uppercase;
+  font-family: 'League Gothic', Arial;
+  font-size: 25px;
+}
+
+#icon, .icon {
+  font-size: 55px;
+	line-height: 60px;
+}
+
 #info {
+  top: 0px;
   color: #fff;
   margin: 0 auto;
   width: 700px;
@@ -96,7 +150,7 @@ body, html {
   position: absolute;
 }
 
-#login button, #aboutbutton {
+#login button, #login a {
   background-color: transparent;
   border: 0px;
   cursor: pointer;
@@ -167,3 +221,60 @@ body, html {
 a {
   text-decoration: none;
 }
+
+#readContent {
+  width: 72%;
+  min-height: 87%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(242,245,246,1);
+  margin-top: 80px;
+  font-weight: 400;
+  color: #333;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  padding-left: 20%;
+}
+
+#sidebar {
+  background-color:rgba(200,215,220,1);
+  z-index: 99;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 20%;
+  position: absolute;
+  border-right: 1px solid #fff;
+  border-radius: 10px 0px 0px 10px;
+  box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
+  -webkit-box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
+  -moz-box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
+}
+
+#dash {
+  width: 90%;
+  min-height: 87%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(242,245,246,1);
+  margin-top: 80px;
+  font-weight: 400;
+  color: #333;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  text-shadow: 0px 1px 0px #fff;
+}
+
+#lambda {
+  font-family: serif;
+}
+
+.thirds {
+   width: 27%;
+   margin: 3%;
+   text-align: center;
+   min-height: 100%;
+}
+
