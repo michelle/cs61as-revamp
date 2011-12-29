@@ -1,8 +1,9 @@
+/** Encryption dependencies. */
 var crypto = require('crypto'),
     User,
     LoginToken;
     
-
+/** Defines schema for a generic user, token. */
 function defineModels(mongoose, fn) {  
   var Schema = mongoose.Schema,
       ObjectId = Schema.ObjectId;
@@ -10,7 +11,8 @@ function defineModels(mongoose, fn) {
   function validatePresenceOf(value) {
     return value && value.length;
   }
-    
+
+  /** A user. */
   User = new Schema({
     email: {
       type: String,
@@ -26,11 +28,13 @@ function defineModels(mongoose, fn) {
     salt: String
   });
 
+  /** Converts _id if needed. */
   User.virtual('id')
     .get(function() {
       return this._id.toHexString();
     });
 
+  /** Password conversion. */
   User.virtual('password')
     .set(function(password) {
       this._password = password;
@@ -39,6 +43,7 @@ function defineModels(mongoose, fn) {
     })
     .get(function() { return this._password; });
 
+  /** Password authentication. */
   User.method('authenticate', function(plainText) {
     // TODO: ACTUALLY ENCRYPT...
     //return this.encryptPassword(plainText) === this.hashed_password;
@@ -48,7 +53,8 @@ function defineModels(mongoose, fn) {
   User.method('makeSalt', function() {
     return Math.round((new Date().valueOf() * Math.random())) + '';
   });
-
+  
+  /** Password encryption. */
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
@@ -61,7 +67,7 @@ function defineModels(mongoose, fn) {
     }
   });
 
-
+  /** Login token for remembering logins. */
   LoginToken = new Schema({
     email: { type: String, index: true },
     series: { type: String, index: true },

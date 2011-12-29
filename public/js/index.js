@@ -1,10 +1,13 @@
 $(document).ready(function(){
+
+  /** Login form fanciness. */
 	$('#showlogin').click(function(){
 	  $('#showlogin').attr('disabled', 'disabled');
 	  $('#loginform').slideToggle(500);
 	  $('#showlogin').fadeToggle(300);
 	});
 	
+	/** Smooth scrolling. */
 	$(".scroll").click(function(event){
     event.preventDefault();
  
