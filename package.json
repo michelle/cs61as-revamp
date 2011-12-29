@@ -13,8 +13,6 @@
   "dependencies":{
     "express":"",
     "ejs":"",
-    "iform": "",
-    "validator": "",
     "mongoose": "",
     "connect-mongodb": "",
     "connect": ""

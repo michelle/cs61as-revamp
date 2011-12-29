@@ -6,10 +6,6 @@ var express = require('express'),
     db,
     User;
 
-var check = require('validator').check,
-    sanitize = require('validator').sanitize;
-
-var iform = require('iform');
 var fs = require('fs');
 
 app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
