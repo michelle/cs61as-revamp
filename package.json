@@ -12,7 +12,12 @@
   },
   "dependencies":{
     "express":"",
-    "ejs":""
+    "ejs":"",
+    "iform": "",
+    "validator": "",
+    "mongoose": "",
+    "connect-mongodb": "",
+    "connect": ""
   },
   "devDependencies": {}
 }

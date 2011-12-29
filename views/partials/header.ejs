@@ -3,9 +3,9 @@
     <div id="title">CS61AS</div>
     <div id="loginform">
       <div id="loginalign">
-        <form>
-          <span class="left">username</span><input type="text" class="right" name="username"><br>
-          <span class="left">password</span><input type="text" class="right" name="password">
+        <form method="post" action="/login">
+          <span class="left">username</span><input type="text" class="right" name='user[username]' value='cs61as-'><br>
+          <span class="left">password</span><input type="text" class="right" name='user[password]' type='password'>
           <div class="clear"></div>
           <button class="mybutton" id="submitlogin">Go!</button>
           <button class="mybutton" id="guest">Guest</button>
