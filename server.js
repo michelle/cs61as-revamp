@@ -12,17 +12,6 @@ var check = require('validator').check,
 var iform = require('iform');
 var fs = require('fs');
 
-
-// Converts a database connection URI string to
-// the format connect-mongodb expects
-/*function mongoStoreConnectionArgs() {
-  return { dbname: db.db.databaseName,
-           host: db.db.serverConfig.host,
-           port: db.db.serverConfig.port,
-           username: db.uri.username,
-           password: db.uri.password };
-}*/
-
 app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
 
 schema.defineModels(mongoose, function() {
