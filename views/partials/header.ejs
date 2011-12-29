@@ -4,12 +4,13 @@
     <div id="loginform">
       <div id="loginalign">
         <form method="post" action="/login">
-          <span class="left">username</span><input type="text" class="right" name='user[username]' value='cs61as-'><br>
-          <span class="left">password</span><input type="text" class="right" name='user[password]' type='password'>
+          <span class="left">username</span><input type="text" class="right" name='user[username]' value=<% user.username || "" %>><br>
+          <span class="left">password</span><input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
           <div class="clear"></div>
-          <button class="mybutton" id="submitlogin">Go!</button>
-          <button class="mybutton" id="guest">Guest</button>
+          <button class="mybutton left" id="submitlogin">Go!</button>
         </form>
+        <button class="mybutton right" id="guest">Guest</button>
+        <div class="clear"></div>
         
       </div>
     </div>

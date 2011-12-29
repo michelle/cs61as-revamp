@@ -48,8 +48,8 @@ app.set('views', __dirname + '/views');
 
 function loadUser(req, res, next) {
   if (req.session.user_id) {
-    User.findById(req.session.user_id, function(user) {
-      if (user) {
+    User.findById(req.session.user_id, function(err, user) {
+      if (!err) {
         req.currentUser = user;
         next();
       } else {
@@ -63,17 +63,21 @@ function loadUser(req, res, next) {
 
 
 app.get('/', loadUser, function(req, res){
-  res.render('index', {page: 'dashboard', currentUser: req.currentUser});
+  res.redirect('/dashboard');
 });
 
 app.get('/home', function(req, res){
-  res.render('index', {page: 'home'});
+  res.render('index', {page: 'home', user: new User()});
+});
+
+app.get('/dashboard', loadUser, function(req, res){
+  res.render('dashboard', {page: 'dashboard', currentUser: req.currentUser});
 });
 
 app.post('/login', function(req, res) {
   User.findOne({ username: req.body.user.username }, function(err, user) {
     if (user && user.authenticate(req.body.user.password)) {
-      req.session.user_id = user.id;
+      req.session.user_id = user._id;
       res.redirect('/dashboard');
     } else {
       // TODO: Show error
