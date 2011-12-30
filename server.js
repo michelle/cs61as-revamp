@@ -1,3 +1,5 @@
+var DEBUG = false;
+
 /** Setting up dependencies for login system. */
 var express = require('express'),
     app = module.exports = express.createServer(),
@@ -44,9 +46,11 @@ app.set('views', __dirname + '/views');
 function loadUser(req, res, next) {
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
+    if (DEBUG && err) console.log(err);
       if (!err) {
         req.currentUser = user;
         Lesson.findOne({ number: user.progress }, function(err, lesson) {
+    if (DEBUG && err) console.log(err);
           if (!err) {
             req.currentLesson = lesson;
             next();
@@ -85,6 +89,7 @@ app.get('/webcast', loadUser, function(req, res) {
   var num = req.currentUser.progress;
   var vids = [];
   Lesson.findOne({ number: num }, function(err, lesson) {
+    if (DEBUG && err) console.log(err);
     if (!err) {
       vids = lesson.videos;
       res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
@@ -103,6 +108,7 @@ app.get('/webcast/:number', loadUser, function(req, res) {
     res.redirect('/webcast');
   } else {
     Lesson.findOne({ number: num }, function(err, lesson) {
+    if (DEBUG && err) console.log(err);
       if (!err) {
         vids = lesson.videos;
         res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
@@ -151,6 +157,7 @@ app.get('/admin', loadUser, function(req, res) {
 /** Manage users. */
 app.get('/admin/users', loadUser, function(req, res) {
   User.find({}, function(err, users) {
+    if (DEBUG && err) console.log(err);
     res.render('admin/users', { page: 'admin/users/index', currentUser: req.currentUser, users : users });
   });
 });
@@ -165,8 +172,11 @@ app.post('/admin/users/add', loadUser, function(req, res) {
     permission: 0
   });
   user.password = req.body.user.password;
-  user.save();
+  user.save(function(err) {
+    if (DEBUG && err) console.log(err);
+  });
   User.find({}, function(err, users) {
+    if (DEBUG && err) console.log(err);
     res.render('admin/users', { page: 'admin/users/index', currentUser: req.currentUser, users : users });
   });
 });
@@ -174,6 +184,7 @@ app.post('/admin/users/add', loadUser, function(req, res) {
 /** Edit an user. */
 app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
   User.findById(req.params.userID, function(err, user) {
+    if (DEBUG && err) console.log(err);
     res.render('admin/users/edit', { page: 'admin/users/edit', currentUser: req.currentUser, user : user });
   });
 });
@@ -182,6 +193,7 @@ app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
 // TODO: implement
 app.post('/admin/users/edit/:userID', loadUser, function(req, res) {
   User.findById(req.params.userID, function(err, user) {
+    if (DEBUG && err) console.log(err);
     user.username = req.body.user.username;
     user.email = req.body.user.email;
     user.password = req.body.user.password;
@@ -193,6 +205,7 @@ app.post('/admin/users/edit/:userID', loadUser, function(req, res) {
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   User.findOne({ username: req.body.user.username }, function(err, user) {
+    if (DEBUG && err) console.log(err);
     if (user && user.authenticate(req.body.user.password)) {
       req.session.user_id = user._id;
       res.redirect('/dashboard');
