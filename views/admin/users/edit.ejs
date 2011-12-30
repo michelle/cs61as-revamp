@@ -1,0 +1,36 @@
+<div id="content">
+  <h1> admin/users/edit </h1>
+  <p>
+    Logged in as <%-currentUser.username%>
+  </p>
+  <p>
+    Think twice before you click save.
+    <br/>
+    This is dangerous, and it has the potential to break your DB (no security yet).
+    <br/>
+    Editing user with ID: <%-user.id%>
+  </p>
+  <form method="post" action="/admin/users/edit/<%-user.id%>">
+    <span class="left">username</span>
+    <input type="text" class="right" name='user[username]' value=<%-user.username%>>
+    <br>
+    <span class="left">password</span>
+    <input type="text" class="right" name='user[password]' value=<%-user.password%>>
+    <br>
+    <span class="left">hashed_password</span>
+    <input type="text" class="right" name='user[hashed_password]' value=<%-user.hashed_password%>>
+    <br>
+    <span class="left">email</span>
+    <input type="text" class="right" name='user[email]' value=<%-user.email%>>
+    <br>
+    <span class="left">progress</span>
+    <input type="text" class="right" name='user[progress]' value=<%-user.progress%>>
+    <br>
+    <span class="left">units</span>
+    <input type="text" class="right" name='user[units]' value=<%-user.units%>>
+    <div class="clear"></div>
+    <button class="mybutton left" id="submitUserEdit">
+      Save.
+    </button>
+  </form>
+</div>

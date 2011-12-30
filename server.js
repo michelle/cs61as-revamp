@@ -142,6 +142,34 @@ app.get('/administration', loadUser, function(req, res) {
   res.render('administration', { page: 'administration', currentUser: req.currentUser });
 });
 
+/** Admin Control Panel. */
+// HACK: check permission
+app.get('/admin', loadUser, function(req, res) {
+  res.render('admin', { page: 'admin/index', currentUser: req.currentUser });
+});
+
+/** Manage users. */
+app.get('/admin/users', loadUser, function(req, res) {
+  User.find({}, function(err, users) {
+    res.render('admin/users', { page: 'admin/users/index', currentUser: req.currentUser, users : users });
+  });
+});
+
+/** Edit an user. */
+app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
+  User.findById(req.params.userID, function(err, user) {
+    res.render('admin/users/edit', { page: 'admin/users/edit', currentUser: req.currentUser, user : user });
+  });
+});
+
+/** Save edit an user. */
+// TODO: implement
+app.post('/admin/users/edit/:userID', loadUser, function(req, res) {
+  User.findById(req.params.userID, function(err, user) {
+    res.render('admin/users/edit', { page: 'admin/users/edit', currentUser: req.currentUser, user : user });
+  });
+});
+
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   User.findOne({ username: req.body.user.username }, function(err, user) {

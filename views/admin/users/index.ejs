@@ -1,0 +1,17 @@
+<div id="content">
+  <h1> admin/users </h1>
+  <p>
+    Logged in as <%-currentUser.username%>
+  </p>
+  <p>
+    Number of users: <%-users.length %>
+  </p>
+  <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%>
+  <ul>
+    <li>
+      <span class="left">username: <%-user.username %></span>
+      <a href="/admin/users/edit/<%-user.id%>">(edit)</a>
+    </li>
+  </ul>
+  <% } %>
+</div>
