@@ -79,6 +79,10 @@ function defineModels(mongoose, fn) {
       type: String,
       index: { unique: true }
     },
+    permission: {
+      type: Boolean,
+      default: false
+    },
     username: {
       type: String,
       index: { unique: true }
