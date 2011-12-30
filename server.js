@@ -161,7 +161,8 @@ app.post('/admin/users/add', loadUser, function(req, res) {
     username: req.body.user.username,
     email: req.body.user.email,
     grades: [],
-    progress: "1"
+    progress: "1",
+    permission: 0
   });
   user.password = req.body.user.password;
   user.save();
