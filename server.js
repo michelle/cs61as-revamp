@@ -1,16 +1,16 @@
+/** debug flags. */
 var DEBUG = false;
 
-/** Setting up dependencies for login system. */
-var express = require('express'),
-    app = module.exports = express.createServer(),
-    mongoose = require('mongoose'),
-    mongoStore = require('connect-mongodb'),
-    schema = require('./schema.js'),
-    db,
-    User;
-
-/** Other dependencies. */
+/** Setting up dependencies. */
+var express = require('express');
+var app = module.exports = express.createServer();
+var mongoose = require('mongoose');
+var mongoStore = require('connect-mongodb');
+var schema = require('./schema.js');
 var fs = require('fs');
+
+/** Database. */
+var db;
 
 /** Student database URI. */
 app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
@@ -32,10 +32,7 @@ schema.defineModels(mongoose, function() {
 app.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000 })); 
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({
-  secret: 'this sucks',
-  store: mongoStore(db)
-}));
+app.use(express.session({ secret: 'this sucks', store: mongoStore(db) }));
 app.use(express.static(__dirname + '/public'));
 
 /** Where to look for templates. */
@@ -46,35 +43,37 @@ app.set('views', __dirname + '/views');
 function loadUser(req, res, next) {
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
-    if (DEBUG && err) console.log(err);
-      if (!err) {
-        req.currentUser = user;
-        Lesson.findOne({ number: user.progress }, function(err, lesson) {
-    if (DEBUG && err) console.log(err);
-          if (!err) {
-            req.currentLesson = lesson;
-            next();
-          } else {
-            // TODO: Worry about this.
-            res.redirect('/home');
-          }
-        });
-      } else {
+      if (err) {
+        // user not logged in
+        if (DEBUG) console.log(err);
         res.redirect('/home');
       }
+
+      req.currentUser = user;
+      Lesson.findOne({ number: user.progress }, function(err, lesson) {
+        if (err) {
+          // lesson not found
+          if (DEBUG) console.log(err);
+          res.redirect('/home');
+        }
+
+        req.currentLesson = lesson;
+        next();
+      });
     });
   } else {
     res.redirect('/home');
   }
 }
 
-/** Default view. */
+/** Default view iff logged in. */
 app.get('/', loadUser, function(req, res){
   res.redirect('/dashboard');
 });
 
 /** Default view iff not logged in. */
 app.get('/home', function(req, res) {
+  // QUESTION: why user here?
   res.render('index', { page: 'home', user: new User() });
 });
 
