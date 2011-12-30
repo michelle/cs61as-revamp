@@ -16,8 +16,10 @@
       </div>
     </div>
     <div id="login">
-      <button id="showlogin"><span name='key' class='icon iconic key'></span>LOGIN</button>
-      <a href="/#about" id="aboutbutton" class="scroll"><span name="book" class="icon iconic book-alt"></span>ABOUT</a>
+      <div id="loginfloat">
+        <a id="showlogin"><div class="width left"><span name='key' class='icon iconic key'></span></div><div class="left margin">LOGIN</div></a>
+        <a href="/#about" id="aboutbutton" class="scroll"><div class="width left"><span name="book" class="icon iconic book-alt"></span></div><div class="left">ABOUT</div></a>
+      </div>
     </div>
   </div>
   
@@ -30,15 +32,19 @@
       </div>
       <div id="topfloater" class="right">
         <% if (currentUser) { %>
-          <a href="/user/<%-currentUser.username%>">
-            <span class="iconic user"></span>
-            <span class="up"><%-currentUser.username%></span>
-          </a>
+          <div class="topnav left">
+            <a href="/user/<%-currentUser.username%>">
+              <div class="smallwidth left"><span class="iconic user"></span></div>
+              <div class="left up"><%-currentUser.username%></div>
+            </a>
+          </div>
         <% } %>
-        <a href="/settings" id="settings">
-          <span class="iconic cog"></span>
-          <span class="up">Settings</span>
-        </a>
+        <div class="topnav left">
+          <a href="/settings" id="settings">
+            <div class="smallwidth left"><span class="iconic cog"></span></div>
+            <div class="left up">Settings</div>
+          </a>
+        </div>
         <!-- TODO: Fullscreen mode for readings, etc. -->
       </div>
     </div>
