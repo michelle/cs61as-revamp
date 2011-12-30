@@ -283,7 +283,7 @@ a {
    width: 27%;
    margin: 3%;
    text-align: center;
-   min-height: 100%;
+   min-height: 50%;
    margin-top: 0px;
 }
 
@@ -333,6 +333,7 @@ a {
   font-weight: 300;
   text-align: center;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 #home {
@@ -347,7 +348,7 @@ a {
 	line-height: 80px;
 	border-radius: 15px 0px 0px 15px;
 	border: 1px solid #fff;
-  background: rgba(227,234,237,1); /* Old browsers */
+  background: rgba(227,234,237,1);
   box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
   -webkit-box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
   -moz-box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
@@ -375,4 +376,76 @@ a {
 
 #color {
   color: #BD9392;
+}
+
+#lesson {
+	background-color: #394349;
+	padding-right: 25px;
+	padding-left: 35px;
+	position: relative;
+	margin-bottom: 10px;
+	margin-top: 0px;
+	left:-45px;
+	float: left;
+	z-index: 99;
+}
+
+#lefttriangle {
+	border-color: transparent #282F33 transparent transparent;
+	border-style:solid;
+	border-width:25px;
+	height:0px;
+	width:0px;
+	position: relative;
+	left: -70px;
+	top: 24px;
+	z-index: 98;
+}
+
+#lesson h2 {
+	font-size: 30px;
+	line-height: 30px;
+	margin: 10px 0px;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+	text-align: center;
+}
+
+h1 {
+  color: #4D5A63;
+  font-size: 30px;
+  margin: 10px;
+  text-transform: uppercase;
+  line-height: 40px;
+}
+
+.num {
+  width: 60px;
+  height: 40px;
+  font-size: 40px;
+  line-height: 40px;
+  padding: 5px 20px;
+  padding-right: 0px;
+  color: #394349;
+  font-family: 'League Gothic';
+}
+
+.small {
+  background: transparent;
+  border: 0px;
+  font-size: 50px;
+  text-shadow: 0px 1px 0px #fff;
+  color: #4D5A63;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+#dash a {
+  color: #4D5A63;
+  font-size: 20px;
+  line-height: 60px;
+}
+
+#dash a:hover {
+  color: #9aa7b0;
 }

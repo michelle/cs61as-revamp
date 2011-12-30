@@ -2,6 +2,19 @@
   <div class="note">
     Drag and drop each block into the order you would like to complete each section. You can always switch between modules after you begin a section.
   </div>
+  <div id="lesson">
+    <h2>Lesson <%-currentLesson.number%>: <%-currentLesson.name%></h2>
+  </div>
+  <div id="selection" class="right">
+    <!--form id="lessonselect" method="post" action="/dashboard/switch">
+      <input type="number" min="1" max=<%-currentUser.progress%> value="1" name="number" class="num">
+      <button class="small"><span class="iconic arrow-right-alt"></span></button>
+    </form-->
+    <a href="/lessons">all available lessons <span class="iconic arrow-right-alt"></span></a>
+  </div>
+  <div id="lefttriangle"></div>
+  
+  <div class="clear"></div>
   <div class="thirds left">
     <h1>Learn</h1>
     <ul id="sortable">

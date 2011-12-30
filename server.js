@@ -51,12 +51,12 @@ function loadUser(req, res, next) {
         Lesson.findOne({ number: user.progress }, function(err, lesson) {
           if (!err) {
             req.currentLesson = lesson;
+            next();
           } else {
             // TODO: Worry about this.
-            req.currentLesson = null;
+            res.redirect('/home');
           }
         });
-        next();
       } else {
         res.redirect('/home');
       }
