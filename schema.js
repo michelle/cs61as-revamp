@@ -1,17 +1,19 @@
 /** Encryption dependencies. */
-var crypto = require('crypto'),
-    User,
-    LoginToken,
-    Reading,
-    Video,
-    Assignment,
-    Lesson,
-    Grade;
+var crypto = require('crypto');
+
+/** Database Models. */
+var User;
+var LoginToken;
+var Reading;
+var Video;
+var Assignment;
+var Lesson;
+var Grade;
     
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {  
-  var Schema = mongoose.Schema,
-      ObjectId = Schema.ObjectId;
+  var Schema = mongoose.Schema;
+  var ObjectId = Schema.ObjectId;
       
   function validatePresenceOf(value) {
     return value && value.length;
@@ -19,8 +21,14 @@ function defineModels(mongoose, fn) {
   
   /** A reading. */
   Reading = new Schema( {
-    name: String,
-    location: String,
+    name: {
+      type: String,
+      required: true
+    },
+    location: {
+      type: String,
+      required: true
+    },
     SICP: {
       type: Boolean,
       default: false
@@ -29,14 +37,26 @@ function defineModels(mongoose, fn) {
   
   /** A video. */
   Video = new Schema( {
-    name: String,
-    url: String
+    name: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
   });
   
   /** A grade. */
   Grade = new Schema( {
-    order: Number,
-    name: String,
+    order: {
+      type: Number,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
     location: String,
     grade: {
       type: String,
@@ -46,8 +66,14 @@ function defineModels(mongoose, fn) {
 
   /** An assignment. */
   Assignment = new Schema( {
-    order: Number,
-    name: String,
+    order: {
+      type: Number,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
     project: {
       type: Boolean,
       default: false
@@ -57,30 +83,62 @@ function defineModels(mongoose, fn) {
   
   /** A lesson. */
   Lesson = new Schema( {
-    number:  Number,
-    name: String,
-    videos: [Video],
-    assignments: [Assignment],
-    readings: [Reading]
+    number: {
+      type: Number,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    videos: {
+      type: [Video],
+      default: []
+    },
+    assignments: {
+      type: [Assignment],
+      default: []
+    },
+    readings: {
+      type: [Reading],
+      default: []
+    },
   }); 
 
   /** A user. */
   User = new Schema( {
     email: {
       type: String,
+      required: true,
       index: { unique: true }
     },
     username: {
       type: String,
+      required: true,
       index: { unique: true }
     },
-    permission: Number,
-    progress: Number,
-    grades: [Grade],
-    hashed_password: String,
+    permission: {
+      type: Number,
+      default: 0
+    },
+    progress: {
+      type: Number,
+      default: 1
+    },
+    grades: {
+      type: [Grade],
+      default: []
+    },
+    hashed_password: {
+      type: String,
+      required: true
+    },
     units: String,
     // TODO: Boolean values for each thing completed, reset upon lesson increment.
-    salt: String
+    salt: {
+      type: String,
+      required: true
+    }
   });
 
   /** Password conversion. */
