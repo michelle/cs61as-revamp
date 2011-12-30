@@ -35,10 +35,7 @@ function defineModels(mongoose, fn) {
   
   /** A grade. */
   Grade = new Schema( {
-    order: {
-      type: String,
-      index: { unique: true }
-    },
+    order: Number,
     name: String,
     location: String,
     grade: {
@@ -49,10 +46,7 @@ function defineModels(mongoose, fn) {
 
   /** An assignment. */
   Assignment = new Schema( {
-    order: {
-      type: String,
-      index: { unique: true }
-    },
+    order: Number,
     name: String,
     project: {
       type: Boolean,
@@ -63,10 +57,7 @@ function defineModels(mongoose, fn) {
   
   /** A lesson. */
   Lesson = new Schema( {
-    number: {
-      type: String,
-      index: { unique: true }
-    },
+    number:  Number,
     name: String,
     videos: [Video],
     assignments: [Assignment],
@@ -79,15 +70,12 @@ function defineModels(mongoose, fn) {
       type: String,
       index: { unique: true }
     },
-    permission: {
-      type: Boolean,
-      default: false
-    },
     username: {
       type: String,
       index: { unique: true }
     },
-    progress: String,
+    permission: Number,
+    progress: Number,
     grades: [Grade],
     hashed_password: String,
     units: String,
