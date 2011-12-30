@@ -218,6 +218,19 @@ app.post('/login', function(req, res) {
   }); 
 });
 
+/** Redirect everything else back to dashboard if logged in. */
+app.get('*', loadUser, function(req, res){
+  req.flash('error', "Whoops! The url you just went to does not exist or you don't have the permission to access.");
+  res.redirect('/dashboard');
+});
+
+/** Redirect everything else back to home if not logged in. */
+app.get('*', function(req, res){
+  req.flash('error', "Whoops! The url you just went to does not exist or you don't have the permission to access.");
+  res.redirect('/home');
+});
+
+
 // TODO: logout
 // TODO: Search function
 
