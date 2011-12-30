@@ -13,7 +13,7 @@ $(document).ready(function(){
 	$('#showlogin').click(function(){
 	  $('#showlogin').attr('disabled', 'disabled');
 	  $('#loginform').slideToggle(500);
-	  $('#showlogin').fadeToggle(300);
+	  $('#login').fadeToggle('slow');
 	});
 	
 	/** Superficial things. */

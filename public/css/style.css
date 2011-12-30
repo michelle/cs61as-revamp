@@ -64,8 +64,12 @@ body, html {
   padding: 0px;
 }
 
-#login button:hover, #aboutbutton:hover {
+#showlogin:hover, #aboutbutton:hover {
   color: #e1bfbe;
+}
+
+.margin {
+  margin-right: 20px;
 }
 
 #topbar, #bottombar {
@@ -121,6 +125,7 @@ body, html {
   text-transform: uppercase;
   font-family: 'League Gothic', Arial;
   font-size: 25px;
+  line-height: 37px;
 }
 
 #icon, .icon {
@@ -144,20 +149,25 @@ body, html {
   font-weight: normal;
   text-transform: uppercase;
   font-size: 40px;
-  text-shadow: none;
+  text-shadow: 0px 1px 0px #282F33;
   color: #9AA7B0;
 }
 
 #login {
   width: 100%;
-  height: 60px;
+  height: 50px;
   text-align: center;
   bottom: 0px;
   left: 0px;
   position: absolute;
 }
 
-#login button, #login a {
+#loginfloat {
+  width: 300px;
+  margin: 0 auto;
+}
+
+#showlogin, #login a {
   background-color: transparent;
   border: 0px;
   cursor: pointer;
@@ -329,11 +339,16 @@ a {
   border: 1px solid #609472;
   color: #333;
   font-size: 15px;
+  line-height: 18px;
   text-shadow: none;
   font-weight: 300;
   text-align: center;
   width: 100%;
   margin-bottom: 20px;
+}
+
+.padding {
+  padding: 10px;
 }
 
 #home {
@@ -388,6 +403,7 @@ a {
 	left:-45px;
 	float: left;
 	z-index: 99;
+	border-right: 4px solid #282F33;
 }
 
 #lefttriangle {
@@ -409,6 +425,7 @@ a {
 	color: #fff;
 	text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 	text-align: center;
+	font-weight: 400;
 }
 
 h1 {
@@ -438,6 +455,14 @@ h1 {
   color: #4D5A63;
   cursor: pointer;
   margin-left: 10px;
+}
+
+.width {
+  width: 50px;
+}
+
+.smallwidth {
+  width: 30px;
 }
 
 #dash a {
