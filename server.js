@@ -22,11 +22,9 @@ schema.defineModels(mongoose, function() {
   app.Assignment = Assignment = mongoose.model('Assignment');
   app.Lesson = Lesson = mongoose.model('Lesson');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
+  app.Grade = Grade = mongoose.model('Grade');
   db = mongoose.connect(app.set('db-uri'));
 });
-
-/** Connect to the database. */
-db = mongoose.connect(app.set('db-uri'));
 
 /** Set up server, session management. */
 app.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000 })); 
@@ -126,6 +124,24 @@ app.get('/user/:username', loadUser, function(req, res) {
   res.render('profile', { page: 'profile', currentUser: req.currentUser, grades: grades, viewing: username });
 });
 
+/** Settings page. */
+// TODO: Allow users to change their unit preferences, password, email, etc (maybe profile options if time).
+app.get('/settings', loadUser, function(req, res) {
+  res.render('settings', { page: 'settings', currentUser: req.currentUser });
+});
+
+/** Announcements. */
+// TODO: Integrate Wordpress to post updates.
+app.get('/blog', loadUser, function(req, res) {
+
+});
+
+/** Administration. */
+// TODO: Compile administrative documents onto a static page.
+app.get('/administration', loadUser, function(req, res) {
+  res.render('administration', { page: 'administration', currentUser: req.currentUser });
+});
+
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   User.findOne({ username: req.body.user.username }, function(err, user) {
@@ -140,6 +156,7 @@ app.post('/login', function(req, res) {
 });
 
 // TODO: logout
+// TODO: Search function
 
 /** Start server. */
 var port = process.env.PORT || 8084;

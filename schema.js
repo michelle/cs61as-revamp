@@ -5,7 +5,8 @@ var crypto = require('crypto'),
     Reading,
     Video,
     Assignment,
-    Lesson;
+    Lesson,
+    Grade;
     
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {  
@@ -31,6 +32,20 @@ function defineModels(mongoose, fn) {
     name: String,
     url: String
   });
+  
+  /** A grade. */
+  Grade = new Schema( {
+    order: {
+      type: String,
+      index: { unique: true }
+    },
+    name: String,
+    location: String,
+    grade: {
+      type: String,
+      default: "--"
+    }
+  });
 
   /** An assignment. */
   Assignment = new Schema( {
@@ -39,10 +54,6 @@ function defineModels(mongoose, fn) {
       index: { unique: true }
     },
     name: String,
-    grade: {
-      type: String,
-      default: '--'
-    },
     project: {
       type: Boolean,
       default: false
@@ -73,8 +84,10 @@ function defineModels(mongoose, fn) {
       index: { unique: true }
     },
     progress: String,
-    grades: [Assignment],
+    grades: [Grade],
     hashed_password: String,
+    units: String,
+    // TODO: Boolean values for each thing completed, reset upon lesson increment.
     salt: String
   });
 
@@ -146,6 +159,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Assignment', Assignment);
   mongoose.model('Reading', Reading);
   mongoose.model('Video', Video);
+  mongoose.model('Grade', Grade);
 
   fn();
 }
