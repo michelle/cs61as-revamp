@@ -155,6 +155,19 @@ app.get('/admin/users', loadUser, function(req, res) {
   });
 });
 
+/** Add an user. */
+app.post('/admin/users/add', loadUser, function(req, res) {
+  var user = new User({
+    username: req.body.user.username,
+    email: req.body.user.email
+  });
+  user.password = req.body.user.password;
+  user.save();
+  User.find({}, function(err, users) {
+    res.render('admin/users', { page: 'admin/users/index', currentUser: req.currentUser, users : users });
+  });
+});
+
 /** Edit an user. */
 app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
   User.findById(req.params.userID, function(err, user) {
