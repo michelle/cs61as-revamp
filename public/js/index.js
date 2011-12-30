@@ -1,10 +1,25 @@
 $(document).ready(function(){
 
+  /** Dashboard UI. */
+  $(function() {
+		$( "#sortable, #sortable2, #sortable3" ).sortable({
+			placeholder: "ui-state-highlight",
+			items: "li:not(.ui-state-completed)"
+		});
+		$( "#sortable li, #sortable2 li, #sortable3 li" ).disableSelection();
+	});
+
   /** Login form fanciness. */
 	$('#showlogin').click(function(){
 	  $('#showlogin').attr('disabled', 'disabled');
 	  $('#loginform').slideToggle(500);
 	  $('#showlogin').fadeToggle(300);
+	});
+	
+	/** Superficial things. */
+	$(function() {
+	  $('#home').fadeIn('slow');
+	  $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
 	});
 	
 	/** Smooth scrolling. */
@@ -26,4 +41,5 @@ $(document).ready(function(){
   $('#title').click(function() {
     $(this).html('CS61<span id="lambda">λ</span>S');
   });
+  
 });

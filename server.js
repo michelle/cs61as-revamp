@@ -17,6 +17,10 @@ app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
   * users who have logged in before. */
 schema.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
+  app.Video = Video = mongoose.model('Video');
+  app.Reading = Reading = mongoose.model('Reading');
+  app.Assignment = Assignment = mongoose.model('Assignment');
+  app.Lesson = Lesson = mongoose.model('Lesson');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
   db = mongoose.connect(app.set('db-uri'));
 });
@@ -44,6 +48,14 @@ function loadUser(req, res, next) {
     User.findById(req.session.user_id, function(err, user) {
       if (!err) {
         req.currentUser = user;
+        Lesson.findOne({ number: user.progress }, function(err, lesson) {
+          if (!err) {
+            req.currentLesson = lesson;
+          } else {
+            // TODO: Worry about this.
+            req.currentLesson = null;
+          }
+        });
         next();
       } else {
         res.redirect('/home');
@@ -67,7 +79,51 @@ app.get('/home', function(req, res) {
 /** Student dashboard. */
 // TODO: TA dashboard.
 app.get('/dashboard', loadUser, function(req, res) {
-  res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser });
+  res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
+
+/** Webcast viewing. */
+app.get('/webcast', loadUser, function(req, res) {
+  var num = req.currentUser.progress;
+  var vids = [];
+  Lesson.findOne({ number: num }, function(err, lesson) {
+    if (!err) {
+      vids = lesson.videos;
+      res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+    } else {
+      // TODO: Worry about errors.
+    }
+  });
+  
+});
+
+/** Viewing previously completed webcasts. */
+app.get('/webcast/:number', loadUser, function(req, res) {
+  var num = req.params.number;
+  var vids = [];
+  if (req.currentUser.progress < num) {
+    res.redirect('/webcast');
+  } else {
+    Lesson.findOne({ number: num }, function(err, lesson) {
+      if (!err) {
+        vids = lesson.videos;
+        res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+      } else {
+        res.redirect('/webcast');
+      }
+    });
+  }
+});
+
+/** Viewing user profiles. */
+// TODO: Decide if we should actually allow users to view others' profiles, and if so, what to include.
+app.get('/user/:username', loadUser, function(req, res) {
+  var username = req.params.username;
+  var grades = false;
+  if (req.currentUser.username === username) {
+    grades = true;
+  }
+  res.render('profile', { page: 'profile', currentUser: req.currentUser, grades: grades, viewing: username });
 });
 
 /** A standard login post request. */

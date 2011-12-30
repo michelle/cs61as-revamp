@@ -1,9 +1,13 @@
 /** Encryption dependencies. */
 var crypto = require('crypto'),
     User,
-    LoginToken;
+    LoginToken,
+    Reading,
+    Video,
+    Assignment,
+    Lesson;
     
-/** Defines schema for a generic user, token. */
+/** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {  
   var Schema = mongoose.Schema,
       ObjectId = Schema.ObjectId;
@@ -11,9 +15,55 @@ function defineModels(mongoose, fn) {
   function validatePresenceOf(value) {
     return value && value.length;
   }
+  
+  /** A reading. */
+  Reading = new Schema( {
+    name: String,
+    location: String,
+    SICP: {
+      type: Boolean,
+      default: false
+    }
+  });
+  
+  /** A video. */
+  Video = new Schema( {
+    name: String,
+    url: String
+  });
+
+  /** An assignment. */
+  Assignment = new Schema( {
+    order: {
+      type: String,
+      index: { unique: true }
+    },
+    name: String,
+    grade: {
+      type: String,
+      default: '--'
+    },
+    project: {
+      type: Boolean,
+      default: false
+    },
+    location: String
+  });
+  
+  /** A lesson. */
+  Lesson = new Schema( {
+    number: {
+      type: String,
+      index: { unique: true }
+    },
+    name: String,
+    videos: [Video],
+    assignments: [Assignment],
+    readings: [Reading]
+  }); 
 
   /** A user. */
-  User = new Schema({
+  User = new Schema( {
     email: {
       type: String,
       index: { unique: true }
@@ -23,7 +73,7 @@ function defineModels(mongoose, fn) {
       index: { unique: true }
     },
     progress: String,
-    grades: {},
+    grades: [Assignment],
     hashed_password: String,
     salt: String
   });
@@ -35,7 +85,7 @@ function defineModels(mongoose, fn) {
       this.salt = this.makeSalt();
       this.hashed_password = this.encryptPassword(password);
     })
-    .get(function() { return this._password; });
+    .get(function() { return this._password; }); 
 
   /** Password authentication. */
   User.method('authenticate', function(plainText) {
@@ -62,6 +112,7 @@ function defineModels(mongoose, fn) {
   });
 
   /** Login token for remembering logins. */
+  // TODO: Remember me feature using this. 
   LoginToken = new Schema({
     email: { type: String, index: true },
     series: { type: String, index: true },
@@ -91,6 +142,10 @@ function defineModels(mongoose, fn) {
 
   mongoose.model('User', User);
   mongoose.model('LoginToken', LoginToken);
+  mongoose.model('Lesson', Lesson);
+  mongoose.model('Assignment', Assignment);
+  mongoose.model('Reading', Reading);
+  mongoose.model('Video', Video);
 
   fn();
 }

@@ -25,9 +25,12 @@
 
   <div id="topbar">
     <div id="topcontainer">
+      <div id="cs61as" class="left">
+        CS61<span id="color">AS</span>
+      </div>
       <div id="topfloater" class="right">
         <% if (currentUser) { %>
-          <a href="/<%-currentUser.username%>">
+          <a href="/user/<%-currentUser.username%>">
             <span class="iconic user"></span>
             <span class="up"><%-currentUser.username%></span>
           </a>
@@ -41,6 +44,13 @@
     </div>
   </div>
   
-    <%-body%>
+  <% if (page != 'dashboard') { %>
+    <a href="/dashboard">
+      <div id="home">
+        <span class="iconic home"></span>
+      </div>
+    </a>
+  <% } %>  
+  <%-body%>
   
 <% } %>
