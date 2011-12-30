@@ -159,7 +159,9 @@ app.get('/admin/users', loadUser, function(req, res) {
 app.post('/admin/users/add', loadUser, function(req, res) {
   var user = new User({
     username: req.body.user.username,
-    email: req.body.user.email
+    email: req.body.user.email,
+    grades: [],
+    progress: "1"
   });
   user.password = req.body.user.password;
   user.save();
@@ -179,6 +181,10 @@ app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
 // TODO: implement
 app.post('/admin/users/edit/:userID', loadUser, function(req, res) {
   User.findById(req.params.userID, function(err, user) {
+    user.username = req.body.user.username;
+    user.email = req.body.user.email;
+    user.password = req.body.user.password;
+    user.save();
     res.render('admin/users/edit', { page: 'admin/users/edit', currentUser: req.currentUser, user : user });
   });
 });
