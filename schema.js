@@ -102,9 +102,7 @@ function defineModels(mongoose, fn) {
 
   /** Password authentication. */
   User.method('authenticate', function(plainText) {
-    // TODO: ACTUALLY ENCRYPT...
-    //return this.encryptPassword(plainText) === this.hashed_password;
-    return plainText === this.hashed_password;
+    return this.encryptPassword(plainText) === this.hashed_password;
   });
   
   User.method('makeSalt', function() {
