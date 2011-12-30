@@ -334,7 +334,7 @@ a {
   color: #609472;
 }
 
-.note {
+.errornote, .infonote, .note {
   background-color: #BEE1CA;
   border: 1px solid #609472;
   color: #333;
@@ -345,6 +345,11 @@ a {
   text-align: center;
   width: 100%;
   margin-bottom: 20px;
+}
+
+.errornote {
+  background-color: #e1bfbe;
+  border: 1px solid #BD9392;
 }
 
 .padding {
@@ -474,3 +479,16 @@ h1 {
 #dash a:hover {
   color: #9aa7b0;
 }
+
+#homeflash {
+  position: absolute;
+  z-index: 101;
+  width: 100%;
+  top: 10px;
+}
+
+.flash {
+  margin: 0 auto;
+  width: 400px;
+}
+

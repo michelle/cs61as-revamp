@@ -12,6 +12,10 @@ var express = require('express'),
 /** Other dependencies. */
 var fs = require('fs');
 
+/** Flash message support. */
+app.helpers(require('./dh.js').helpers);
+app.dynamicHelpers(require('./dh.js').dynamicHelpers);
+
 /** Student database URI. */
 app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
 
@@ -55,7 +59,7 @@ function loadUser(req, res, next) {
             req.currentLesson = lesson;
             next();
           } else {
-            // TODO: Worry about this.
+            req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
             res.redirect('/home');
           }
         });
@@ -94,7 +98,8 @@ app.get('/webcast', loadUser, function(req, res) {
       vids = lesson.videos;
       res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
     } else {
-      // TODO: Worry about errors.
+      req.flash('error', 'Whoops! This video does not exist.');
+      res.redirect('/dashboard');
     }
   });
   
@@ -207,7 +212,7 @@ app.post('/login', function(req, res) {
       req.session.user_id = user._id;
       res.redirect('/dashboard');
     } else {
-      // TODO: Show error
+      req.flash('error', 'Invalid username or password.');
       res.redirect('/home');
     }
   }); 
