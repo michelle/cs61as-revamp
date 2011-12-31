@@ -534,3 +534,11 @@ h1 {
   margin: 0 auto;
   width: 540px;
 }
+
+#nocenter a {
+  color: #BD9392;
+}
+
+#nocenter a:hover { 
+  color: #e1bfbe;
+}

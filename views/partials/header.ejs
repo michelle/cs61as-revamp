@@ -27,7 +27,7 @@
     </div>
   </div>
   
-  <% if (page != 'dashboard') { %>
+  <% if (page != 'dashboard' && !(currentUser.username === 'guest' && page === 'lessons')) { %>
     <a href="/dashboard">
       <div id="home">
         <span class="iconic home"></span>

@@ -240,12 +240,16 @@ app.get('/logout', loadUser, function(req, res) {
     req.flash('info', 'Logged out successfully!');
     req.session.destroy(function() {});
   }
+  // How to get flash to work if session is destroyed?
   res.redirect('/home');
 });
 
 /** Collective lessons. */
 app.get('/lessons', loadUser, function(req, res) {
-  res.render('lessons', { page: 'lessons', currentUser: req.currentUser, currentLesson: req.currentLesson });
+  Lesson.find({}, function(err, lessons) {
+    if (DEBUG && err) console.log(err);
+    res.render('lessons', { page: 'lessons', currentUser: req.currentUser, lessons: lessons });
+  });
 });
 
 /** Homework. */
@@ -255,16 +259,12 @@ app.get('/homework/:number', loadUser, function(req, res) {
 });
 
 /** Redirect everything else back to dashboard if logged in. */
-app.get('*', loadUser, function(req, res) {
-  req.flash('error', "Whoops! The url you just went to does not exist.");
-  res.redirect('/dashboard');
-});
-
-/** Redirect everything else back to home if not logged in. */
 app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
-  res.redirect('/home');
+  res.redirect('/');
 });
+
+
 
 // TODO: Search function
 
