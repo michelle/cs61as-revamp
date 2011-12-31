@@ -11,12 +11,7 @@ var fs = require('fs');
 
 /** Database. */
 var db;
-
-/** Default guest user. */
-var GUEST = new User({
-  username: 'Guest',
-  permission: permissions.Guest,
-});
+var GUEST;
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -38,6 +33,12 @@ schema.defineModels(mongoose, function() {
   db = mongoose.connect(app.set('db-uri'));
 });
 
+/** Default guest user. */
+GUEST = new User({
+  username: 'Guest',
+  permission: schema.permissions.Guest
+});
+
 /** Set up server, session management. */
 app.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000 })); 
 app.use(express.bodyParser());
@@ -49,13 +50,15 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
-/** Determines if a user is already logged in. */
+/** Set current user and lesson if logged in.
+ *  Else set current user to GUEST. */
 function loadUser(req, res, next) {
   req.currentUser = GUEST;
+  
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
       if (err) {
-        // user not logged in
+        if (DEBUG) console.log('WARNING: session is in incorrect state: %s', req.session);
         if (DEBUG) console.log(err);
         res.redirect('/home');
       }
@@ -63,7 +66,7 @@ function loadUser(req, res, next) {
       req.currentUser = user;
       Lesson.findOne({ number: user.progress }, function(err, lesson) {
         if (err) {
-          // lesson not found
+          if (DEBUG) console.log("WARNING: User %s's progress is corrupted", user.progress);
           if (DEBUG) console.log(err);
           req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
           res.redirect('/home');
@@ -79,13 +82,13 @@ function loadUser(req, res, next) {
 }
 
 /** Make a middleware that only allows user with a PERMIT. */
-function makePermit(permit) {
+function checkPermit(permit) {
   return function(req, res, next) {
-    if (!req.currentUser[permit]) {
-      req.flash('error', "Looks like You don't have the permission to access this page.";
-      res.redirect('/home');
+    if (req.currentUser[permit]()) {
+      next();
     }
-    next();
+    req.flash('error', "Looks like You don't have the permission to access this page.");
+    res.redirect('/home');
   }
 }
 
@@ -179,7 +182,7 @@ app.get('/administration', loadUser, function(req, res) {
 });
 
 /** Admin Control Panel. */
-app.get('/admin', loadUser, function(req, res) {
+app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
   res.render('admin', { page: 'admin/index', currentUser: req.currentUser });
 });
 
