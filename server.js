@@ -12,6 +12,12 @@ var fs = require('fs');
 /** Database. */
 var db;
 
+/** Default guest user. */
+var GUEST = new User({
+  username: 'Guest',
+  permission: permissions.Guest,
+});
+
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
 app.dynamicHelpers(require('./dh.js').dynamicHelpers);
@@ -45,6 +51,7 @@ app.set('views', __dirname + '/views');
 
 /** Determines if a user is already logged in. */
 function loadUser(req, res, next) {
+  req.currentUser = GUEST;
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
       if (err) {
@@ -68,6 +75,17 @@ function loadUser(req, res, next) {
     });
   } else {
     res.redirect('/home');
+  }
+}
+
+/** Make a middleware that only allows user with a PERMIT. */
+function makePermit(permit) {
+  return function(req, res, next) {
+    if (!req.currentUser[permit]) {
+      req.flash('error', "Looks like You don't have the permission to access this page.";
+      res.redirect('/home');
+    }
+    next();
   }
 }
 
@@ -161,7 +179,6 @@ app.get('/administration', loadUser, function(req, res) {
 });
 
 /** Admin Control Panel. */
-// HACK: check permission
 app.get('/admin', loadUser, function(req, res) {
   res.render('admin', { page: 'admin/index', currentUser: req.currentUser });
 });
