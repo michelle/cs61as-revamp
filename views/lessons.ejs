@@ -1,0 +1,11 @@
+<div id="nocenter">
+  <% for (var i in lessons) { lesson = lessons[i]; n = lesson.number; %>
+    <div class="lessonbox">
+      <h1><%-n%> - <%-lesson.name%></h1>
+      <a href="/webcast/<%-n%>">Webcasts</a>
+      <a>Readings</a>
+      <a href="/homework/<%-n%>">Homework</a>
+      
+    </div>
+  <% } %>
+</div>
