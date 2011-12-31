@@ -1,0 +1,23 @@
+Permissions:
+User type:                  Super Admin,    Instructors,    User,   Guest
+- Access Admin Panel:       x               x 
+- Access Dashboard:         x               x               x
+- Read  Lesson:             x               x               x       x
+- Write Lesson:             x               x
+(for everyone)
+- Reset Password:           x               x
+- Write Password:           x
+- Read  UserInformation:    x
+- Write UserInformation:    x
+- Read  Grade:              x               x
+- Write Grade:              x               x
+- Read  Progress:           x               x
+- Write Progress:           x               x
+(for myself)
+- Reset Password:           x               x               x
+- Write Password:           x               x               x
+- Read  UserInformation:    x               x               x
+- Write UserInformation:    x               x               x
+- Read  Grade:              x               x               x          
+- Read  Progress:           x               x               x
+- Write Progress:           x               x               x
