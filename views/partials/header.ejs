@@ -28,7 +28,6 @@
 <% }  else { %>
 
   <div id="topbar">
-    <div id="flashers"><%-flashMessages%></div>
     <div id="topcontainer">
       <div id="cs61as" class="left">
         CS61<span id="color">AS</span>
@@ -59,7 +58,8 @@
         <span class="iconic home"></span>
       </div>
     </a>
-  <% } %>  
+  <% } %>
+  <div id="pusher"></div><%-flashMessages%>
   <%-body%>
   
 <% } %>

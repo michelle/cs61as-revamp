@@ -16,7 +16,6 @@ body, html {
   line-height: 30px;
   background-color: #4D5A63;
   letter-spacing: 1px;
-  height: 90%;
 }
 
 #title {
@@ -241,7 +240,7 @@ a {
 
 #profile {
   width: 72%;
-  min-height: 87%;
+  min-height: 520px;
   margin: 0 auto;
   padding: 20px;
   background-color: rgba(242,245,246,1);
@@ -271,11 +270,10 @@ a {
 
 #dash, #content {
   width: 90%;
-  min-height: 86.5%;
+  min-height: 520px;
   margin: 0 auto;
   padding: 20px;
   background-color: rgba(242,245,246,1);
-  margin-top: 80px;
   font-weight: 400;
   color: #333;
   position: relative;
@@ -283,6 +281,7 @@ a {
   border-radius: 10px;
   text-shadow: 0px 1px 0px #fff;
   text-align: center;
+  margin-bottom: 80px;
 }
 
 #lambda {
@@ -352,6 +351,12 @@ a {
   border: 1px solid #BD9392;
 }
 
+.errornote, .infonote, #dash, #content, #profile {
+  box-shadow: 0px 2px 15px #333;
+  -webkit-box-shadow: 0px 2px 15px #333;
+  -moz-box-shadow: 0px 2px 15px #333;
+}
+
 .padding {
   padding: 10px;
 }
@@ -400,7 +405,7 @@ a {
 
 #lesson {
 	background-color: #394349;
-	padding-right: 20px;
+	padding-right: 25px;
 	padding-left: 25px;
 	position: relative;
 	margin-bottom: 10px;
@@ -411,6 +416,11 @@ a {
 	border-right: 4px solid #282F33;
 }
 
+#lesson strong {
+	font-family: 'League Gothic';
+	color: #9aa7b0;
+}
+
 #lefttriangle {
 	border-color: transparent #282F33 transparent transparent;
 	border-style:solid;
@@ -419,7 +429,7 @@ a {
 	width:0px;
 	position: relative;
 	left: -70px;
-	top: 24px;
+	top: 26px;
 	z-index: 98;
 }
 
@@ -489,12 +499,21 @@ h1 {
 
 .flash {
   margin: 0 auto;
-  width: 400px;
+  width: 90%;
 }
 
-#flashers {
-  position: absolute;
-  top: 60px;
-  z-index: 99;
+.infonote span, .errornote span {
+  float: left;
+  size: 20px;
+  color: #BD9392;
+}
+
+.infonote span {
+  color: #609472;
+}
+
+#pusher {
+  margin-top: 80px;
   width: 100%;
+  height: 0px;
 }
