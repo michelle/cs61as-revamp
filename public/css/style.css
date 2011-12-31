@@ -532,5 +532,16 @@ h1 {
 
 .center {
   margin: 0 auto;
-  width: 540px;
+  width: 640px;
+}
+
+#homework {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 75%;
+}
+
+#homework pre {
+  margin: 10px 10px;
 }
