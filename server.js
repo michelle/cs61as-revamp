@@ -51,10 +51,11 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 /** Set current user and lesson if logged in.
- *  Else set current user to GUEST. */
+ *  Set current user to GUEST and redirect to /home if not logged in.
+ *  Redirect to /home if err. */
 function loadUser(req, res, next) {
   req.currentUser = GUEST;
-  
+
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
       if (err) {
@@ -100,53 +101,40 @@ app.get('/', loadUser, function(req, res){
 
 /** Default view iff not logged in. */
 app.get('/home', function(req, res) {
-  // QUESTION: why user here?
-  // ANSWER: I don't quite remember...
+  // TODO: change this to accept currentUser (or GUEST)
   res.render('index', { page: 'home', user: new User() });
 });
 
 /** Student dashboard. */
-// TODO: Separate TA/Admin dashboard.
-app.get('/dashboard', loadUser, function(req, res) {
-  if (req.currentUser.username === 'guest') {
-    res.redirect('/lessons');
-  } else {
-    res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser, currentLesson: req.currentLesson });
-  }
+app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+  res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser, currentLesson: req.currentLesson });
 });
 
 /** Webcast viewing. */
-app.get('/webcast', loadUser, function(req, res) {
-  var num = req.currentUser.progress;
-  var vids = [];
-  Lesson.findOne({ number: num }, function(err, lesson) {
-    if (DEBUG && err) console.log(err);
+app.get('/webcast', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  Lesson.findOne({ number: req.currentUser.progress }, function(err, lesson) {
     if (!err) {
-      vids = lesson.videos;
-      res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+      res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: lesson.videos });
     } else {
+      if (DEBUG && err) console.log(err);
       req.flash('error', 'Whoops! This video does not exist.');
       res.redirect('/dashboard');
     }
   });
-  
 });
 
 /** Viewing previously completed webcasts. */
-app.get('/webcast/:number', loadUser, function(req, res) {
-  var num = req.params.number;
-  var vids = [];
-  if (req.currentUser.progress < num) {
+app.get('/webcast/:number', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  if (req.currentUser.progress < req.params.number) {
     req.flash('error', 'You have not gotten this far yet!');
     res.redirect('/webcast');
   } else {
-    Lesson.findOne({ number: num }, function(err, lesson) {
-    if (DEBUG && err) console.log(err);
+    Lesson.findOne({ number: req.params.number }, function(err, lesson) {
       if (!err) {
-        vids = lesson.videos;
-        res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+        res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: lesson.videos });
       } else {
-        req.flash('error', 'The webcast you requested does not exist.');
+        if (DEBUG && err) console.log(err);
+        req.flash('error', 'Whoops! This video does not exist.');
         res.redirect('/webcast');
       }
     });
@@ -154,14 +142,8 @@ app.get('/webcast/:number', loadUser, function(req, res) {
 });
 
 /** Viewing user profiles. */
-// TODO: Decide if we should actually allow users to view others' profiles, and if so, what to include.
-app.get('/user/:username', loadUser, function(req, res) {
-  var username = req.params.username;
-  var grades = false;
-  if (req.currentUser.username === username) {
-    grades = true;
-  }
-  res.render('profile', { page: 'profile', currentUser: req.currentUser, grades: grades, viewing: username });
+app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone'), function(req, res) {
+  res.render('profile', { page: 'profile', currentUser: req.currentUser, grades: req.currentUser.canReadGradeEveryone(), viewing: req.currentUser.username });
 });
 
 /** Settings page. */
@@ -249,8 +231,7 @@ app.post('/login', function(req, res) {
 /** Guest login. */
 // TODO: Make better?
 app.get('/guest', function(req, res) {
-  req.session.user_id = '4efea835bbf696a72500001f';
-  res.redirect('/dashboard');
+  res.redirect('/lessons');
 });
 
 /** Logging out. */
