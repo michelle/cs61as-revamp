@@ -271,3 +271,4 @@ function defineModels(mongoose, fn) {
 }
 
 exports.defineModels = defineModels;
+exports.permissions = permissions;
