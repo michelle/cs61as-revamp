@@ -220,20 +220,29 @@ app.post('/login', function(req, res) {
   }); 
 });
 
+/** Logging out. */
+app.get('/logout', loadUser, function(req, res) {
+  if (req.session) {
+    // LoginToken.remove({ username: req.currentUser.username }, function() {});
+    //res.clearCookie('logintoken');
+    req.flash('info', 'Logged out successfully!');
+    req.session.destroy(function() {});
+  }
+  res.redirect('/home');
+});
+
 /** Redirect everything else back to dashboard if logged in. */
-app.get('*', loadUser, function(req, res){
+app.get('*', loadUser, function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/dashboard');
 });
 
 /** Redirect everything else back to home if not logged in. */
-app.get('*', function(req, res){
+app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/home');
 });
 
-
-// TODO: logout
 // TODO: Search function
 
 app.get('/homework/:number', loadUser, function(req, res) {

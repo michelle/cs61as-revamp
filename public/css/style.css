@@ -405,7 +405,7 @@ a {
 
 #lesson {
 	background-color: #394349;
-	padding-right: 25px;
+	padding-right: 30px;
 	padding-left: 25px;
 	position: relative;
 	margin-bottom: 10px;
@@ -512,8 +512,20 @@ h1 {
   color: #609472;
 }
 
+#homeflash .errornote, #homeflash .flash {
+  box-shadow: none;
+  -mox-box-shadow: none;
+  -webkit-box-shadow: none;
+  width: 300px;
+}
+
 #pusher {
   margin-top: 80px;
   width: 100%;
   height: 0px;
+}
+
+.center {
+  margin: 0 auto;
+  width: 520px;
 }
