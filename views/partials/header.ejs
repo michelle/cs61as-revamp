@@ -4,8 +4,6 @@
         CS61<span id="color">AS</span>
       </div>
       <div id="topfloater" class="right">
-        <% if (currentUser != undefined) { %>
-      
         <% if (currentUser.username === 'guest') { %>
           <a><div class="left up">Welcome, guest</div></a>
         <% } else { %>
@@ -24,19 +22,13 @@
             </a>
           </div>
         <% } %>
-        
-        <% } %>
         <!-- TODO: Fullscreen mode for readings, etc. -->
       </div>
     </div>
   </div>
   
-  <% if (page != 'dashboard' && !(currentUser === undefined && page === 'lessons')) { %>
-    <% if (currentUser === undefined) { %>
-      <a href="/lessons">
-    <% } else { %>
-      <a href="/dashboard">
-    <% } %>
+  <% if (page != 'dashboard' && !(currentUser.username === 'guest' && page === 'lessons')) { %>
+    <a href="/dashboard">
       <div id="home">
         <span class="iconic home"></span>
       </div>
