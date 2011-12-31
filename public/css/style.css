@@ -553,3 +553,9 @@ h1 {
 #nocenter a:hover { 
   color: #e1bfbe;
 }
+
+#nocenter {
+  font-family: 'Open Sans', arial;
+  letter-spacing: 0px;
+  font-size: 16px;
+}
