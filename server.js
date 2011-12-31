@@ -54,7 +54,7 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
-/** Set current user and lesson if logged in.
+/** Set current user if logged in.
  *  Set current user to GUEST and redirect to /home if not logged in.
  *  Redirect to /home if err. */
 function loadUser(req, res, next) {
@@ -68,26 +68,30 @@ function loadUser(req, res, next) {
         }
         res.redirect('/home');
       }
-
       req.currentUser = user;
-      Lesson.findOne({
-        number: user.progress
-      }, function(err, lesson) {
-        if(err) {
-          if(DEBUG) {
-            console.log("WARNING: User %s's progress is corrupted.\n%s", user.progress, err);
-          }
-          req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
-          res.redirect('/home');
-        }
-
-        req.currentLesson = lesson;
-        next();
-      });
+      next();
     });
   } else {
     res.redirect('/home');
   }
+}
+
+/** Set current lesson to currentUser.progress.
+ *  Redirect to /home if err. */
+function loadLesson(req, res, next) {
+  Lesson.findOne({
+    number: req.currentUser.progress
+  }, function(err, lesson) {
+    if(err) {
+      if(DEBUG) {
+        console.log("WARNING: User %s's progress is corrupted.\n%s", req.currentUser.progress, err);
+      }
+      req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
+      res.redirect('/home');
+    }
+    req.currentLesson = lesson;
+    next();
+  });
 }
 
 /** Make a middleware that only allows user with a PERMIT. */
@@ -107,13 +111,41 @@ function checkPermit(permit, sameuser) {
  *  Always return false for guest. */
 function sameUser(permit, identification) {
   return function(req, res) {
-    if (!identification) {
+    if(!identification) {
       identification = 'username';
     }
     return req.currentUser != GUEST && req.currentUser[identification] == req.params[identification] && req.currentUser[permit]();
   }
 }
 
+/** Pre condition param userId into req.user. */
+app.param('userId', function(req, res, next, userId) {
+  User.findById(userId, function(err, user) {
+    if(DEBUG && err)
+      console.log(err);
+    if(!err && user) {
+      req.user = user;
+    } else {
+      req.user = null;
+    }
+    next();
+  });
+});
+/** Pre condition param lessonId into req.lesson. */
+app.param('lessonId', function(req, res, next, lessonId) {
+  Lesson.findOne({
+    number: lessonId
+  }, function(err, lesson) {
+    if(DEBUG && err)
+      console.log(err);
+    if(!err && lesson) {
+      req.lesson = lesson;
+    } else {
+      req.lesson = null;
+    }
+    next();
+  });
+});
 /** Default view iff logged in. */
 app.get('/', loadUser, function(req, res) {
   res.redirect('/dashboard');
@@ -126,91 +158,39 @@ app.get('/home', function(req, res) {
     user: new User()
   });
 });
-/** Student dashboard. */
-app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
-  res.render('dashboard', {
-    page: 'dashboard',
-    currentUser: req.currentUser,
-    currentLesson: req.currentLesson
-  });
+/** Guest login. */
+app.get('/guest', function(req, res) {
+  res.redirect('/lessons');
 });
-/** Webcast viewing. */
-app.get('/webcast', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  Lesson.findOne({
-    number: req.currentUser.progress
-  }, function(err, lesson) {
-    if(!err) {
-      res.render('video', {
-        page: 'webcast',
-        currentUser: req.currentUser,
-        currentLesson: req.currentLesson,
-        vids: lesson.videos
-      });
-    } else {
-      if(DEBUG && err)
-        console.log(err);
-      req.flash('error', 'Whoops! This video does not exist.');
+/** A standard login post request. */
+app.post('/login', function(req, res) {
+  User.findOne({
+    username: req.body.user.username
+  }, function(err, user) {
+    if(DEBUG && err)
+      console.log(err);
+    if(user && user.authenticate(req.body.user.password)) {
+      req.session.user_id = user._id;
       res.redirect('/dashboard');
+    } else {
+      req.flash('error', 'Invalid username or password.');
+      res.redirect('/home');
     }
   });
 });
-/** Viewing previously completed webcasts. */
-app.get('/webcast/:number', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  if(req.currentUser.progress < req.params.number) {
-    req.flash('error', 'You have not gotten this far yet!');
-    res.redirect('/webcast');
-  } else {
-    Lesson.findOne({
-      number: req.params.number
-    }, function(err, lesson) {
-      if(!err) {
-        res.render('video', {
-          page: 'webcast',
-          currentUser: req.currentUser,
-          currentLesson: req.currentLesson,
-          vids: lesson.videos
-        });
-      } else {
-        if(DEBUG && err)
-          console.log(err);
-        req.flash('error', 'Whoops! This video does not exist.');
-        res.redirect('/webcast');
-      }
+/** Logging out. */
+app.get('/logout', loadUser, function(req, res) {
+  if(req.session) {
+    // LoginToken.remove({ username: req.currentUser.username }, function() {});
+    //res.clearCookie('logintoken');
+    req.flash('info', 'Logged out successfully!');
+    req.session.destroy(function(err) {
+      if(DEBUG && err)
+        console.log(err);
     });
   }
-});
-/** Viewing user profiles. */
-app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo'), function(req, res) {
-  res.render('profile', {
-    page: 'profile',
-    currentUser: req.currentUser,
-    grades: req.currentUser.canReadGradeEveryone(),
-    viewing: req.currentUser.username
-  });
-});
-/** Settings page. */
-// TODO: Allow users to change their unit preferences, password, email, etc
-// (maybe profile options if time).
-app.get('/settings', loadUser, checkPermit('canWriteUserInfoEveryone', sameUser('canWriteUserInfo')), function(req, res) {
-  res.render('settings', {
-    page: 'settings',
-    currentUser: req.currentUser
-  });
-});
-/** Announcements. */
-// TODO: Integrate Wordpress to post updates.
-// TODO: figure out permission for this blog feature.
-app.get('/blog', loadUser, function(req, res) {
-
-});
-/** Administration. */
-// TODO: Compile administrative documents onto a static page.
-// TODO: figure out permission for this static administration feature.
-app.get('/administration', loadUser, function(req, res) {
-  res.render('administration', {
-    page: 'administration',
-    currentUser: req.currentUser
-  });
+  // TODO: How to get flash to work if session is destroyed?
+  res.redirect('/home');
 });
 /** Admin Control Panel. */
 app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
@@ -253,66 +233,62 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
   });
 });
 /** Edit an user. */
-app.get('/admin/users/edit/:userID', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  User.findById(req.params.userID, function(err, user) {
-    if(DEBUG && err)
-      console.log(err);
+app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+  if(req.user) {
     res.render('admin/users/edit', {
       page: 'admin/users/edit',
       currentUser: req.currentUser,
-      user: user
+      user: req.user
     });
-  });
+  } else {
+    req.flash('Error', 'Malformed userID.');
+    res.redirect('/admin/users');
+  }
 });
 /** Save edit an user. */
 app.post('/admin/users/edit/:userID', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  User.findById(req.params.userID, function(err, user) {
-    if(DEBUG && err)
-      console.log(err);
-    user.username = req.body.user.username;
-    user.email = req.body.user.email;
-    user.password = req.body.user.password;
-    user.permission = req.body.user.permission;
-    user.save();
+  if(req.user) {
+    req.user.username = req.body.user.username;
+    req.user.email = req.body.user.email;
+    req.user.password = req.body.user.password;
+    req.user.permission = req.body.user.permission;
+    req.user.save();
+    req.flash('info', 'User %s is saved sucessfully.', req.user.username);
     res.render('admin/users/edit', {
       page: 'admin/users/edit',
       currentUser: req.currentUser,
-      user: user
+      user: req.user
     });
-  });
-});
-/** A standard login post request. */
-app.post('/login', function(req, res) {
-  User.findOne({
-    username: req.body.user.username
-  }, function(err, user) {
-    if(DEBUG && err)
-      console.log(err);
-    if(user && user.authenticate(req.body.user.password)) {
-      req.session.user_id = user._id;
-      res.redirect('/dashboard');
-    } else {
-      req.flash('error', 'Invalid username or password.');
-      res.redirect('/home');
-    }
-  });
-});
-/** Guest login. */
-// TODO: Make better?
-app.get('/guest', function(req, res) {
-  res.redirect('/lessons');
-});
-/** Logging out. */
-app.get('/logout', loadUser, function(req, res) {
-  if(req.session) {
-    // LoginToken.remove({ username: req.currentUser.username }, function() {});
-    //res.clearCookie('logintoken');
-    req.flash('info', 'Logged out successfully!');
-    req.session.destroy(function() {
-    });
+  } else {
+    req.flash('Error', 'Malformed userID.');
+    res.redirect('/admin/users');
   }
-  // How to get flash to work if session is destroyed?
-  res.redirect('/home');
+});
+/** Student dashboard. */
+app.get('/dashboard', loadUser, loadLesson, checkPermit('canAccessDashboard'), function(req, res) {
+  res.render('dashboard', {
+    page: 'dashboard',
+    currentUser: req.currentUser,
+    currentLesson: req.currentLesson
+  });
+});
+/** Viewing user profiles. */
+app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo')), function(req, res) {
+  res.render('profile', {
+    page: 'profile',
+    currentUser: req.currentUser,
+    grades: req.currentUser.canReadGradeEveryone(),
+    viewing: req.currentUser.username
+  });
+});
+/** Settings page. */
+// TODO: Allow users to change their unit preferences, password, email, etc
+// (maybe profile options if time).
+app.get('/settings', loadUser, checkPermit('canWriteUserInfoEveryone', sameUser('canWriteUserInfo')), function(req, res) {
+  res.render('settings', {
+    page: 'settings',
+    currentUser: req.currentUser
+  });
 });
 /** Collective lessons. */
 app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
@@ -326,14 +302,61 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
     });
   });
 });
-/** Homework. */
-app.get('/homework/:number', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  var num = req.params.number;
-  res.render('homework', {
-    page: 'homework',
+/** Webcast viewing. Defaults to currentUser.progress.
+ *  Only displays progress control when the user has permission. */
+app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+  res.render('video', {
+    page: 'webcast',
     currentUser: req.currentUser,
-    currentLesson: req.currentLesson
+    currentLesson: req.currentLesson,
+    vids: lesson.videos,
+    // TODO: implement controls so the user can mark a webcast as watched or not
+    // watched.
+    showControls: req.currentUser.canWriteProgress
   });
+});
+/** Viewing webcast at LESSONID.
+ *  Only displays progress control when the user has permission. */
+app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  if(req.lesson) {
+    res.render('video', {
+      page: 'webcast',
+      currentUser: req.currentUser,
+      currentLesson: req.lesson,
+      vids: req.lesson.videos,
+      // TODO: implement progress controls
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
+    res.redirect('/lessons');
+  }
+});
+/** Homework. */
+app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  if(req.lesson) {
+    res.render('homework', {
+      page: 'homework',
+      currentUser: req.currentUser,
+      currentLesson: req.lesson,
+      // TODO: implement progress controls
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Homework for this lesson does not exist.');
+    res.redirect('/lessons');
+  }
+});
+/** Announcements. */
+// TODO: Integrate Wordpress to post updates.
+// TODO: figure out permission for this blog feature.
+app.get('/blog', loadUser, function(req, res) {
+
+});
+/** Administration. */
+// TODO: Compile administrative documents onto a static page.
+// TODO: figure out permission for this static administration feature.
+app.get('/administration', loadUser, function(req, res) {
 });
 /** Redirect everything else back to dashboard if logged in. */
 app.get('*', function(req, res) {
@@ -341,7 +364,6 @@ app.get('*', function(req, res) {
   res.redirect('/');
 });
 // TODO: Search function
-
 
 /** Start server. */
 var port = process.env.PORT || 8084;
