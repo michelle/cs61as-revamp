@@ -9,18 +9,18 @@ var Video;
 var Assignment;
 var Lesson;
 var Grade;
-    
+
 /** Defines schemas for different collections. */
-function defineModels(mongoose, fn) {  
+function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
-      
+
   function validatePresenceOf(value) {
     return value && value.length;
   }
-  
+
   /** A reading. */
-  Reading = new Schema( {
+  Reading = new Schema({
     name: {
       type: String,
       required: true
@@ -31,43 +31,49 @@ function defineModels(mongoose, fn) {
     },
     SICP: {
       type: Boolean,
-      default: false
+      'default': false
     }
   });
-  
+
   /** A video. */
-  Video = new Schema( {
+  Video = new Schema({
     name: {
       type: String,
       required: true
     },
     url: {
+      // TODO: regex url
       type: String,
       required: true
     },
   });
-  
+
   /** A grade. */
-  Grade = new Schema( {
+  Grade = new Schema({
     order: {
       type: Number,
+      min: 0,
       required: true
     },
     name: {
       type: String,
       required: true
     },
-    location: String,
     grade: {
       type: String,
-      default: "--"
+      'default': "--"
+    },
+    location: {
+      // TODO: regex url
+      type: String
     }
   });
 
   /** An assignment. */
-  Assignment = new Schema( {
+  Assignment = new Schema({
     order: {
       type: Number,
+      min: 0,
       required: true
     },
     name: {
@@ -76,15 +82,19 @@ function defineModels(mongoose, fn) {
     },
     project: {
       type: Boolean,
-      default: false
+      'default': false
     },
-    location: String
+    location: {
+      // TODO: regex url
+      type: String
+    }
   });
-  
+
   /** A lesson. */
-  Lesson = new Schema( {
+  Lesson = new Schema({
     number: {
       type: Number,
+      min: 1,
       required: true
     },
     name: {
@@ -93,48 +103,62 @@ function defineModels(mongoose, fn) {
     },
     videos: {
       type: [Video],
-      default: []
+      'default': []
     },
     assignments: {
       type: [Assignment],
-      default: []
+      'default': []
     },
     readings: {
       type: [Reading],
-      default: []
+      'default': []
     },
-  }); 
+  });
 
   /** A user. */
-  User = new Schema( {
+  User = new Schema({
     email: {
+      // TODO: regex email
       type: String,
       required: true,
-      index: { unique: true }
+      index: {
+        unique: true
+      }
     },
     username: {
+      // TODO: regex username
       type: String,
       required: true,
-      index: { unique: true }
+      index: {
+        unique: true
+      }
     },
     permission: {
+      // TODO: enum permission (Hai)
       type: Number,
-      default: 0
+      min: 0,
+      'default': 0
     },
     progress: {
       type: Number,
-      default: 1
+      min: 1,
+      'default': 1
     },
     grades: {
       type: [Grade],
-      default: []
+      'default': []
     },
     hashed_password: {
       type: String,
       required: true
     },
-    units: String,
-    // TODO: Boolean values for each thing completed, reset upon lesson increment.
+    units: {
+      type: Number,
+      min: 1,
+      'default': 1
+    },
+    // TODO: Boolean values for each thing completed, reset upon lesson
+    // increment.
     salt: {
       type: String,
       required: true
@@ -142,46 +166,55 @@ function defineModels(mongoose, fn) {
   });
 
   /** Password conversion. */
-  User.virtual('password')
-    .set(function(password) {
-      this._password = password;
-      this.salt = this.makeSalt();
-      this.hashed_password = this.encryptPassword(password);
-    })
-    .get(function() { return this._password; }); 
-
+  User.virtual('password').set(function(password) {
+    this._password = password;
+    this.salt = this.makeSalt();
+    this.hashed_password = this.encryptPassword(password);
+  }).get(function() {
+    return this._password;
+  });
   /** Password authentication. */
   User.method('authenticate', function(plainText) {
     return this.encryptPassword(plainText) === this.hashed_password;
   });
-  
+
   User.method('makeSalt', function() {
-    return Math.round((new Date().valueOf() * Math.random())) + '';
+    return String(Math.round(new Date().valueOf() * Math.random()));
   });
-  
   /** Password encryption. */
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
-
+  // TODO: deprecate this, since we have required hashed_password already.
   User.pre('save', function(next) {
-    if (!validatePresenceOf(this.password)) {
+    if(!validatePresenceOf(this.password)) {
       next(new Error('Invalid password'));
     } else {
       next();
     }
   });
-
   /** Login token for remembering logins. */
-  // TODO: Remember me feature using this. 
+  // TODO: "Remember me" feature using this.
   LoginToken = new Schema({
-    email: { type: String, index: true },
-    series: { type: String, index: true },
-    token: { type: String, index: true }
+    email: {
+      // TODO: regex email
+      type: String,
+      index: true
+    },
+    series: {
+      type: String,
+      required: true,
+      index: true
+    },
+    token: {
+      type: String,
+      required: true,
+      index: true
+    }
   });
 
   LoginToken.method('randomToken', function() {
-    return Math.round((new Date().valueOf() * Math.random())) + '';
+    return String(Math.round(new Date().valueOf() * Math.random()));
   });
 
   LoginToken.pre('save', function(next) {
@@ -191,16 +224,19 @@ function defineModels(mongoose, fn) {
     next();
   });
 
-  LoginToken.virtual('id')
-    .get(function() {
-      return this._id.toHexString();
-    });
+  LoginToken.virtual('id').get(function() {
+    return this._id.toHexString();
+  });
 
-  LoginToken.virtual('cookieValue')
-    .get(function() {
-      return JSON.stringify({ email: this.email, token: this.token, series: this.series });
+  LoginToken.virtual('cookieValue').get(function() {
+    return JSON.stringify({
+      email: this.email,
+      token: this.token,
+      series: this.series
     });
+  });
 
+  /** Set up models. */
   mongoose.model('User', User);
   mongoose.model('LoginToken', LoginToken);
   mongoose.model('Lesson', Lesson);
@@ -212,4 +248,4 @@ function defineModels(mongoose, fn) {
   fn();
 }
 
-exports.defineModels = defineModels; 
+exports.defineModels = defineModels;

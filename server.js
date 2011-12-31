@@ -1,16 +1,16 @@
+/** debug flags. */
 var DEBUG = false;
 
-/** Setting up dependencies for login system. */
-var express = require('express'),
-    app = module.exports = express.createServer(),
-    mongoose = require('mongoose'),
-    mongoStore = require('connect-mongodb'),
-    schema = require('./schema.js'),
-    db,
-    User;
-
-/** Other dependencies. */
+/** Setting up dependencies. */
+var express = require('express');
+var app = module.exports = express.createServer();
+var mongoose = require('mongoose');
+var mongoStore = require('connect-mongodb');
+var schema = require('./schema.js');
 var fs = require('fs');
+
+/** Database. */
+var db;
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -36,10 +36,7 @@ schema.defineModels(mongoose, function() {
 app.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000 })); 
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({
-  secret: 'this sucks',
-  store: mongoStore(db)
-}));
+app.use(express.session({ secret: 'this sucks', store: mongoStore(db) }));
 app.use(express.static(__dirname + '/public'));
 
 /** Where to look for templates. */
@@ -50,35 +47,38 @@ app.set('views', __dirname + '/views');
 function loadUser(req, res, next) {
   if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
-    if (DEBUG && err) console.log(err);
-      if (!err) {
-        req.currentUser = user;
-        Lesson.findOne({ number: user.progress }, function(err, lesson) {
-    if (DEBUG && err) console.log(err);
-          if (!err) {
-            req.currentLesson = lesson;
-            next();
-          } else {
-            req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
-            res.redirect('/home');
-          }
-        });
-      } else {
+      if (err) {
+        // user not logged in
+        if (DEBUG) console.log(err);
         res.redirect('/home');
       }
+
+      req.currentUser = user;
+      Lesson.findOne({ number: user.progress }, function(err, lesson) {
+        if (err) {
+          // lesson not found
+          if (DEBUG) console.log(err);
+          req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
+          res.redirect('/home');
+        }
+
+        req.currentLesson = lesson;
+        next();
+      });
     });
   } else {
     res.redirect('/home');
   }
 }
 
-/** Default view. */
+/** Default view iff logged in. */
 app.get('/', loadUser, function(req, res){
   res.redirect('/dashboard');
 });
 
 /** Default view iff not logged in. */
 app.get('/home', function(req, res) {
+  // QUESTION: why user here?
   res.render('index', { page: 'home', user: new User() });
 });
 
@@ -220,8 +220,26 @@ app.post('/login', function(req, res) {
   }); 
 });
 
+/** Redirect everything else back to dashboard if logged in. */
+app.get('*', loadUser, function(req, res){
+  req.flash('error', "Whoops! The url you just went to does not exist or you don't have the permission to access.");
+  res.redirect('/dashboard');
+});
+
+/** Redirect everything else back to home if not logged in. */
+app.get('*', function(req, res){
+  req.flash('error', "Whoops! The url you just went to does not exist or you don't have the permission to access.");
+  res.redirect('/home');
+});
+
+
 // TODO: logout
 // TODO: Search function
+
+app.get('/homework/:number', function(req, res) {
+  var num = req.params.number;
+  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
 
 /** Start server. */
 var port = process.env.PORT || 8084;
