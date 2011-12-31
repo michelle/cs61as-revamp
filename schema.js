@@ -15,10 +15,6 @@ function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
 
-  function validatePresenceOf(value) {
-    return value && value.length;
-  }
-
   /** A reading. */
   Reading = new Schema({
     name: {
@@ -134,7 +130,6 @@ function defineModels(mongoose, fn) {
       }
     },
     permission: {
-      // TODO: enum permission (Hai)
       type: Number,
       min: 0,
       'default': 0
@@ -185,14 +180,7 @@ function defineModels(mongoose, fn) {
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
-  // TODO: deprecate this, since we have required hashed_password already.
-  User.pre('save', function(next) {
-    if(!validatePresenceOf(this.password)) {
-      next(new Error('Invalid password'));
-    } else {
-      next();
-    }
-  });
+
   /** Login token for remembering logins. */
   // TODO: "Remember me" feature using this.
   LoginToken = new Schema({
