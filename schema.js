@@ -143,7 +143,7 @@ function defineModels(mongoose, fn) {
         permissions.Instructor,
         permissions.User,
         permissions.Guest
-      ];
+      ],
       'default': 0
     },
     progress: {
