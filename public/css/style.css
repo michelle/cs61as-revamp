@@ -268,7 +268,7 @@ a {
   -moz-box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
 }
 
-#dash, #content {
+#dash, #content, #nocenter {
   width: 90%;
   min-height: 520px;
   margin: 0 auto;
@@ -282,6 +282,10 @@ a {
   text-shadow: 0px 1px 0px #fff;
   text-align: center;
   margin-bottom: 80px;
+}
+
+#nocenter {
+  text-align: left;
 }
 
 #lambda {
@@ -504,7 +508,8 @@ h1 {
 
 .infonote span, .errornote span {
   float: left;
-  size: 20px;
+  font-size: 25px;
+  line-height: 25px;
   color: #BD9392;
 }
 

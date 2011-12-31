@@ -231,6 +231,11 @@ app.get('/logout', loadUser, function(req, res) {
   res.redirect('/home');
 });
 
+app.get('/homework/:number', loadUser, function(req, res) {
+  var num = req.params.number;
+  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
+
 /** Redirect everything else back to dashboard if logged in. */
 app.get('*', loadUser, function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
@@ -245,10 +250,7 @@ app.get('*', function(req, res) {
 
 // TODO: Search function
 
-app.get('/homework/:number', loadUser, function(req, res) {
-  var num = req.params.number;
-  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
-});
+
 
 /** Start server. */
 var port = process.env.PORT || 8084;
