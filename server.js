@@ -79,13 +79,18 @@ app.get('/', loadUser, function(req, res){
 /** Default view iff not logged in. */
 app.get('/home', function(req, res) {
   // QUESTION: why user here?
+  // ANSWER: I don't quite remember...
   res.render('index', { page: 'home', user: new User() });
 });
 
 /** Student dashboard. */
-// TODO: TA dashboard.
+// TODO: Separate TA/Admin dashboard.
 app.get('/dashboard', loadUser, function(req, res) {
-  res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser, currentLesson: req.currentLesson });
+  if (req.currentUser.username === 'guest') {
+    res.redirect('/lessons');
+  } else {
+    res.render('dashboard', { page: 'dashboard', currentUser: req.currentUser, currentLesson: req.currentLesson });
+  }
 });
 
 /** Webcast viewing. */
@@ -220,6 +225,13 @@ app.post('/login', function(req, res) {
   }); 
 });
 
+/** Guest login. */
+// TODO: Make better?
+app.get('/guest', function(req, res) {
+  req.session.user_id = '4efea835bbf696a72500001f';
+  res.redirect('/dashboard');
+});
+
 /** Logging out. */
 app.get('/logout', loadUser, function(req, res) {
   if (req.session) {
@@ -231,6 +243,12 @@ app.get('/logout', loadUser, function(req, res) {
   res.redirect('/home');
 });
 
+/** Collective lessons. */
+app.get('/lessons', loadUser, function(req, res) {
+  res.render('lessons', { page: 'lessons', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
+
+/** Homework. */
 app.get('/homework/:number', loadUser, function(req, res) {
   var num = req.params.number;
   res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
@@ -240,11 +258,6 @@ app.get('/homework/:number', loadUser, function(req, res) {
 app.get('*', loadUser, function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/dashboard');
-});
-
-app.get('/homework/:number', function(req, res) {
-  var num = req.params.number;
-  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
 });
 
 /** Redirect everything else back to home if not logged in. */

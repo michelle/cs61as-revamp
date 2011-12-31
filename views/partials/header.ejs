@@ -4,20 +4,24 @@
         CS61<span id="color">AS</span>
       </div>
       <div id="topfloater" class="right">
-        <% if (currentUser) { %>
+        <% if (currentUser.username === 'guest') { %>
+          <a><div class="left up">Welcome, guest</div></a>
+        <% } else { %>
+          <% if (currentUser) { %>
+            <div class="topnav left">
+              <a href="/user/<%-currentUser.username%>">
+                <div class="smallwidth left"><span class="iconic user"></span></div>
+                <div class="left up"><%-currentUser.username%></div>
+              </a>
+            </div>
+          <% } %>
           <div class="topnav left">
-            <a href="/user/<%-currentUser.username%>">
-              <div class="smallwidth left"><span class="iconic user"></span></div>
-              <div class="left up"><%-currentUser.username%></div>
+            <a href="/settings" id="settings">
+              <div class="smallwidth left"><span class="iconic cog"></span></div>
+              <div class="left up">Settings</div>
             </a>
           </div>
         <% } %>
-        <div class="topnav left">
-          <a href="/settings" id="settings">
-            <div class="smallwidth left"><span class="iconic cog"></span></div>
-            <div class="left up">Settings</div>
-          </a>
-        </div>
         <!-- TODO: Fullscreen mode for readings, etc. -->
       </div>
     </div>
