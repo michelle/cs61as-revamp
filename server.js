@@ -86,9 +86,10 @@ function checkPermit(permit) {
   return function(req, res, next) {
     if (req.currentUser[permit]()) {
       next();
+    } else {
+      req.flash('error', "Looks like You don't have the permission to access this page.");
+      res.redirect('/home');
     }
-    req.flash('error', "Looks like You don't have the permission to access this page.");
-    res.redirect('/home');
   }
 }
 
