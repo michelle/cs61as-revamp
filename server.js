@@ -1,5 +1,5 @@
 /** debug flags. */
-var DEBUG = false;
+var DEBUG = true;
 
 /** Setting up dependencies. */
 var express = require('express');
