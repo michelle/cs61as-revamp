@@ -10,6 +10,13 @@ var Assignment;
 var Lesson;
 var Grade;
 
+var permissions = {
+  SuperAdmin: 0x7FFFF,
+  Instructor: 0x7FF1F,
+  User: 0x7F006,
+  Guest: 0x00004
+};
+
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
@@ -180,6 +187,26 @@ function defineModels(mongoose, fn) {
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
+  /** Permission helpers. */
+  User.method('canAccessAdminPanel', function() { return this.permission & (1 << 0); });
+  User.method('canAccessDashboard', function() { return this.permission & (1 << 1); });
+  User.method('canReadLesson', function() { return this.permission & (1 << 2); });
+  User.method('canWriteLesson', function() { return this.permission & (1 << 3); });
+  User.method('canResetPaswordEveryone', function() { return this.permission & (1 << 4); });
+  User.method('canWritePasswordEveryone', function() { return this.permission & (1 << 5); });
+  User.method('canReadUserInfoEveryone', function() { return this.permission & (1 << 6); });
+  User.method('canWriteUserInfoEveryone', function() { return this.permission & (1 << 7); });
+  User.method('canReadGradeEveryone', function() { return this.permission & (1 << 8); });
+  User.method('canWriteGradeEveryone', function() { return this.permission & (1 << 9); });
+  User.method('canReadProgressEveryone', function() { return this.permission & (1 << 10); });
+  User.method('canWriteProgressEveryone', function() { return this.permission & (1 << 11); });
+  User.method('canResetPassword', function() { return this.permission & (1 << 12); });
+  User.method('canWritePassword', function() { return this.permission & (1 << 13); });
+  User.method('canReadUserInfo', function() { return this.permission & (1 << 14); });
+  User.method('canWriteUserInfo', function() { return this.permission & (1 << 15); });
+  User.method('canReadGrade', function() { return this.permission & (1 << 16); });
+  User.method('canReadProgress', function() { return this.permission & (1 << 17); });
+  User.method('canWriteProgress', function() { return this.permission & (1 << 18); });
 
   /** Login token for remembering logins. */
   // TODO: "Remember me" feature using this.
