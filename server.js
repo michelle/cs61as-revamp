@@ -101,7 +101,7 @@ app.get('/webcast', loadUser, function(req, res) {
     if (DEBUG && err) console.log(err);
     if (!err) {
       vids = lesson.videos;
-      res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+      res.render('video', { page: 'webcast', currentUser: req.currentUser, vids: vids });
     } else {
       req.flash('error', 'Whoops! This video does not exist.');
       res.redirect('/dashboard');
@@ -111,13 +111,10 @@ app.get('/webcast', loadUser, function(req, res) {
 });
 
 /** Viewing previously completed webcasts. */
-app.get('/webcast/:number', loadUser, function(req, res) {
+app.get('/webcast/:number', function(req, res) {
   var num = req.params.number;
   var vids = [];
-  if (req.currentUser.progress < num) {
-    req.flash('error', 'You have not gotten this far yet!');
-    res.redirect('/webcast');
-  } else {
+  
     Lesson.findOne({ number: num }, function(err, lesson) {
     if (DEBUG && err) console.log(err);
       if (!err) {
@@ -128,7 +125,6 @@ app.get('/webcast/:number', loadUser, function(req, res) {
         res.redirect('/webcast');
       }
     });
-  }
 });
 
 /** Viewing user profiles. */
@@ -150,13 +146,13 @@ app.get('/settings', loadUser, function(req, res) {
 
 /** Announcements. */
 // TODO: Integrate Wordpress to post updates.
-app.get('/blog', loadUser, function(req, res) {
+app.get('/blog', function(req, res) {
 
 });
 
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
-app.get('/administration', loadUser, function(req, res) {
+app.get('/administration', function(req, res) {
   res.render('administration', { page: 'administration', currentUser: req.currentUser });
 });
 
@@ -228,8 +224,7 @@ app.post('/login', function(req, res) {
 /** Guest login. */
 // TODO: Make better?
 app.get('/guest', function(req, res) {
-  req.session.user_id = '4efea835bbf696a72500001f';
-  res.redirect('/dashboard');
+  res.redirect('/lessons');
 });
 
 /** Logging out. */
@@ -245,7 +240,7 @@ app.get('/logout', loadUser, function(req, res) {
 });
 
 /** Collective lessons. */
-app.get('/lessons', loadUser, function(req, res) {
+app.get('/lessons', function(req, res) {
   Lesson.find({}, function(err, lessons) {
     if (DEBUG && err) console.log(err);
     res.render('lessons', { page: 'lessons', currentUser: req.currentUser, lessons: lessons });
@@ -253,9 +248,10 @@ app.get('/lessons', loadUser, function(req, res) {
 });
 
 /** Homework. */
-app.get('/homework/:number', loadUser, function(req, res) {
+// TODO: do this.
+app.get('/homework/:number', function(req, res) {
   var num = req.params.number;
-  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
+  res.render('homework', { page: 'homework', currentUser: req.currentUser });
 });
 
 /** Redirect everything else back to dashboard if logged in. */
