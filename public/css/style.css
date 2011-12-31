@@ -355,7 +355,7 @@ a {
   border: 1px solid #BD9392;
 }
 
-.errornote, .infonote, #dash, #content, #profile {
+.errornote, .infonote, #dash, #content, #profile, #nocenter {
   box-shadow: 0px 2px 15px #333;
   -webkit-box-shadow: 0px 2px 15px #333;
   -moz-box-shadow: 0px 2px 15px #333;
@@ -532,7 +532,18 @@ h1 {
 
 .center {
   margin: 0 auto;
-  width: 540px;
+  width: 640px;
+}
+
+#homework {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 75%;
+}
+
+#homework pre {
+  margin: 10px 10px;
 }
 
 #nocenter a {
