@@ -1,32 +1,3 @@
-<% if(page === 'home') { %> 
-
-  <div id="splash">
-    <div id="homeflash"><%-flashMessages%></div>
-    <div id="title">CS61AS</div>
-    
-    <div id="loginform">
-      <div id="loginalign">
-        <form method="post" action="/login">
-          <span class="left">username</span><input type="text" class="right" name='user[username]' value=<% user.username || "cs61as-" %>><br>
-          <span class="left">password</span><input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
-          <div class="clear"></div>
-          <button class="mybutton left" id="submitlogin">Go!</button>
-        </form>
-        <button class="mybutton right" id="guest">Guest</button>
-        <div class="clear"></div>
-        
-      </div>
-    </div>
-    <div id="login">
-      <div id="loginfloat">
-        <a id="showlogin"><div class="width left"><span name='key' class='icon iconic key'></span></div><div class="left margin">LOGIN</div></a>
-        <a href="/#about" id="aboutbutton" class="scroll"><div class="width left"><span name="book" class="icon iconic book-alt"></span></div><div class="left">ABOUT</div></a>
-      </div>
-    </div>
-  </div>
-  
-<% }  else { %>
-
   <div id="topbar">
     <div id="topcontainer">
       <div id="cs61as" class="left">
@@ -62,4 +33,3 @@
   <div id="pusher"></div><%-flashMessages%>
   
   
-<% } %>

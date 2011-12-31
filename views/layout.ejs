@@ -22,8 +22,12 @@
  
 <body> 
   <div id="top"></div>
-  <%-partial('partials/header.ejs')%>
+  <% if (page != 'home') { %>
+    <%-partial('partials/header.ejs')%>
+  <% } %>
   <%-body%>
-  <%-partial('partials/footer.ejs')%>
+  <% if (page != 'home') { %>
+    <%-partial('partials/footer.ejs')%>
+  <% } %>
 </body> 
 </html> 
