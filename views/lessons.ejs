@@ -1,11 +1,20 @@
-<div id="nocenter">
-  <% for (var i in lessons) { lesson = lessons[i]; n = lesson.number; %>
-    <div class="lessonbox">
-      <h1><%-n%> - <%-lesson.name%></h1>
-      <a href="/webcast/<%-n%>">Webcasts</a>
-      <a>Readings</a>
-      <a href="/homework/<%-n%>">Homework</a>
-      
-    </div>
-  <% } %>
+<div id="content">
+  <div id="lesson">
+    <h2>Lessons</h2>
+  </div>
+  <div id="lefttriangle"></div>
+<div class="contentpadding">
+  <div id="accordion">
+    <% for (var i in lessons) { lesson = lessons[i]; n = lesson.number; %>
+
+        <h3><a href="#"><%-n%> - <%-lesson.name%></a></h3>
+        <div>
+            <a href="/webcast/<%-n%>">Webcasts</a>
+            <a>Readings</a>
+            <a href="/homework/<%-n%>">Homework</a>
+        </div>
+    
+    <% } %>
+  </div>
+</div>
 </div>

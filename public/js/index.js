@@ -2,6 +2,9 @@ $(document).ready(function() {
 
   /** Dashboard UI. */
   $(function() {
+		$( "#accordion" ).accordion({
+			collapsible: true
+		});
     $("#sortable, #sortable2, #sortable3").sortable({
       placeholder: "ui-state-highlight",
       items: "li:not(.ui-state-completed)"
