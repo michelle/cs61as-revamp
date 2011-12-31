@@ -110,6 +110,7 @@ app.get('/webcast/:number', loadUser, function(req, res) {
   var num = req.params.number;
   var vids = [];
   if (req.currentUser.progress < num) {
+    req.flash('error', 'You have not gotten this far yet!');
     res.redirect('/webcast');
   } else {
     Lesson.findOne({ number: num }, function(err, lesson) {
@@ -118,6 +119,7 @@ app.get('/webcast/:number', loadUser, function(req, res) {
         vids = lesson.videos;
         res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
       } else {
+        req.flash('error', 'The webcast you requested does not exist.');
         res.redirect('/webcast');
       }
     });

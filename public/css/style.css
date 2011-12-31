@@ -492,3 +492,9 @@ h1 {
   width: 400px;
 }
 
+#flashers {
+  position: absolute;
+  top: 60px;
+  z-index: 99;
+  width: 100%;
+}
