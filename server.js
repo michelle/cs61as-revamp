@@ -199,13 +199,13 @@ app.get('/admin/users/edit/:userID', loadUser, function(req, res) {
 });
 
 /** Save edit an user. */
-// TODO: implement
 app.post('/admin/users/edit/:userID', loadUser, function(req, res) {
   User.findById(req.params.userID, function(err, user) {
     if (DEBUG && err) console.log(err);
     user.username = req.body.user.username;
     user.email = req.body.user.email;
     user.password = req.body.user.password;
+    user.permission = req.body.user.permission;
     user.save();
     res.render('admin/users/edit', { page: 'admin/users/edit', currentUser: req.currentUser, user : user });
   });
