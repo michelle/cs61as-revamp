@@ -242,6 +242,11 @@ app.get('*', loadUser, function(req, res) {
   res.redirect('/dashboard');
 });
 
+app.get('/homework/:number', function(req, res) {
+  var num = req.params.number;
+  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
+
 /** Redirect everything else back to home if not logged in. */
 app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
