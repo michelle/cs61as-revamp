@@ -234,6 +234,11 @@ app.get('*', function(req, res){
 // TODO: logout
 // TODO: Search function
 
+app.get('/homework/:number', function(req, res) {
+  var num = req.params.number;
+  res.render('homework', { page: 'homework', currentUser: req.currentUser, currentLesson: req.currentLesson });
+});
+
 /** Start server. */
 var port = process.env.PORT || 8084;
 app.listen(port);
