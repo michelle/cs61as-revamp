@@ -374,7 +374,7 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
     page: 'webcast',
     currentUser: req.currentUser,
     currentLesson: req.currentLesson,
-    vids: lesson.videos,
+    vids: req.currentLesson.videos,
     // TODO: implement controls so the user can mark a webcast as watched or not
     // watched.
     showControls: req.currentUser.canWriteProgress
@@ -400,7 +400,27 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
     res.redirect('/lessons');
   }
 });
-/** Homework. */
+/** Homework. Defaults to currentUser.progress.
+ *  Only displays progress control when the user has permission. */
+app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+  if(DEBUG_TRACE) {
+    console.log('TRACE: GET /homework');
+  }
+  if(req.currentLesson) {
+    res.render('homework', {
+      page: 'homework',
+      currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
+      // TODO: implement progress controls
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Homework for this lesson does not exist.');
+    res.redirect('/lessons');
+  }
+});
+/** View homework at LESSONID.
+ *  Only displays progress control when the user has permission. */
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   if(DEBUG_TRACE) {
     console.log('TRACE: GET /homework/:lessonId');
