@@ -45,7 +45,7 @@ function defineModels(mongoose, fn) {
       // TODO: regex url
       type: String,
       required: true
-    },
+    }
   });
 
   /** A grade. */
@@ -83,11 +83,12 @@ function defineModels(mongoose, fn) {
     project: {
       type: Boolean,
       'default': false
-    },
+    }/**,
     location: {
       // TODO: regex url
       type: String
-    }
+    }*/
+    // Location is not needed because if project == true, will be projects/#, and if false, homework/#.
   });
 
   /** A lesson. */

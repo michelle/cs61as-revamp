@@ -101,13 +101,19 @@ app.get('/webcast', loadUser, function(req, res) {
     if (DEBUG && err) console.log(err);
     if (!err) {
       vids = lesson.videos;
-      res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+      res.render('video', { page: 'webcast', currentUser: req.currentUser, vids: vids, byurl: false });
     } else {
       req.flash('error', 'Whoops! This video does not exist.');
       res.redirect('/dashboard');
     }
   });
   
+});
+
+/** Viewing a webcast by ID. */
+app.get('/webcast/id/:videoID', loadUser, function(req, res) {
+  res.render('video', { page: 'webcast', currentUser: req.currentUser, url: req.params.videoID, byurl: true });
+
 });
 
 /** Viewing previously completed webcasts. */
@@ -122,7 +128,7 @@ app.get('/webcast/:number', loadUser, function(req, res) {
     if (DEBUG && err) console.log(err);
       if (!err) {
         vids = lesson.videos;
-        res.render('video', { page: 'webcast', currentUser: req.currentUser, currentLesson: req.currentLesson, vids: vids });
+        res.render('video', { page: 'webcast', currentUser: req.currentUser, vids: vids, byurl: false });
       } else {
         req.flash('error', 'The webcast you requested does not exist.');
         res.redirect('/webcast');
