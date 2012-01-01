@@ -116,8 +116,8 @@ function checkPermit(permit, sameuser) {
     if(req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
-      req.flash('error', "Looks like You don't have the permission to access this page.");
-      res.redirect('/home');
+      req.flash('error', "Looks like you don't have the required permissions to access this page.");
+      res.redirect('/');
     }
   }
 }
@@ -178,6 +178,8 @@ app.get('/', loadUser, function(req, res) {
   }
   if(req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
+  } else if (req.currentUser.canReadLesson()) {
+    res.redirect('/lessons');
   } else {
     res.redirect('/home');
   }
@@ -410,6 +412,19 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
     req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
     res.redirect('/lessons');
   }
+});
+/** Viewing webcast by its URL. */
+app.get('/webcast/id/:videoId', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  if (DEBUG_TRACE) {
+    console.log('TRACE: GET /webcast/id/:videoId');
+  }
+  res.render('video', {
+    page: 'webcast',
+    currentUser: req.currentUser,
+    byurl: true,
+    url: req.params.videoId,
+    showControls: req.currentUser.canWriteProgress
+  });
 });
 /** Homework. Defaults to currentUser.progress.
  *  Only displays progress control when the user has permission. */

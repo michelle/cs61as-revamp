@@ -4,7 +4,7 @@
         CS61<span id="color">AS</span>
       </div>
       <div id="topfloater" class="right">
-        <% if (currentUser.username === 'guest') { %>
+        <% if (!currentUser.canAccessDashboard()) { %>
           <a><div class="left up">Welcome, guest</div></a>
         <% } else { %>
           <% if (currentUser) { %>
@@ -27,8 +27,8 @@
     </div>
   </div>
   
-  <% if (page != 'dashboard' && !(currentUser.username === 'guest' && page === 'lessons')) { %>
-    <a href="/dashboard">
+  <% if (page != 'dashboard' && !(!currentUser.canAccessDashboard() && page === 'lessons')) { %>
+    <a href="/">
       <div id="home">
         <span class="iconic home"></span>
       </div>
