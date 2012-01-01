@@ -10,14 +10,17 @@ var Assignment;
 var Lesson;
 var Grade;
 
+var permissions = {
+  SuperAdmin: 0x1FFFFF,
+  Instructor: 0x1FFC4F,
+  User: 0x1FC006,
+  Guest: 0x000004
+};
+
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
-
-  function validatePresenceOf(value) {
-    return value && value.length;
-  }
 
   /** A reading. */
   Reading = new Schema({
@@ -135,9 +138,13 @@ function defineModels(mongoose, fn) {
       }
     },
     permission: {
-      // TODO: enum permission (Hai)
       type: Number,
-      min: 0,
+      'enum': [
+        permissions.SuperAdmin,
+        permissions.Instructor,
+        permissions.User,
+        permissions.Guest
+      ],
       'default': 0
     },
     progress: {
@@ -186,14 +193,29 @@ function defineModels(mongoose, fn) {
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
-  // TODO: deprecate this, since we have required hashed_password already.
-  User.pre('save', function(next) {
-    if(!validatePresenceOf(this.password)) {
-      next(new Error('Invalid password'));
-    } else {
-      next();
-    }
-  });
+  /** Permission helpers. */
+  User.method('canAccessAdminPanel', function() { return this.permission & (1 << 0); });
+  User.method('canAccessDashboard', function() { return this.permission & (1 << 1); });
+  User.method('canReadLesson', function() { return this.permission & (1 << 2); });
+  User.method('canWriteLesson', function() { return this.permission & (1 << 3); });
+  User.method('canReadPermissionEveryone', function() { return this.permission & (1 << 4); });
+  User.method('canWritePermissionEveryone', function() { return this.permission & (1 << 5); });
+  User.method('canResetPaswordEveryone', function() { return this.permission & (1 << 6); });
+  User.method('canWritePasswordEveryone', function() { return this.permission & (1 << 7); });
+  User.method('canReadUserInfoEveryone', function() { return this.permission & (1 << 8); });
+  User.method('canWriteUserInfoEveryone', function() { return this.permission & (1 << 9); });
+  User.method('canReadGradeEveryone', function() { return this.permission & (1 << 10); });
+  User.method('canWriteGradeEveryone', function() { return this.permission & (1 << 11); });
+  User.method('canReadProgressEveryone', function() { return this.permission & (1 << 12); });
+  User.method('canWriteProgressEveryone', function() { return this.permission & (1 << 13); });
+  User.method('canResetPassword', function() { return this.permission & (1 << 14); });
+  User.method('canWritePassword', function() { return this.permission & (1 << 15); });
+  User.method('canReadUserInfo', function() { return this.permission & (1 << 16); });
+  User.method('canWriteUserInfo', function() { return this.permission & (1 << 17); });
+  User.method('canReadGrade', function() { return this.permission & (1 << 18); });
+  User.method('canReadProgress', function() { return this.permission & (1 << 19); });
+  User.method('canWriteProgress', function() { return this.permission & (1 << 20); });
+
   /** Login token for remembering logins. */
   // TODO: "Remember me" feature using this.
   LoginToken = new Schema({
@@ -250,3 +272,4 @@ function defineModels(mongoose, fn) {
 }
 
 exports.defineModels = defineModels;
+exports.permissions = permissions;
