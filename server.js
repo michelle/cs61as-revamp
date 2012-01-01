@@ -1,7 +1,7 @@
 /** debug flags. */
 var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
-var DEBUG_USER = true;
+var DEBUG_USER = false;
 
 /** Setting up dependencies. */
 var express = require('express');
@@ -171,6 +171,14 @@ app.param('lessonId', function(req, res, next, lessonId) {
     next();
   });
 });
+/** Pre condition param videoId into req.video. */
+app.param('videoId', function(req, res, next, videoId) {
+  if(DEBUG_TRACE) {
+    console.log('TRACE: param videoId');
+  }
+  req.video = req.lesson.videos[videoId] || null;
+  next();
+});
 /** Default view iff logged in. */
 app.get('/', loadUser, function(req, res) {
   if(DEBUG_TRACE) {
@@ -178,8 +186,6 @@ app.get('/', loadUser, function(req, res) {
   }
   if(req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
-  } else if (req.currentUser.canReadLesson()) {
-    res.redirect('/lessons');
   } else {
     res.redirect('/home');
   }
@@ -385,8 +391,7 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
     page: 'webcast',
     currentUser: req.currentUser,
     currentLesson: req.currentLesson,
-    vids: req.currentLesson.videos,
-    byurl: false,
+    videos: req.currentLesson.videos,
     // TODO: implement controls so the user can mark a webcast as watched or not
     // watched.
     showControls: req.currentUser.canWriteProgress
@@ -403,8 +408,7 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
       page: 'webcast',
       currentUser: req.currentUser,
       currentLesson: req.lesson,
-      vids: req.lesson.videos,
-      byurl: false,
+      videos: req.lesson.videos,
       // TODO: implement progress controls
       showControls: req.currentUser.canWriteProgress
     });
@@ -414,17 +418,22 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
   }
 });
 /** Viewing webcast by its URL. */
-app.get('/webcast/id/:videoId', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  if (DEBUG_TRACE) {
-    console.log('TRACE: GET /webcast/id/:videoId');
+app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  if(DEBUG_TRACE) {
+    console.log('TRACE: GET /webcast/:lessonId/:videoId');
   }
-  res.render('video', {
-    page: 'webcast',
-    currentUser: req.currentUser,
-    byurl: true,
-    url: req.params.videoId,
-    showControls: req.currentUser.canWriteProgress
-  });
+  if(req.video) {
+    res.render('video', {
+      page: 'webcast',
+      currentUser: req.currentUser,
+      currentLesson: req.lesson,
+      videos: [req.video],
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Webcast does not exist.');
+    res.redirect('/lessons');
+  }
 });
 /** Homework. Defaults to currentUser.progress.
  *  Only displays progress control when the user has permission. */

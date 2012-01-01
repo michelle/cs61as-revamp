@@ -12,7 +12,7 @@
           <% if (lesson.videos.length > 0) { %>
             <strong>Webcasts</strong>:
               <% for (var j = 0; j < lesson.videos.length; j += 1) { var vid = lesson.videos[j]; %>
-                <br><span class="indent">- <a href="/webcast/id/<%-vid.url%>"><%-vid.name%></a></span>
+                <br><span class="indent">- <a href="/webcast/<%-n%>/<%-j%>"><%-vid.name%></a></span>
               <% } %>
             <br>
           <% } %>
