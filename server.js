@@ -384,7 +384,7 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
     currentUser: req.currentUser,
     currentLesson: req.currentLesson,
     vids: req.currentLesson.videos,
-    byurl: false
+    byurl: false,
     // TODO: implement controls so the user can mark a webcast as watched or not
     // watched.
     showControls: req.currentUser.canWriteProgress
@@ -402,7 +402,7 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
       currentUser: req.currentUser,
       currentLesson: req.lesson,
       vids: req.lesson.videos,
-      byurl: false
+      byurl: false,
       // TODO: implement progress controls
       showControls: req.currentUser.canWriteProgress
     });
