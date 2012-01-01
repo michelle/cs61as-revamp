@@ -153,6 +153,24 @@ app.param('userId', function(req, res, next, userId) {
     next();
   });
 });
+/** Pre condition param username into req.user. */
+app.param('username', function(req, res, next, username) {
+  if(DEBUG_TRACE) {
+    console.log('TRACE: param username');
+  }
+  User.findOne({
+    username: username
+  }, function(err, user) {
+    if(DEBUG_ERR && err)
+      console.log(err);
+    if(!err && user) {
+      req.user = user;
+    } else {
+      req.user = null;
+    }
+    next();
+  });
+});
 /** Pre condition param lessonId into req.lesson. */
 app.param('lessonId', function(req, res, next, lessonId) {
   if(DEBUG_TRACE) {
@@ -347,12 +365,18 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
   if(DEBUG_TRACE) {
     console.log('TRACE: GET /user/:username');
   }
-  res.render('profile', {
-    page: 'profile',
-    currentUser: req.currentUser,
-    grades: req.currentUser.canReadGradeEveryone(),
-    viewing: req.currentUser.username
-  });
+  if(req.user) {
+    res.render('profile', {
+      page: 'profile',
+      currentUser: req.currentUser,
+      showGrades: req.currentUser.canReadGradeEveryone() || (req.currentUser == req.user && req.currentUser.canReadGrade()),
+      showProgress: req.currentUser.canReadGradeEveryone() || (req.currentUser == req.user && req.currentUser.canReadProgress()),
+      user: req.user
+    });
+  } else {
+    req.flash('error', 'Whoops! User does not exist.');
+    res.redirect('/dashboard');
+  }
 });
 /** Settings page. */
 // TODO: Allow users to change their unit preferences, password, email, etc
