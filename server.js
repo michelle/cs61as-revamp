@@ -171,8 +171,8 @@ app.param('lessonId', function(req, res, next, lessonId) {
     next();
   });
 });
-/** Default view iff logged in. */
-app.get('/', loadUser, function(req, res) {
+/** Defaults for each state. */
+app.get('/default', loadUser, function(req, res) {
   if (DEBUG_TRACE) {
     console.log('TRACE: GET /');
   }
@@ -180,6 +180,17 @@ app.get('/', loadUser, function(req, res) {
     res.redirect('/dashboard');
   } else if (req.currentUser.canReadLesson()) {
     res.redirect('/lessons');
+  } else {
+    res.redirect('/home');
+  }
+});
+/** Default view iff logged in. */
+app.get('/', loadUser, function(req, res) {
+  if (DEBUG_TRACE) {
+    console.log('TRACE: GET /');
+  }
+  if (req.currentUser.canAccessDashboard()) {
+    res.redirect('/dashboard');
   } else {
     res.redirect('/home');
   }
@@ -502,7 +513,7 @@ app.get('/administration', loadUser, function(req, res) {
 /** Redirect everything else back to dashboard if logged in. */
 app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
-  res.redirect('/');
+  res.redirect('/default');
 });
 // TODO: Search function
 
