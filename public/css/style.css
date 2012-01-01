@@ -575,6 +575,7 @@ h1 {
   padding: 10px 20px;
   cursor: pointer;
   color: #4D5A63;
+  outline: none;
 }
 
 #accordion .links {

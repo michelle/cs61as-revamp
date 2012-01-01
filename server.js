@@ -60,26 +60,26 @@ app.set('views', __dirname + '/views');
  *  Set current user to GUEST and redirect to /home if not logged in.
  *  Redirect to /home if err. */
 function loadUser(req, res, next) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: loadUser');
   }
   req.currentUser = GUEST;
-  if(req.session.user_id) {
+  if (req.session.user_id) {
     User.findById(req.session.user_id, function(err, user) {
-      if(err) {
-        if(DEBUG_ERR) {
+      if (err) {
+        if (DEBUG_ERR) {
           console.log('WARNING: session is in incorrect state: %s.\n%s', req.session, err);
         }
         res.redirect('/home');
       }
       req.currentUser = user;
-      if(DEBUG_USER) {
+      if (DEBUG_USER) {
         console.log(req.currentUser);
       }
       next();
     });
   } else {
-    if(DEBUG_USER) {
+    if (DEBUG_USER) {
       console.log(req.currentUser);
     }
     next();
@@ -89,14 +89,14 @@ function loadUser(req, res, next) {
 /** Set current lesson to currentUser.progress.
  *  Redirect to /home if err. */
 function loadLesson(req, res, next) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: loadLesson');
   }
   Lesson.findOne({
     number: req.currentUser.progress
   }, function(err, lesson) {
-    if(err) {
-      if(DEBUG_ERR) {
+    if (err) {
+      if (DEBUG_ERR) {
         console.log("WARNING: User %s's progress is corrupted.\n%s", req.currentUser.progress, err);
       }
       req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
@@ -110,10 +110,10 @@ function loadLesson(req, res, next) {
 /** Make a middleware that only allows user with a PERMIT. */
 function checkPermit(permit, sameuser) {
   return function(req, res, next) {
-    if(DEBUG_TRACE) {
+    if (DEBUG_TRACE) {
       console.log('TRACE: checkPermit');
     }
-    if(req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
+    if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
       req.flash('error', "Looks like you don't have the required permissions to access this page.");
@@ -127,10 +127,10 @@ function checkPermit(permit, sameuser) {
  *  Always return false for guest. */
 function sameUser(permit, identification) {
   return function(req, res) {
-    if(DEBUG_TRACE) {
+    if (DEBUG_TRACE) {
       console.log('TRACE: sameUser');
     }
-    if(!identification) {
+    if (!identification) {
       identification = 'username';
     }
     return req.currentUser != GUEST && req.currentUser[identification] == req.params[identification] && req.currentUser[permit]();
@@ -139,13 +139,13 @@ function sameUser(permit, identification) {
 
 /** Pre condition param userId into req.user. */
 app.param('userId', function(req, res, next, userId) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: param userId');
   }
   User.findById(userId, function(err, user) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
-    if(!err && user) {
+    if (!err && user) {
       req.user = user;
     } else {
       req.user = null;
@@ -155,15 +155,15 @@ app.param('userId', function(req, res, next, userId) {
 });
 /** Pre condition param lessonId into req.lesson. */
 app.param('lessonId', function(req, res, next, lessonId) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: param lessonId');
   }
   Lesson.findOne({
     number: lessonId
   }, function(err, lesson) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
-    if(!err && lesson) {
+    if (!err && lesson) {
       req.lesson = lesson;
     } else {
       req.lesson = null;
@@ -173,10 +173,10 @@ app.param('lessonId', function(req, res, next, lessonId) {
 });
 /** Default view iff logged in. */
 app.get('/', loadUser, function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /');
   }
-  if(req.currentUser.canAccessDashboard()) {
+  if (req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
   } else if (req.currentUser.canReadLesson()) {
     res.redirect('/lessons');
@@ -186,7 +186,7 @@ app.get('/', loadUser, function(req, res) {
 });
 /** Default view iff not logged in. */
 app.get('/home', function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /home');
   }
   res.render('index', {
@@ -197,22 +197,22 @@ app.get('/home', function(req, res) {
 });
 /** Guest login. */
 app.get('/guest', function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /guest');
   }
   res.redirect('/lessons');
 });
 /** A standard login post request. */
 app.post('/login', function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: POST /login');
   }
   User.findOne({
     username: req.body.user.username
   }, function(err, user) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
-    if(user && user.authenticate(req.body.user.password)) {
+    if (user && user.authenticate(req.body.user.password)) {
       req.session.user_id = user._id;
       res.redirect('/dashboard');
     } else {
@@ -223,15 +223,15 @@ app.post('/login', function(req, res) {
 });
 /** Logging out. */
 app.get('/logout', loadUser, function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /logout');
   }
-  if(req.session) {
+  if (req.session) {
     // LoginToken.remove({ username: req.currentUser.username }, function() {});
     //res.clearCookie('logintoken');
     req.flash('info', 'Logged out successfully!');
     req.session.destroy(function(err) {
-      if(DEBUG_ERR && err)
+      if (DEBUG_ERR && err)
         console.log(err);
     });
   }
@@ -240,7 +240,7 @@ app.get('/logout', loadUser, function(req, res) {
 });
 /** Admin Control Panel. */
 app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /admin');
   }
   res.render('admin', {
@@ -250,11 +250,11 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
 });
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /admin/users');
   }
   User.find({}, function(err, users) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
     res.render('admin/users', {
       page: 'admin/users/index',
@@ -265,7 +265,7 @@ app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), function(r
 });
 /** Add an user. */
 app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: POST /admin/users/add');
   }
   var user = new User({
@@ -274,11 +274,11 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
   });
   user.password = req.body.user.password;
   user.save(function(err) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
   });
   User.find({}, function(err, users) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
     res.render('admin/users', {
       page: 'admin/users/index',
@@ -289,10 +289,10 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
 });
 /** Edit an user. */
 app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /admin/users/edit/:userId');
   }
-  if(req.user) {
+  if (req.user) {
     res.render('admin/users/edit', {
       page: 'admin/users/edit',
       currentUser: req.currentUser,
@@ -305,10 +305,10 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
 });
 /** Save edit an user. */
 app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: POST /admin/users/edit/:userId');
   }
-  if(req.user) {
+  if (req.user) {
     req.user.username = req.body.user.username;
     req.user.email = req.body.user.email;
     req.user.password = req.body.user.password;
@@ -325,9 +325,26 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     res.redirect('/admin/users');
   }
 });
+/** Enter grades. */
+// TODO: Determine how to organize assignments so that all are shown and then can be saved into grades.
+app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+  if (DEBUG_TRACE) {
+    console.log('TRACE: GET /admin/grades');
+  }
+  res.render('admin/grades', {
+    page: 'admin/grades',
+    currentUser: req.currentUser,
+  });
+});
+/** Post grades. */
+app.post('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+  if (DEBUG_TRACE) {
+    console.log('TRACE: GET /admin/grades');
+  }
+});
 /** Student dashboard. */
 app.get('/dashboard', loadUser, loadLesson, checkPermit('canAccessDashboard'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /dashboard');
   }
   res.render('dashboard', {
@@ -338,7 +355,7 @@ app.get('/dashboard', loadUser, loadLesson, checkPermit('canAccessDashboard'), f
 });
 /** Viewing user profiles. */
 app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo')), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /user/:username');
   }
   res.render('profile', {
@@ -352,7 +369,7 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
 // TODO: Allow users to change their unit preferences, password, email, etc
 // (maybe profile options if time).
 app.get('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /settings');
   }
   res.render('settings', {
@@ -362,11 +379,11 @@ app.get('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, re
 });
 /** Collective lessons. */
 app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /lessons');
   }
   Lesson.find({}, function(err, lessons) {
-    if(DEBUG_ERR && err)
+    if (DEBUG_ERR && err)
       console.log(err);
     res.render('lessons', {
       page: 'lessons',
@@ -378,7 +395,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
 /** Webcast viewing. Defaults to currentUser.progress.
  *  Only displays progress control when the user has permission. */
 app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /webcast');
   }
   res.render('video', {
@@ -395,10 +412,10 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
 /** Viewing webcast at LESSONID.
  *  Only displays progress control when the user has permission. */
 app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /webcast/:lessonId');
   }
-  if(req.lesson) {
+  if (req.lesson) {
     res.render('video', {
       page: 'webcast',
       currentUser: req.currentUser,
@@ -429,10 +446,10 @@ app.get('/webcast/id/:videoId', loadUser, checkPermit('canReadLesson'), function
 /** Homework. Defaults to currentUser.progress.
  *  Only displays progress control when the user has permission. */
 app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /homework');
   }
-  if(req.currentLesson) {
+  if (req.currentLesson) {
     res.render('homework', {
       page: 'homework',
       currentUser: req.currentUser,
@@ -448,10 +465,10 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
 /** View homework at LESSONID.
  *  Only displays progress control when the user has permission. */
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /homework/:lessonId');
   }
-  if(req.lesson) {
+  if (req.lesson) {
     res.render('homework', {
       page: 'homework',
       currentUser: req.currentUser,
@@ -468,7 +485,7 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(
 // TODO: Integrate Wordpress to post updates.
 // TODO: figure out permission for this blog feature.
 app.get('/blog', loadUser, function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /blog');
   }
 
@@ -477,7 +494,7 @@ app.get('/blog', loadUser, function(req, res) {
 // TODO: Compile administrative documents onto a static page.
 // TODO: figure out permission for this static administration feature.
 app.get('/administration', loadUser, function(req, res) {
-  if(DEBUG_TRACE) {
+  if (DEBUG_TRACE) {
     console.log('TRACE: GET /administration');
   }
 
@@ -490,5 +507,5 @@ app.get('*', function(req, res) {
 // TODO: Search function
 
 /** Start server. */
-var port = process.env.PORT || 8084;
+var port = process.env.PORT || 8086;
 app.listen(port);
