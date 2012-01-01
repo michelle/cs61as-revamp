@@ -349,7 +349,7 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
 /** Settings page. */
 // TODO: Allow users to change their unit preferences, password, email, etc
 // (maybe profile options if time).
-app.get('/settings', loadUser, checkPermit('canWriteUserInfoEveryone', sameUser('canWriteUserInfo')), function(req, res) {
+app.get('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
   if(DEBUG_TRACE) {
     console.log('TRACE: GET /settings');
   }
