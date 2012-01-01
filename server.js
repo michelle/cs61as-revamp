@@ -104,7 +104,7 @@ function checkPermit(permit, sameuser) {
     if(DEBUG_TRACE) {
       console.log('TRACE: checkPermit');
     }
-    if(req.currentUser[permit]() || sameuser(req, res)()) {
+    if(req.currentUser[permit]() || (sameuser && sameuser(req, res)())) {
       next();
     } else {
       req.flash('error', "Looks like You don't have the permission to access this page.");
@@ -167,10 +167,10 @@ app.get('/', loadUser, function(req, res) {
   if(DEBUG_TRACE) {
     console.log('TRACE: GET /');
   }
-  if(req.currentUser == GUEST) {
-    res.redirect('/home');
-  } else {
+  if(req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
+  } else {
+    res.redirect('/home');
   }
 });
 /** Default view iff not logged in. */
