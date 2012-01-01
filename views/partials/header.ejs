@@ -28,7 +28,7 @@
   </div>
   
   <% if (page != 'dashboard' && !(!currentUser.canAccessDashboard() && page === 'lessons')) { %>
-    <a href="/">
+    <a href="/default">
       <div id="home">
         <span class="iconic home"></span>
       </div>
