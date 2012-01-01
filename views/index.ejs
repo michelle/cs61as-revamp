@@ -1,22 +1,22 @@
   <div id="splash">
     <div id="homeflash"><%-flashMessages%></div>
-    <div id="title">CS61AS</div>
+    <div id="title" class="noselect">CS61AS</div>
     
     <div id="loginform">
       <div id="loginalign">
         <form method="post" action="/login">
-          <span class="left">username</span><input type="text" class="right" name='user[username]' value=<% user.username || "cs61as-" %>><br>
-          <span class="left">password</span><input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
+          <span class="left noselect">username</span><input type="text" class="right" name='user[username]' value=<% user.username || "cs61as-" %>><br>
+          <span class="left noselect">password</span><input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
           <div class="clear"></div>
-          <button class="mybutton left" id="submitlogin">Go!</button>
+          <button class="mybutton left noselect" id="submitlogin">Go!</button>
         </form>
-        <a class="mybutton right" id="guest" href="/guest">Guest</a>
+        <a class="mybutton right noselect" id="guest" href="/guest">Guest</a>
         <div class="clear"></div>
         
       </div>
     </div>
     <div id="login">
-      <div id="loginfloat">
+      <div id="loginfloat" class="noselect">
         <a id="showlogin"><div class="width left"><span name='key' class='icon iconic key'></span></div><div class="left margin">LOGIN</div></a>
         <a href="/#about" id="aboutbutton" class="scroll"><div class="width left"><span name="book" class="icon iconic book-alt"></span></div><div class="left">ABOUT</div></a>
       </div>
