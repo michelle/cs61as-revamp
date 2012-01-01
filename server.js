@@ -1,6 +1,7 @@
 /** debug flags. */
 var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
+var DEBUG_USER = true;
 
 /** Setting up dependencies. */
 var express = require('express');
@@ -72,9 +73,17 @@ function loadUser(req, res, next) {
         res.redirect('/home');
       }
       req.currentUser = user;
+      if(DEBUG_USER) {
+        console.log(req.currentUser);
+      }
+      next();
     });
+  } else {
+    if(DEBUG_USER) {
+      console.log(req.currentUser);
+    }
+    next();
   }
-  next();
 }
 
 /** Set current lesson to currentUser.progress.
