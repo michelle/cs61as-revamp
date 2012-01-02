@@ -3,6 +3,9 @@ var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
 var DEBUG_USER = false;
 
+/** Default cookie lifetime is 1 day. */
+var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
+
 /** Setting up dependencies. */
 var express = require('express');
 var app = module.exports = express.createServer();
@@ -22,8 +25,7 @@ app.dynamicHelpers(require('./dh.js').dynamicHelpers);
 /** Student database URI. */
 app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
 
-/** Model for a User and a LoginToken that will be used for remembering
- * users who have logged in before. */
+/** Database models. */
 schema.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
   app.Video = Video = mongoose.model('Video');
@@ -59,6 +61,7 @@ app.set('views', __dirname + '/views');
 /** Set current user if logged in.
  *  Set current user to GUEST and redirect to /home if not logged in.
  *  Redirect to /home if err. */
+
 function loadUser(req, res, next) {
   if (DEBUG_TRACE) {
     console.log('TRACE: loadUser');
@@ -73,17 +76,56 @@ function loadUser(req, res, next) {
         res.redirect('/home');
       }
       req.currentUser = user;
-      if (DEBUG_USER) {
-        console.log(req.currentUser);
-      }
-      next();
     });
   } else {
-    if (DEBUG_USER) {
-      console.log(req.currentUser);
-    }
-    next();
+    loadUserFromCookie(req, res);
   }
+  if (DEBUG_USER) {
+    console.log(req.currentUser);
+  }
+  next();
+}
+
+function loadUserFromCookie(req, res) {
+  var cookie = JSON.parse(req.cookies['rememberme']);
+  LoginToken.findOne({
+    username: cookie.username,
+    series: cookie.series
+  }, function(err, token) {
+    if (!err && token) {
+      if (token.token != cookie.token) {
+        if (DEBUG_ERR) {
+          console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
+        }
+        LoginToken.remove({
+          username: cookie.username
+        }, function() {
+        });
+        res.clearCookie('rememberme');
+        req.flash('info', 'Please login.');
+        req.session.destroy(function(err) {
+          if (DEBUG_ERR && err)
+            console.log(err);
+        });
+        res.redirect('/home');
+      } else {
+        User.findOne({
+          username: username
+        }, function(err, user) {
+          if (DEBUG_ERR && err)
+            console.log(err);
+          if (!err && user) {
+            req.user = user;
+          } else {
+            req.user = null;
+          }
+        });
+        token.save();
+        res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+        req.currentUser = user;
+      }
+    }
+  });
 }
 
 /** Set current lesson to currentUser.progress.
@@ -249,6 +291,11 @@ app.post('/login', function(req, res) {
       console.log(err);
     if (user && user.authenticate(req.body.user.password)) {
       req.session.user_id = user._id;
+      if (req.body.user.rememberme) {
+        var token = new LoginToken({ username: user.username, series: LoginToken.randomToken() });
+        token.save();
+        res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+      }
       res.redirect('/dashboard');
     } else {
       req.flash('error', 'Invalid username or password.');
@@ -262,8 +309,8 @@ app.get('/logout', loadUser, function(req, res) {
     console.log('TRACE: GET /logout');
   }
   if (req.session) {
-    // LoginToken.remove({ username: req.currentUser.username }, function() {});
-    //res.clearCookie('logintoken');
+    LoginToken.remove({ username: req.currentUser.username }, function() {});
+    res.clearCookie('rememberme');
     req.flash('info', 'Logged out successfully!');
     req.session.destroy(function(err) {
       if (DEBUG_ERR && err)
