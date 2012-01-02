@@ -1,40 +1,63 @@
-  <div id="splash">
-    <div id="homeflash"><%-flashMessages%></div>
-    <div id="title" class="noselect">CS61AS</div>
-    
-    <div id="loginform">
-      <div id="loginalign">
-        <form method="post" action="/login">
-          <span class="left noselect">username</span><input type="text" class="right" name='user[username]' value=<% user.username || "cs61as-" %>><br>
-          <span class="left noselect">password</span><input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
-          <div class="clear"></div>
-          <button class="mybutton left noselect" id="submitlogin">Go!</button>
-        </form>
-        <a class="mybutton right noselect" id="guest" href="/guest">Guest</a>
+<div id="splash">
+  <div id="homeflash">
+    <%-flashMessages%>
+  </div>
+  <div id="title" class="noselect">
+    CS61AS
+  </div>
+  <div id="loginform">
+    <div id="loginalign">
+      <form method="post" action="/login">
+        <span class="left noselect">username</span>
+        <input type="text" class="right" name='user[username]' value=<% user.username || "cs61as-" %>>
+        <br>
+        <span class="left noselect">password</span>
+        <input type="password" class="right" name='user[password]' value=<% user.password || "" %>>
+        <span class="left noselect">remember me</span>
+        <input type="checkbox" name="user[rememberme]" /> 
         <div class="clear"></div>
-        
-      </div>
-    </div>
-    <div id="login">
-      <div id="loginfloat" class="noselect">
-        <a id="showlogin"><div class="width left"><span name='key' class='icon iconic key'></span></div><div class="left margin">LOGIN</div></a>
-        <a href="/#about" id="aboutbutton" class="scroll"><div class="width left"><span name="book" class="icon iconic book-alt"></span></div><div class="left">ABOUT</div></a>
-      </div>
+        <button class="mybutton left noselect" id="submitlogin">
+          Go!
+        </button>
+      </form>
+      <a class="mybutton right noselect" id="guest" href="/guest">Guest</a>
+      <div class="clear"></div>
     </div>
   </div>
-  
-  <div id="about"></div>
-  <div id="info">
-    
-    <h1>Structure and Interpretation of Computer Programs</h1>
-    Welcome to Self-Paced CS 61A, Structure and Interpretation of Computer Programs (SICP)!
-<br><br>
-There is also a lecture version of CS 61A with the same name, but as of this semester making some departures from the textbook after which the course is named. This self-paced version has no formal lectures, although videos of old lectures are optional; it provides different paths through the course material depending on the prior programming background of each student.
-<br><br>
-This self-paced version of 61A consists entirely of online material that you do in lab and at home. (This includes the textbook, which is available online.) The first step is to attend one of the three scheduled sections (they are listed as CS 194-18, 194-19, and 194-20 in the Schedule of Classes this semester because this is a pilot version and we don't have an official CS 61AS course number yet) to get a class account, which you need to use the online material. (It's not secret or anything like that, but the software uses your class login to keep track of where you are in the course.)
-<br><br>
-The CS 61 series is an introduction to computer science, with particular emphasis on software and on machines from a programmer's point of view. This first course concentrates mostly on the idea of abstraction, allowing the programmer to think in terms appropriate to the problem rather than in low-level operations dictated by the computer hardware. The next course, CS 61B, will deal with the more advanced engineering aspects of software—on constructing and analyzing large programs and on techniques for handling computationally expensive programs. Finally, CS 61C concentrates on machines and how they carry out the programs you write.
-    <br><br>
-    <a name='arrow-up' href="/#top" id="icon" class='iconic arrow-up-alt scroll right width'></a>
-    <div class="clear"></div>  
+  <div id="login">
+    <div id="loginfloat" class="noselect">
+      <a id="showlogin">
+      <div class="width left">
+        <span name='key' class='icon iconic key'></span>
+      </div>
+      <div class="left margin">
+        LOGIN
+      </div></a>
+      <a href="/#about" id="aboutbutton" class="scroll">
+      <div class="width left">
+        <span name="book" class="icon iconic book-alt"></span>
+      </div>
+      <div class="left">
+        ABOUT
+      </div></a>
+    </div>
   </div>
+</div>
+<div id="about"></div>
+<div id="info">
+  <h1>Structure and Interpretation of Computer Programs</h1>
+  Welcome to Self-Paced CS 61A, Structure and Interpretation of Computer Programs (SICP)!
+  <br>
+  <br>
+  There is also a lecture version of CS 61A with the same name, but as of this semester making some departures from the textbook after which the course is named. This self-paced version has no formal lectures, although videos of old lectures are optional; it provides different paths through the course material depending on the prior programming background of each student.
+  <br>
+  <br>
+  This self-paced version of 61A consists entirely of online material that you do in lab and at home. (This includes the textbook, which is available online.) The first step is to attend one of the three scheduled sections (they are listed as CS 194-18, 194-19, and 194-20 in the Schedule of Classes this semester because this is a pilot version and we don't have an official CS 61AS course number yet) to get a class account, which you need to use the online material. (It's not secret or anything like that, but the software uses your class login to keep track of where you are in the course.)
+  <br>
+  <br>
+  The CS 61 series is an introduction to computer science, with particular emphasis on software and on machines from a programmer's point of view. This first course concentrates mostly on the idea of abstraction, allowing the programmer to think in terms appropriate to the problem rather than in low-level operations dictated by the computer hardware. The next course, CS 61B, will deal with the more advanced engineering aspects of software—on constructing and analyzing large programs and on techniques for handling computationally expensive programs. Finally, CS 61C concentrates on machines and how they carry out the programs you write.
+  <br>
+  <br>
+  <a name='arrow-up' href="/#top" id="icon" class='iconic arrow-up-alt scroll right width'></a>
+  <div class="clear"></div>
+</div>

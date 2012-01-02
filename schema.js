@@ -17,6 +17,9 @@ var permissions = {
   Guest: 0x000004
 };
 
+function randomToken() {
+  return String(Math.round(new Date().valueOf() * Math.random()));
+};
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
@@ -87,11 +90,12 @@ function defineModels(mongoose, fn) {
       type: Boolean,
       'default': false
     }/**,
-    location: {
-      // TODO: regex url
-      type: String
-    }*/
-    // Location is not needed because if project == true, will be projects/#, and if false, homework/#.
+     location: {
+     // TODO: regex url
+     type: String
+     }*/
+    // Location is not needed because if project == true, will be projects/#, and
+    // if false, homework/#.
   });
 
   /** A lesson. */
@@ -139,12 +143,7 @@ function defineModels(mongoose, fn) {
     },
     permission: {
       type: Number,
-      'enum': [
-        permissions.SuperAdmin,
-        permissions.Instructor,
-        permissions.User,
-        permissions.Guest
-      ],
+      'enum': [permissions.SuperAdmin, permissions.Instructor, permissions.User, permissions.Guest],
       'default': 0
     },
     progress: {
@@ -177,7 +176,7 @@ function defineModels(mongoose, fn) {
   /** Password conversion. */
   User.virtual('password').set(function(password) {
     this._password = password;
-    this.salt = this.makeSalt();
+    this.salt = randomToken();
     this.hashed_password = this.encryptPassword(password);
   }).get(function() {
     return this._password;
@@ -186,65 +185,101 @@ function defineModels(mongoose, fn) {
   User.method('authenticate', function(plainText) {
     return this.encryptPassword(plainText) === this.hashed_password;
   });
-
-  User.method('makeSalt', function() {
-    return String(Math.round(new Date().valueOf() * Math.random()));
-  });
   /** Password encryption. */
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
   /** Permission helpers. */
-  User.method('canAccessAdminPanel', function() { return this.permission & (1 << 0); });
-  User.method('canAccessDashboard', function() { return this.permission & (1 << 1); });
-  User.method('canReadLesson', function() { return this.permission & (1 << 2); });
-  User.method('canWriteLesson', function() { return this.permission & (1 << 3); });
-  User.method('canReadPermissionEveryone', function() { return this.permission & (1 << 4); });
-  User.method('canWritePermissionEveryone', function() { return this.permission & (1 << 5); });
-  User.method('canResetPaswordEveryone', function() { return this.permission & (1 << 6); });
-  User.method('canWritePasswordEveryone', function() { return this.permission & (1 << 7); });
-  User.method('canReadUserInfoEveryone', function() { return this.permission & (1 << 8); });
-  User.method('canWriteUserInfoEveryone', function() { return this.permission & (1 << 9); });
-  User.method('canReadGradeEveryone', function() { return this.permission & (1 << 10); });
-  User.method('canWriteGradeEveryone', function() { return this.permission & (1 << 11); });
-  User.method('canReadProgressEveryone', function() { return this.permission & (1 << 12); });
-  User.method('canWriteProgressEveryone', function() { return this.permission & (1 << 13); });
-  User.method('canResetPassword', function() { return this.permission & (1 << 14); });
-  User.method('canWritePassword', function() { return this.permission & (1 << 15); });
-  User.method('canReadUserInfo', function() { return this.permission & (1 << 16); });
-  User.method('canWriteUserInfo', function() { return this.permission & (1 << 17); });
-  User.method('canReadGrade', function() { return this.permission & (1 << 18); });
-  User.method('canReadProgress', function() { return this.permission & (1 << 19); });
-  User.method('canWriteProgress', function() { return this.permission & (1 << 20); });
-
+  User.method('canAccessAdminPanel', function() {
+    return this.permission & (1 << 0);
+  });
+  User.method('canAccessDashboard', function() {
+    return this.permission & (1 << 1);
+  });
+  User.method('canReadLesson', function() {
+    return this.permission & (1 << 2);
+  });
+  User.method('canWriteLesson', function() {
+    return this.permission & (1 << 3);
+  });
+  User.method('canReadPermissionEveryone', function() {
+    return this.permission & (1 << 4);
+  });
+  User.method('canWritePermissionEveryone', function() {
+    return this.permission & (1 << 5);
+  });
+  User.method('canResetPaswordEveryone', function() {
+    return this.permission & (1 << 6);
+  });
+  User.method('canWritePasswordEveryone', function() {
+    return this.permission & (1 << 7);
+  });
+  User.method('canReadUserInfoEveryone', function() {
+    return this.permission & (1 << 8);
+  });
+  User.method('canWriteUserInfoEveryone', function() {
+    return this.permission & (1 << 9);
+  });
+  User.method('canReadGradeEveryone', function() {
+    return this.permission & (1 << 10);
+  });
+  User.method('canWriteGradeEveryone', function() {
+    return this.permission & (1 << 11);
+  });
+  User.method('canReadProgressEveryone', function() {
+    return this.permission & (1 << 12);
+  });
+  User.method('canWriteProgressEveryone', function() {
+    return this.permission & (1 << 13);
+  });
+  User.method('canResetPassword', function() {
+    return this.permission & (1 << 14);
+  });
+  User.method('canWritePassword', function() {
+    return this.permission & (1 << 15);
+  });
+  User.method('canReadUserInfo', function() {
+    return this.permission & (1 << 16);
+  });
+  User.method('canWriteUserInfo', function() {
+    return this.permission & (1 << 17);
+  });
+  User.method('canReadGrade', function() {
+    return this.permission & (1 << 18);
+  });
+  User.method('canReadProgress', function() {
+    return this.permission & (1 << 19);
+  });
+  User.method('canWriteProgress', function() {
+    return this.permission & (1 << 20);
+  });
   /** Login token for remembering logins. */
-  // TODO: "Remember me" feature using this.
   LoginToken = new Schema({
-    email: {
-      // TODO: regex email
+    username: {
+      // TODO: regex username
       type: String,
-      index: true
+      required: true,
+      index: {
+        unique: true
+      }
     },
     series: {
       type: String,
-      required: true,
       index: true
     },
     token: {
       type: String,
-      required: true,
       index: true
     }
   });
 
-  LoginToken.method('randomToken', function() {
-    return String(Math.round(new Date().valueOf() * Math.random()));
-  });
-
+  /** Automatically create the series when this is first created.
+   *  Regenerate token every time user visits. */
   LoginToken.pre('save', function(next) {
-    // Automatically create the tokens
-    this.token = this.randomToken();
-    this.series = this.randomToken();
+    if (!this.series) {
+      this.series = randomToken();
+    }
+    this.token = randomToken();
     next();
   });
 
@@ -254,12 +289,11 @@ function defineModels(mongoose, fn) {
 
   LoginToken.virtual('cookieValue').get(function() {
     return JSON.stringify({
-      email: this.email,
+      username: this.username,
       token: this.token,
       series: this.series
     });
   });
-
   /** Set up models. */
   mongoose.model('User', User);
   mongoose.model('LoginToken', LoginToken);

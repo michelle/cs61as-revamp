@@ -1,10 +1,15 @@
 <div id="profile">
   <div id="sidebar">
-    <% if (grades) { %>
-      <button id="grades">
-        Show Grades
-      </button>
+    <% if (showGrades) { %>
+    <button id="showGrades">
+      Show Grades
+    </button>
+    <% } %>
+    <% if (showProgress) { %>
+    <button id="showProgress">
+      Show Progress
+    </button>
     <% } %>
   </div>
-  <%-viewing%>'s profile.
+  <%-user.username%>'s profile.
 </div>
