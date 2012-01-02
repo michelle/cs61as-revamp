@@ -10,6 +10,7 @@ var Assignment;
 var Lesson;
 var Grade;
 
+/** Default permissions set. */
 var permissions = {
   SuperAdmin: 0x1FFFFF,
   Instructor: 0x1FFC4F,
@@ -17,15 +18,20 @@ var permissions = {
   Guest: 0x000004
 };
 
+/** @return a random string that can be used as salt or token. */
 function randomToken() {
   return String(Math.round(new Date().valueOf() * Math.random()));
 };
+
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
 
-  /** A reading. */
+  /** A reading.
+   *  location: a relative link to a reading assignment.
+   *  if SICP, an absolute link to SICP page. */
+  // TODO: maybe we don't need SCIP flag.
   Reading = new Schema({
     name: {
       type: String,
@@ -41,20 +47,21 @@ function defineModels(mongoose, fn) {
     }
   });
 
-  /** A video. */
+  /** A video.
+   *  url: youtube video id. */
   Video = new Schema({
     name: {
       type: String,
       required: true
     },
     url: {
-      // TODO: regex url
       type: String,
       required: true
     }
   });
 
-  /** A grade. */
+  /** A grade.
+   *  Only entered grades are stored in the database. */
   Grade = new Schema({
     order: {
       type: Number,
@@ -66,16 +73,21 @@ function defineModels(mongoose, fn) {
       required: true
     },
     grade: {
-      type: String,
-      'default': "--"
+      type: Number,
+      required: true
     },
+    weight: {
+      type: Number,
+      required: true
+    }
+    // TODO: why do we need a location?
     location: {
-      // TODO: regex url
       type: String
     }
   });
 
-  /** An assignment. */
+  /** An assignment.
+   *  Only accessible through Lesson. */
   Assignment = new Schema({
     order: {
       type: Number,
@@ -89,13 +101,7 @@ function defineModels(mongoose, fn) {
     project: {
       type: Boolean,
       'default': false
-    }/**,
-     location: {
-     // TODO: regex url
-     type: String
-     }*/
-    // Location is not needed because if project == true, will be projects/#, and
-    // if false, homework/#.
+    }
   });
 
   /** A lesson. */
@@ -286,6 +292,7 @@ function defineModels(mongoose, fn) {
     return this._id.toHexString();
   });
 
+  // TODO: encrypt cookie
   LoginToken.virtual('cookieValue').get(function() {
     return JSON.stringify({
       username: this.username,
