@@ -604,3 +604,7 @@ h1 {
   -webkit-user-select: none;
   user-select: none;
 }
+
+#nopadding {
+  padding: 0px;
+}

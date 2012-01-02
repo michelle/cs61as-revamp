@@ -168,7 +168,8 @@ function defineModels(mongoose, fn) {
     units: {
       type: Number,
       min: 1,
-      'default': 1
+      max: 5,
+      'default': 2
     },
     // TODO: Boolean values for each thing completed, reset upon lesson
     // increment.
