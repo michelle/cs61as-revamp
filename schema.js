@@ -254,12 +254,14 @@ function defineModels(mongoose, fn) {
     return this.permission & (1 << 20);
   });
   /** Login token for remembering logins. */
-  // TODO: "Remember me" feature using this.
   LoginToken = new Schema({
-    email: {
-      // TODO: regex email
+    username: {
+      // TODO: regex username
       type: String,
-      index: true
+      required: true,
+      index: {
+        unique: true
+      }
     },
     series: {
       type: String,
@@ -280,7 +282,6 @@ function defineModels(mongoose, fn) {
   LoginToken.pre('save', function(next) {
     // Automatically create the tokens
     this.token = this.randomToken();
-    this.series = this.randomToken();
     next();
   });
 
@@ -290,7 +291,7 @@ function defineModels(mongoose, fn) {
 
   LoginToken.virtual('cookieValue').get(function() {
     return JSON.stringify({
-      email: this.email,
+      username: this.username,
       token: this.token,
       series: this.series
     });
