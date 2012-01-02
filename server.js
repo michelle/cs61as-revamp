@@ -2,6 +2,7 @@
 var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
 var DEBUG_USER = true;
+var DEBUG_HACK = true;
 
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
@@ -61,34 +62,47 @@ app.set('views', __dirname + '/views');
 /** Set current user if logged in.
  *  Set current user to GUEST and redirect to /home if not logged in.
  *  Redirect to /home if err. */
-
 function loadUser(req, res, next) {
   if (DEBUG_TRACE) {
     console.log('TRACE: loadUser');
   }
   req.currentUser = GUEST;
   if (req.session.user_id) {
-    User.findById(req.session.user_id, function(err, user) {
-      if (err) {
-        if (DEBUG_ERR) {
-          console.log('WARNING: session is in incorrect state: %s.\n%s', req.session, err);
-        }
-        res.redirect('/home');
-      }
-      req.currentUser = user;
-    });
+    loadUserFromSession(req, res, next);
   } else {
-    loadUserFromCookie(req, res);
+    loadUserFromCookie(req, res, next);
   }
-  if (DEBUG_USER) {
-    console.log(req.currentUser);
-  }
-  next();
 }
 
-function loadUserFromCookie(req, res) {
+function loadUserFromSession(req, res, next) {
+  User.findById(req.session.user_id, function(err, user) {
+    if (err) {
+      if (DEBUG_ERR) {
+        console.log(err);
+      }
+      if (DEBUG_HACK) {
+        console.log('WARNING: session is in incorrect state: %s.\n%s', req.session, err);
+      }
+      res.redirect('/home');
+    }
+    req.currentUser = user;
+    if (DEBUG_USER) {
+      console.log(req.currentUser);
+    }
+    next();
+  });
+}
+
+function loadUserFromCookie(req, res, next) {
   if (!req.cookies['rememberme']) {
+    if (DEBUG_USER) {
+      console.log(req.currentUser);
+    }
+    next();
     return;
+  }
+  if (DEBUG_TRACE) {
+    console.log('TRACE: loadUserFromCookie');
   }
   
   var cookie = JSON.parse(req.cookies['rememberme']);
@@ -96,12 +110,16 @@ function loadUserFromCookie(req, res) {
     username: cookie.username,
     series: cookie.series
   }, function(err, token) {
-    if (!err && token) {
-      if (DEBUG_USER) {
-        console.log(token);
+    if (err) {
+      if (DEBUG_ERR) {
+        console.log(err);
       }
+      return;
+    }
+
+    if (token) {
       if (token.token != cookie.token) {
-        if (DEBUG_ERR) {
+        if (DEBUG_HACK) {
           console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
         }
         LoginToken.remove({
@@ -110,28 +128,31 @@ function loadUserFromCookie(req, res) {
         });
         res.clearCookie('rememberme');
         req.flash('info', 'Please login.');
-        req.session.destroy(function(err) {
-          if (DEBUG_ERR && err)
-            console.log(err);
-        });
         res.redirect('/home');
       } else {
         User.findOne({
           username: username
         }, function(err, user) {
-          if (DEBUG_ERR && err)
-            console.log(err);
-          if (!err && user) {
-            req.user = user;
-          } else {
-            req.user = null;
+          if (err) {
+            if (DEBUG_ERR) {
+              console.log(err);
+            }
+          } else if (user) {
+            req.currentUser = user;
           }
         });
         token.save();
         res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
         req.currentUser = user;
       }
+    } else {
+      res.clearCookie('rememberme');
     }
+    
+    if (DEBUG_USER) {
+      console.log(req.currentUser);
+    }
+    next();
   });
 }
 
