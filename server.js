@@ -1,7 +1,7 @@
 /** debug flags. */
 var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
-var DEBUG_USER = false;
+var DEBUG_USER = true;
 
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
@@ -87,18 +87,23 @@ function loadUser(req, res, next) {
 }
 
 function loadUserFromCookie(req, res) {
-  var cookie = JSON.parse(req.cookies['rememberme']);
-  if (!cookie) {
+  if (!req.cookies['rememberme']) {
     return;
   }
   
+  var cookie = JSON.parse(req.cookies['rememberme']);
   LoginToken.findOne({
     username: cookie.username,
     series: cookie.series
   }, function(err, token) {
     if (!err && token) {
+      if (DEBUG_USER) {
+        console.log(token);
+      }
       if (token.token != cookie.token) {
-        console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
+        if (DEBUG_ERR) {
+          console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
+        }
         LoginToken.remove({
           username: cookie.username
         }, function() {
@@ -294,7 +299,7 @@ app.post('/login', function(req, res) {
     if (user && user.authenticate(req.body.user.password)) {
       req.session.user_id = user._id;
       if (req.body.user.rememberme) {
-        var token = new LoginToken({ username: user.username, series: LoginToken.randomToken() });
+        var token = new LoginToken({ username: user.username });
         token.save();
         res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
       }
