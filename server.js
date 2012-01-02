@@ -94,18 +94,19 @@ function loadUserFromSession(req, res, next) {
 }
 
 function loadUserFromCookie(req, res, next) {
-  if (!req.cookies['rememberme']) {
+  var cookie = req.cookies['rememberme'] && JSON.parse(req.cookies['rememberme']);
+  if (!cookie || !cookie.username || !cookie.series || !cookie.token) {
     if (DEBUG_USER) {
       console.log(req.currentUser);
     }
     next();
     return;
   }
+  
   if (DEBUG_TRACE) {
     console.log('TRACE: loadUserFromCookie');
   }
-  
-  var cookie = JSON.parse(req.cookies['rememberme']);
+
   LoginToken.findOne({
     username: cookie.username,
     series: cookie.series
@@ -125,13 +126,13 @@ function loadUserFromCookie(req, res, next) {
         LoginToken.remove({
           username: cookie.username
         }, function() {
+          res.clearCookie('rememberme');
+          req.flash('info', 'Please login.');
+          res.redirect('/home');
         });
-        res.clearCookie('rememberme');
-        req.flash('info', 'Please login.');
-        res.redirect('/home');
       } else {
         User.findOne({
-          username: username
+          username: cookie.username
         }, function(err, user) {
           if (err) {
             if (DEBUG_ERR) {
@@ -140,19 +141,26 @@ function loadUserFromCookie(req, res, next) {
           } else if (user) {
             req.currentUser = user;
           }
+          token.save(function(err){
+            if (DEBUG_ERR && err) {
+              console.log(err);
+            }
+            res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+            req.currentUser = user;
+            if (DEBUG_USER) {
+              console.log(req.currentUser);
+            }
+            next();
+          });
         });
-        token.save();
-        res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
-        req.currentUser = user;
       }
     } else {
       res.clearCookie('rememberme');
+      if (DEBUG_USER) {
+        console.log(req.currentUser);
+      }
+      next();
     }
-    
-    if (DEBUG_USER) {
-      console.log(req.currentUser);
-    }
-    next();
   });
 }
 
@@ -270,7 +278,7 @@ app.param('videoId', function(req, res, next, videoId) {
 /** Defaults for each state. */
 app.get('/default', loadUser, function(req, res) {
   if (DEBUG_TRACE) {
-    console.log('TRACE: GET /');
+    console.log('TRACE: GET /default');
   }
   if (req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
@@ -320,11 +328,19 @@ app.post('/login', function(req, res) {
     if (user && user.authenticate(req.body.user.password)) {
       req.session.user_id = user._id;
       if (req.body.user.rememberme) {
-        var token = new LoginToken({ username: user.username });
-        token.save();
-        res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+        LoginToken.remove({ username: user.username }, function() {
+          var token = new LoginToken({ username: user.username });
+          token.save(function(err){
+            if (DEBUG_ERR && err) {
+              console.log(err);
+            }
+            res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+            res.redirect('/dashboard');
+          });
+        });
+      } else {
+        res.redirect('/dashboard');
       }
-      res.redirect('/dashboard');
     } else {
       req.flash('error', 'Invalid username or password.');
       res.redirect('/home');
@@ -384,16 +400,17 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
   });
   user.password = req.body.user.password;
   user.save(function(err) {
-    if (DEBUG_ERR && err)
+    if (DEBUG_ERR && err) {
       console.log(err);
-  });
-  User.find({}, function(err, users) {
-    if (DEBUG_ERR && err)
-      console.log(err);
-    res.render('admin/users', {
-      page: 'admin/users/index',
-      currentUser: req.currentUser,
-      users: users
+    }
+    User.find({}, function(err, users) {
+      if (DEBUG_ERR && err)
+        console.log(err);
+      res.render('admin/users', {
+        page: 'admin/users/index',
+        currentUser: req.currentUser,
+        users: users
+      });
     });
   });
 });
@@ -423,12 +440,16 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     req.user.email = req.body.user.email;
     req.user.password = req.body.user.password;
     req.user.permission = req.body.user.permission;
-    req.user.save();
-    req.flash('info', 'User %s is saved sucessfully.', req.user.username);
-    res.render('admin/users/edit', {
-      page: 'admin/users/edit',
-      currentUser: req.currentUser,
-      user: req.user
+    req.user.save(function(err){
+      if (DEBUG_ERR && err) {
+        console.log(err);
+      }
+      req.flash('info', 'User %s is saved sucessfully.', req.user.username);
+      res.render('admin/users/edit', {
+        page: 'admin/users/edit',
+        currentUser: req.currentUser,
+        user: req.user
+      });
     });
   } else {
     req.flash('Error', 'Malformed userID.');
