@@ -88,15 +88,17 @@ function loadUser(req, res, next) {
 
 function loadUserFromCookie(req, res) {
   var cookie = JSON.parse(req.cookies['rememberme']);
+  if (!cookie) {
+    return;
+  }
+  
   LoginToken.findOne({
     username: cookie.username,
     series: cookie.series
   }, function(err, token) {
     if (!err && token) {
       if (token.token != cookie.token) {
-        if (DEBUG_ERR) {
-          console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
-        }
+        console.log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
         LoginToken.remove({
           username: cookie.username
         }, function() {
