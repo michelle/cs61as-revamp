@@ -264,18 +264,17 @@ function defineModels(mongoose, fn) {
     },
     series: {
       type: String,
-      required: true,
       index: true
     },
     token: {
       type: String,
-      required: true,
       index: true
     }
   });
 
+  /** Automatically create the series when this is first created.
+   *  Regenerate token every time user visits. */
   LoginToken.pre('save', function(next) {
-    // Automatically create the tokens
     if (!this.series) {
       this.series = randomToken();
     }
