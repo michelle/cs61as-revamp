@@ -17,6 +17,9 @@ var permissions = {
   Guest: 0x000004
 };
 
+function randomToken() {
+  return String(Math.round(new Date().valueOf() * Math.random()));
+};
 /** Defines schemas for different collections. */
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
@@ -172,7 +175,7 @@ function defineModels(mongoose, fn) {
   /** Password conversion. */
   User.virtual('password').set(function(password) {
     this._password = password;
-    this.salt = this.makeSalt();
+    this.salt = randomToken();
     this.hashed_password = this.encryptPassword(password);
   }).get(function() {
     return this._password;
@@ -180,10 +183,6 @@ function defineModels(mongoose, fn) {
   /** Password authentication. */
   User.method('authenticate', function(plainText) {
     return this.encryptPassword(plainText) === this.hashed_password;
-  });
-
-  User.method('makeSalt', function() {
-    return String(Math.round(new Date().valueOf() * Math.random()));
   });
   /** Password encryption. */
   User.method('encryptPassword', function(password) {
@@ -275,13 +274,12 @@ function defineModels(mongoose, fn) {
     }
   });
 
-  LoginToken.method('randomToken', function() {
-    return String(Math.round(new Date().valueOf() * Math.random()));
-  });
-
   LoginToken.pre('save', function(next) {
     // Automatically create the tokens
-    this.token = this.randomToken();
+    if (!this.series) {
+      this.series = randomToken();
+    }
+    this.token = randomToken();
     next();
   });
 
