@@ -167,7 +167,7 @@ function loadUserFromCookie(req, res, next) {
   });
 }
 
-/** Set current lesson to currentUser.progress.
+/** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if err. */
 function loadLesson(req, res, next) {
   trace('TRACE: loadLesson');
@@ -470,7 +470,8 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
     });
   });
 });
-/** Webcast viewing. Defaults to currentUser.progress.
+/** Webcast viewing.
+ *  Default: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
 app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast');
@@ -518,7 +519,8 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), f
     res.redirect('/lessons');
   }
 });
-/** Homework. Defaults to currentUser.progress.
+/** Homework.
+ *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
 app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /homework');
