@@ -159,6 +159,7 @@ function loadUserFromCookie(req, res, next) {
           log(err);
           if (user) {
             req.currentUser = user;
+            req.session.user_id = user._id;
             token.save(function(err){
               log(err);
               res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
@@ -438,12 +439,18 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
     req.user.username = req.body.user.username;
-    req.user.email = req.body.user.email;
     req.user.password = req.body.user.password;
+    req.user.email = req.body.user.email;
+    req.user.currentLesson = req.body.user.currentLesson;
+    req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
     req.user.save(function(err){
       log(err);
-      req.flash('info', 'User %s is saved sucessfully.', req.user.username);
+      if (err) {
+        req.flash('error', 'User %s is not saved sucessfully.', req.user.username);
+      } else {
+        req.flash('info', 'User %s is saved sucessfully.', req.user.username);
+      }
       res.render('admin/users/edit', {
         page: 'admin/users/edit',
         currentUser: req.currentUser,
@@ -496,11 +503,30 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
 /** Settings page. */
 // TODO: Allow users to change their unit preferences, password, email, etc
 // (maybe profile options if time).
-app.get('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
+app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res) {
   trace('GET /settings');
   res.render('settings', {
     page: 'settings',
     currentUser: req.currentUser
+  });
+});
+/** Save edit an user. */
+app.post('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
+  trace('POST /settings');
+  req.currentUser.email = req.body.user.email;
+  req.currentUser.password = req.body.user.password;
+  req.currentUser.units = req.body.user.units;
+  req.currentUser.save(function(err){
+    log(err);
+    if (err) {
+      req.flash('error', 'User %s is not saved sucessfully.', req.currentUser.username);
+    } else {
+      req.flash('info', 'User %s is saved sucessfully.', req.currentUser.username);
+    }
+    res.render('settings', {
+      page: 'settings',
+      currentUser: req.currentUser
+    });
   });
 });
 /** Collective lessons. */
