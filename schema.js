@@ -131,6 +131,10 @@ function defineModels(mongoose, fn) {
       type: ObjectId,
       ref: Lesson
     },
+    user: {
+      type: ObjectId,
+      ref: User
+    },
     videos: [{
       type: Boolean,
       'default': false
@@ -173,7 +177,6 @@ function defineModels(mongoose, fn) {
       min: 1,
       'default': 1
     },
-    progress: [Progress],
     grades: {
       type: [Grade],
       'default': []
