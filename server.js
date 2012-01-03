@@ -103,10 +103,11 @@ function loadUserFromSession(req, res, next) {
       log(err);
       log('WARNING: session is in incorrect state: %s.', req.session);
       res.redirect('/home');
+    } else {
+     req.currentUser = user;
+     log(req.currentUser);
+     next();
     }
-    req.currentUser = user;
-    log(req.currentUser);
-    next();
   });
 }
 
@@ -179,9 +180,10 @@ function loadLesson(req, res, next) {
       log("WARNING: User %s's currentLesson is corrupted.", req.currentUser.currentLesson);
       req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
       res.redirect('/home');
+    } else {
+      req.currentLesson = lesson;
+      next();
     }
-    req.currentLesson = lesson;
-    next();
   });
 }
 
@@ -461,8 +463,7 @@ app.get('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, re
 app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /lessons');
   Lesson.find({}, function(err, lessons) {
-    if (DEBUG_ERR && err)
-      console.log(err);
+    log(err);
     res.render('lessons', {
       page: 'lessons',
       currentUser: req.currentUser,
@@ -475,15 +476,20 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
  *  Only displays progress control when the user has permission. */
 app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast');
-  res.render('video', {
-    page: 'webcast',
-    currentUser: req.currentUser,
-    currentLesson: req.currentLesson,
-    videos: req.currentLesson.videos,
-    // TODO: implement controls so the user can mark a webcast as watched or not
-    // watched.
-    showControls: req.currentUser.canWriteProgress
-  });
+  if (req.currentLesson.videos) {
+    res.render('video', {
+      page: 'webcast',
+      currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
+      videos: req.currentLesson.videos,
+      // TODO: implement controls so the user can mark a webcast as watched or not
+      // watched.
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! webcast for this lesson does not exist.');
+    res.redirect('/lessons');
+  }
 });
 /** Viewing webcast at LESSONID.
  *  Only displays progress control when the user has permission. */
