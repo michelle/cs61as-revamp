@@ -335,9 +335,7 @@ app.get('/', loadUser, function(req, res) {
 app.get('/home', function(req, res) {
   trace('GET /home');
   res.render('index', {
-    page: 'home',
-    // TODO: change this to accept currentUser (or GUEST)
-    user: new User()
+    page: 'home'
   });
 });
 /** A standard login post request. */
