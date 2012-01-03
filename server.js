@@ -501,8 +501,6 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
   }
 });
 /** Settings page. */
-// TODO: Allow users to change their unit preferences, password, email, etc
-// (maybe profile options if time).
 app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res) {
   trace('GET /settings');
   res.render('settings', {
@@ -644,17 +642,15 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 });
 /** Announcements. */
 // TODO: Integrate Wordpress to post updates.
-// TODO: figure out permission for this blog feature.
 app.get('/blog', loadUser, function(req, res) {
   trace('GET /blog');
 });
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
-// TODO: figure out permission for this static administration feature.
 app.get('/administration', loadUser, function(req, res) {
   trace('GET /administration');
 });
-/** Redirect everything else back to dashboard if logged in. */
+/** Redirect everything else back to default if logged in. */
 app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/default');
