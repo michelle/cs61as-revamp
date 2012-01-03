@@ -152,7 +152,7 @@ function defineModels(mongoose, fn) {
       'enum': [permissions.SuperAdmin, permissions.Instructor, permissions.User, permissions.Guest],
       'default': 0
     },
-    progress: {
+    currentLesson: {
       type: Number,
       min: 1,
       'default': 1

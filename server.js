@@ -172,11 +172,11 @@ function loadUserFromCookie(req, res, next) {
 function loadLesson(req, res, next) {
   trace('TRACE: loadLesson');
   Lesson.findOne({
-    number: req.currentUser.progress
+    number: req.currentUser.currentLesson
   }, function(err, lesson) {
     if (err) {
       log(err);
-      log("WARNING: User %s's progress is corrupted.", req.currentUser.progress);
+      log("WARNING: User %s's currentLesson is corrupted.", req.currentUser.currentLesson);
       req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
       res.redirect('/home');
     }
