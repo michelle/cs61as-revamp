@@ -520,13 +520,17 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
 app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast/:lessonId');
   if (req.lesson) {
-    res.render('video', {
-      page: 'webcast',
-      currentUser: req.currentUser,
-      currentLesson: req.lesson,
-      videos: req.lesson.videos,
-      // TODO: implement progress controls
-      showControls: req.currentUser.canWriteProgress
+    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('video', {
+        page: 'webcast',
+        currentUser: req.currentUser,
+        currentLesson: req.lesson,
+        videos: req.lesson.videos,
+        // TODO: implement progress controls
+        showControls: req.currentUser.canWriteProgress
+      });
     });
   } else {
     req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
@@ -537,12 +541,16 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
 app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast/:lessonId/:videoId');
   if(req.video) {
-    res.render('video', {
-      page: 'webcast',
-      currentUser: req.currentUser,
-      currentLesson: req.lesson,
-      videos: [req.video],
-      showControls: req.currentUser.canWriteProgress
+    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('video', {
+        page: 'webcast',
+        currentUser: req.currentUser,
+        currentLesson: req.lesson,
+        videos: [req.video],
+        showControls: req.currentUser.canWriteProgress
+      });
     });
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
@@ -572,12 +580,16 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /homework/:lessonId');
   if (req.lesson) {
-    res.render('homework', {
-      page: 'homework',
-      currentUser: req.currentUser,
-      currentLesson: req.lesson,
-      // TODO: implement progress controls
-      showControls: req.currentUser.canWriteProgress
+    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('homework', {
+        page: 'homework',
+        currentUser: req.currentUser,
+        currentLesson: req.lesson,
+        // TODO: implement progress controls
+        showControls: req.currentUser.canWriteProgress
+      });
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
