@@ -35,6 +35,7 @@ schema.defineModels(mongoose, function() {
   app.Lesson = Lesson = mongoose.model('Lesson');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
   app.Grade = Grade = mongoose.model('Grade');
+  app.Progress = Progress = mongoose.model('Progress');
   db = mongoose.connect(app.set('db-uri'));
 });
 /** Default guest user. */
@@ -182,7 +183,30 @@ function loadLesson(req, res, next) {
       res.redirect('/home');
     } else {
       req.currentLesson = lesson;
-      next();
+      Progress.findOne({ lesson: req.currentLesson, user: req.currentUser }, function (err, progress) {
+        log(err);
+        if (progress) {
+          req.currentProgress = progress;
+          next();
+        } else {
+          var progress = new Progress({
+            lesson: req.currentLesson,
+            user: req.currentUser,
+            videos: req.currentLesson.videos.map(function (videos) { return false }),
+            assignments: req.currentLesson.assignments.map(function (assignment) { return false }),
+            readings: req.currentLesson.readings.map(function (reading) { return false })
+          })
+          req.currentProgress = progress;
+          if (req.currentUser.canWriteProgress()) {
+            progress.save(function (err){
+              log(err);
+              next();
+            });
+          } else {
+            next();
+          }
+        }
+      });
     }
   });
 }
