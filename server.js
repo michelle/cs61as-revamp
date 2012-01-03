@@ -340,11 +340,6 @@ app.get('/home', function(req, res) {
     user: new User()
   });
 });
-/** Guest login. */
-app.get('/guest', function(req, res) {
-  trace('GET /guest');
-  res.redirect('/lessons');
-});
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   trace('POST /login');
