@@ -80,10 +80,6 @@ function defineModels(mongoose, fn) {
     weight: {
       type: Number,
       required: true
-    },
-    // TODO: why do we need a location?
-    location: {
-      type: String
     }
   });
 
