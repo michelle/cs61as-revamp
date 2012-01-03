@@ -9,6 +9,7 @@ var Video;
 var Assignment;
 var Lesson;
 var Grade;
+var Progress;
 
 /** Default permissions set. */
 var permissions = {
@@ -128,6 +129,25 @@ function defineModels(mongoose, fn) {
       'default': []
     },
   });
+  
+  Progress = new Schema({
+    lesson: {
+      type: ObjectId,
+      ref: Lesson
+    }
+    videos: [{
+      type: Boolean,
+      'default': false
+    }],
+    assignments: [{
+      type: Boolean,
+      'default': false
+    }],
+    readings: [{
+      type: Boolean,
+      'default': false
+    }],
+  });
 
   /** A user. */
   User = new Schema({
@@ -157,6 +177,7 @@ function defineModels(mongoose, fn) {
       min: 1,
       'default': 1
     },
+    progress: [Progress],
     grades: {
       type: [Grade],
       'default': []
@@ -309,6 +330,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Reading', Reading);
   mongoose.model('Video', Video);
   mongoose.model('Grade', Grade);
+  mongoose.model('Progress', Progress);
 
   fn();
 }
