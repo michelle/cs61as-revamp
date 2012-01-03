@@ -183,30 +183,35 @@ function loadLesson(req, res, next) {
       res.redirect('/home');
     } else {
       req.currentLesson = lesson;
-      Progress.findOne({ lesson: req.currentLesson, user: req.currentUser }, function (err, progress) {
-        log(err);
-        if (progress) {
-          req.currentProgress = progress;
+      loadProgress(req, res, lesson, next);
+    }
+  });
+}
+
+function loadProgress(req, res, lesson, next) {
+  trace('TRACE: loadProgress');
+  Progress.findOne({ lesson: lesson, user: req.currentUser }, function (err, progress) {
+    log(err);
+    if (progress) {
+      req.currentProgress = progress;
+      next();
+    } else {
+      var progress = new Progress({
+        lesson: lesson,
+        user: req.currentUser,
+        videos: lesson.videos.map(function (videos) { return false }),
+        assignments: lesson.assignments.map(function (assignment) { return false }),
+        readings: lesson.readings.map(function (reading) { return false })
+      })
+      req.currentProgress = progress;
+      if (req.currentUser.canWriteProgress()) {
+        progress.save(function (err){
+          log(err);
           next();
-        } else {
-          var progress = new Progress({
-            lesson: req.currentLesson,
-            user: req.currentUser,
-            videos: req.currentLesson.videos.map(function (videos) { return false }),
-            assignments: req.currentLesson.assignments.map(function (assignment) { return false }),
-            readings: req.currentLesson.readings.map(function (reading) { return false })
-          })
-          req.currentProgress = progress;
-          if (req.currentUser.canWriteProgress()) {
-            progress.save(function (err){
-              log(err);
-              next();
-            });
-          } else {
-            next();
-          }
-        }
-      });
+        });
+      } else {
+        next();
+      }
     }
   });
 }
@@ -506,8 +511,7 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       videos: req.currentLesson.videos,
-      // TODO: implement controls so the user can mark a webcast as watched or not
-      // watched.
+      progress: req.currentProgress.videos,
       showControls: req.currentUser.canWriteProgress
     });
   } else {
@@ -520,16 +524,18 @@ app.get('/webcast', loadUser, loadLesson, checkPermit('canReadLesson'), function
 app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast/:lessonId');
   if (req.lesson) {
-    req.currentUser.currentLesson = req.lesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      res.render('video', {
-        page: 'webcast',
-        currentUser: req.currentUser,
-        currentLesson: req.lesson,
-        videos: req.lesson.videos,
-        // TODO: implement progress controls
-        showControls: req.currentUser.canWriteProgress
+    loadProgress(req, res, req.lesson, function() {
+      req.currentUser.currentLesson = req.lesson.number;
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('video', {
+          page: 'webcast',
+          currentUser: req.currentUser,
+          currentLesson: req.lesson,
+          videos: req.lesson.videos,
+          progress: req.currentProgress.videos,
+          showControls: req.currentUser.canWriteProgress
+        });
       });
     });
   } else {
@@ -540,16 +546,19 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), function(r
 /** Viewing webcast by its URL. */
 app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /webcast/:lessonId/:videoId');
-  if(req.video) {
-    req.currentUser.currentLesson = req.lesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      res.render('video', {
-        page: 'webcast',
-        currentUser: req.currentUser,
-        currentLesson: req.lesson,
-        videos: [req.video],
-        showControls: req.currentUser.canWriteProgress
+  if(req.lesson && req.video) {
+    loadProgress(req, res, req.lesson, function() {
+      req.currentUser.currentLesson = req.lesson.number;
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('video', {
+          page: 'webcast',
+          currentUser: req.currentUser,
+          currentLesson: req.lesson,
+          videos: [req.video],
+          progress: [req.currentProgress.videos[req.video]],
+          showControls: req.currentUser.canWriteProgress
+        });
       });
     });
   } else {
@@ -580,15 +589,17 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('TRACE: GET /homework/:lessonId');
   if (req.lesson) {
-    req.currentUser.currentLesson = req.lesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      res.render('homework', {
-        page: 'homework',
-        currentUser: req.currentUser,
-        currentLesson: req.lesson,
-        // TODO: implement progress controls
-        showControls: req.currentUser.canWriteProgress
+    loadProgress(req, res, req.lesson, function() {
+      req.currentUser.currentLesson = req.lesson.number;
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('homework', {
+          page: 'homework',
+          currentUser: req.currentUser,
+          currentLesson: req.lesson,
+          // TODO: implement progress controls
+          showControls: req.currentUser.canWriteProgress
+        });
       });
     });
   } else {
