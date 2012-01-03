@@ -541,14 +541,14 @@ app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
 app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId');
   if (req.currentLesson) {
-    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
       res.render('video', {
         page: 'webcast',
         currentUser: req.currentUser,
-        currentLesson: req.lesson,
-        videos: req.lesson.videos,
+        currentLesson: req.currentLesson,
+        videos: req.currentLesson.videos,
         progress: req.currentProgress.videos,
         showControls: req.currentUser.canWriteProgress
       });
@@ -562,13 +562,13 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
 app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
-    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
       res.render('video', {
         page: 'webcast',
         currentUser: req.currentUser,
-        currentLesson: req.lesson,
+        currentLesson: req.currentLesson,
         videos: [req.video],
         progress: [req.currentProgress.videos[req.video]],
         showControls: req.currentUser.canWriteProgress
@@ -602,13 +602,13 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework/:lessonId');
   if (req.currentLesson) {
-    req.currentUser.currentLesson = req.lesson.number;
+    req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
       res.render('homework', {
         page: 'homework',
         currentUser: req.currentUser,
-        currentLesson: req.lesson,
+        currentLesson: req.currentLesson,
         // TODO: implement progress controls
         showControls: req.currentUser.canWriteProgress
       });
