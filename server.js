@@ -41,7 +41,7 @@ schema.defineModels(mongoose, function() {
 });
 
 /** Default unauthenticated user. */
-var GUEST new User({
+var GUEST = new User({
   username: 'Guest',
   permission: schema.permissions.Guest
 });
@@ -190,6 +190,7 @@ function loadLesson(req, res, next) {
     log(err);
     if (lesson) {
       req.currentLesson = lesson;
+      next();
     } else {
       log("WARNING: User %s's currentLesson is corrupted.", req.currentUser.currentLesson);
       req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
