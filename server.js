@@ -353,11 +353,11 @@ app.post('/login', function(req, res) {
           token.save(function(err){
             log(err);
             res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
-            res.redirect('/dashboard');
+            res.redirect('/default');
           });
         });
       } else {
-        res.redirect('/dashboard');
+        res.redirect('/default');
       }
     } else {
       req.flash('error', 'Invalid username or password.');
@@ -490,7 +490,7 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
     });
   } else {
     req.flash('error', 'Whoops! User does not exist.');
-    res.redirect('/dashboard');
+    res.redirect('/default');
   }
 });
 /** Settings page. */
