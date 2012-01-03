@@ -130,7 +130,7 @@ function defineModels(mongoose, fn) {
     lesson: {
       type: ObjectId,
       ref: Lesson
-    }
+    },
     videos: [{
       type: Boolean,
       'default': false
@@ -188,8 +188,6 @@ function defineModels(mongoose, fn) {
       max: 5,
       'default': 2
     },
-    // TODO: Boolean values for each thing completed, reset upon lesson
-    // increment.
     salt: {
       type: String,
       required: true
