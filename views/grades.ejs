@@ -1,0 +1,16 @@
+<div id="centered">
+  <div id="lesson" class="noselect">
+    <h2>Grades for user: <strong><%-currentUser.username%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <div class="formbox">
+      <h3>You have <%-currentUser.grades.length %> grades in total</h3>
+      <% currentUser.grades.sort(function(a,b){ return a.order - b.order; })
+        for (var i = 0; i < currentUser.grades.length; i += 1) { var grade = currentUser.grades[i];%>
+        <span class="left boxy noselect displaymargin"><%-grade.name %> (<%-grade.grade %>)</span>
+      <% } %> <div class="clear"></div>
+    </div>
+  </div>
+</div>
