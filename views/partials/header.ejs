@@ -5,7 +5,7 @@
       </div>
       <div id="topfloater" class="right">
         <% if (!currentUser.canAccessDashboard()) { %>
-          <a><div class="left up">Welcome, guest</div></a>
+          <a><div class="left up margin">Welcome, guest</div></a>
         <% } else { %>
           <% if (currentUser) { %>
             <div class="topnav left">
@@ -22,6 +22,12 @@
             </a>
           </div>
         <% } %>
+        <div class="topnav left">
+            <a href="/logout">
+              <div class="smallwidth left"><span class="iconic unlocked"></span></div>
+              <div class="left up">Logout</div>
+            </a>
+          </div>
         <!-- TODO: Fullscreen mode for readings, etc. -->
       </div>
     </div>
