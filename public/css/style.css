@@ -614,7 +614,7 @@ h1 {
   user-select: none;
 }
 
-#settings {
+.formbox {
   width: 500px;
   line-height: 60px;
   margin: 0 auto;
@@ -631,6 +631,7 @@ h1 {
   background-color: #394349;
   color: #fff;
   text-shadow: none;
+  border-bottom: 1px solid rgba(242,245,246,1);
 }
 
 .textboxy {
@@ -639,6 +640,26 @@ h1 {
   width: 40%;
   padding: 0px 15px;
   border: 0px;
+  border-bottom: 1px solid rgba(242,245,246,1);
+}
+
+.textboxy:focus {
+  background-color: #FCFCD0;
+}
+
+.textboxy:invalid {
+  background-color: #e1bfbe
+}
+
+.formbox h3 {
+  margin: 0px;
+  margin-bottom: 5px;
+  padding: 0px;
+  font-size: 30px;
+  line-height: 30px;
+  text-transform: uppercase;
+	font-family: 'League Gothic';
+	font-weight: normal;
 }
 
 input {

@@ -1,29 +1,29 @@
-<div id="content">
-<div class="contentpadding">
-  <h1> admin/users </h1>
-  <p>
-    Logged in as <%-currentUser.username%>
-  </p>
-  <p>
-    Add new user:
-  </p>
+<div id="centered">
+
+  <div id="lesson" class="noselect">
+    <h2>User Administration - <strong><%-currentUser.username%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
   <form method="post" action="/admin/users/add">
-    <span class="left">username</span>
-    <input type="text" class="right" name='user[username]'>
+  <div class="formbox">
+  <h3>Add a user (<%-users.length %> total)</h3>
+    <span class="left boxy noselect">username</span>
+    <input type="text" class="right textboxy" name='user[username]'>
     <br>
-    <span class="left">password</span>
-    <input type="password" class="right" name='user[password]'>
+    <span class="left boxy noselect">password</span>
+    <input type="password" class="right textboxy" name='user[password]'>
     <br>
-    <span class="left">email</span>
-    <input type="text" class="right" name='user[email]'>
-    <br>
-    <button class="mybutton left" id="submitUserEdit">
+    <span class="left boxy noselect">email</span>
+    <input type="text" class="right textboxy" name='user[email]'>
+    <div class="clear"></div>
+  </div>
+    <button class="anotherbutton noselect" id="submitUserEdit">
       Add
     </button>
   </form>
-  <p>
-    Number of users: <%-users.length %>
-  </p>
+  
   <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%>
   <ul>
     <li>

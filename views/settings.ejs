@@ -6,21 +6,21 @@
   <br>
   <div class="contentpadding">
   <form method="post" action="/settings">
-  <div id="settings">
-    <span class="left boxy">email</span>
-    <input type="text" class="right textboxy" name='user[email]' value=<%-currentUser.email%>>
+  <div class="formbox">
+    <span class="left boxy noselect">email</span>
+    <input type="email" class="right textboxy" name='user[email]' value=<%-currentUser.email%>>
     <br>
-    <span class="left boxy">current password</span>
+    <span class="left boxy noselect">current password</span>
     <input type="password" class="right textboxy" name='user[password]' required>
     <br>
-    <span class="left boxy">new password</span>
+    <span class="left boxy noselect">new password</span>
     <input type="password" class="right textboxy" name='user[newpassword]'>
     <br>
-    <span class="left boxy">units</span>
-    <input type="text" class="right textboxy" name='user[units]' value=<%-currentUser.units%>>
+    <span class="left boxy noselect">units</span>
+    <input type="number" class="right textboxy" min="0" max="5" name='user[units]' value=<%-currentUser.units%>>
     <div class="clear"></div>
   </div>
-    <button class="anotherbutton" id="submitUserEdit">
+    <button class="anotherbutton noselect" id="submitUserEdit">
       Save
     </button>
   </form>
