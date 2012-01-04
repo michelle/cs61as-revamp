@@ -803,7 +803,10 @@ app.get('*', function(req, res) {
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/default');
 });
+
 // TODO: Search function
+
+// TODO: Feedback
 
 /** Start server. */
 var port = process.env.PORT || 8086;

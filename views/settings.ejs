@@ -8,7 +8,7 @@
   <form method="post" action="/settings">
   <div class="formbox">
     <span class="left boxy noselect">email</span>
-    <input type="email" class="right textboxy" name='user[email]' value=<%-currentUser.email%>>
+    <input type="email" class="right textboxy" name='user[email]' value=<%-currentUser.email%> required>
     <br>
     <span class="left boxy noselect">current password</span>
     <input type="password" class="right textboxy" name='user[password]' required>
@@ -20,7 +20,7 @@
     <input type="password" class="right textboxy" name='user[confirm]'>
     <br>
     <span class="left boxy noselect">units</span>
-    <input type="number" class="right textboxy" min="0" max="5" name='user[units]' value=<%-currentUser.units%>>
+    <input type="number" class="right textboxy" min="0" max="5" name='user[units]' value=<%-currentUser.units%> required>
     <div class="clear"></div>
   </div>
     <button class="anotherbutton noselect" id="submitUserEdit">

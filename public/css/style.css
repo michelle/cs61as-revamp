@@ -224,11 +224,19 @@ body, html {
   cursor: pointer;
   border-bottom: 1px solid #fff;
   border-radius: 0px 0px 15px 15px;
+  -webkit-transition: background-color 0.2s linear;
+  -moz-transition: background-color 0.2s linear;
+  -o-transition: background-color 0.2s linear;
+  transition: background-color 0.2s linear;
 }
 
 .anotherbutton {
   background-color: rgba(200,215,220,1);
   margin: 0;
+}
+
+.mybutton:hover {
+  background-color: rgba(200,215,220,1);
 }
 
 #top {
@@ -330,13 +338,13 @@ a {
   background-color: #FCFCD0;
 }
 
-.ui-state-incomplete {
+.incomplete {
   background-color: #e1bfbe;
   border: 1px solid #BD9392;
   color: #976766;
 }
 
-.ui-state-completed {
+.completed {
   background-color: #BEE1CA;
   border: 1px solid #609472;
   color: #609472;
@@ -697,4 +705,20 @@ input {
 
 .adminpanel:hover {
   border-bottom: 5px solid #e1bfbe;
+}
+
+.small {
+  font-size: 14px;
+  float: left;
+  line-height: 30px;
+  font-weight: 200;
+}
+
+#checkbox {
+  width: 120px;
+  margin: 0 auto;
+}
+
+.checkbox {
+  float: right;
 }
