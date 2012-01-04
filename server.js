@@ -409,7 +409,12 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
   });
   user.password = req.body.user.password;
   user.save(function(err) {
-    log(err);
+    if (err) {
+      log(err);
+      req.flash('error', 'User cannot be created.');
+    } else {
+      req.flash('info', 'User created!');
+    }
     User.find({}, function(err, users) {
       log(err);
       res.render('admin/users', {
@@ -430,7 +435,7 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
       user: req.user
     });
   } else {
-    req.flash('Error', 'Malformed userID.');
+    req.flash('error', 'Malformed userID.');
     res.redirect('/admin/users');
   }
 });
@@ -439,7 +444,9 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
     req.user.username = req.body.user.username;
-    req.user.password = req.body.user.password;
+    if (req.body.user.password != '') {
+      user.password = req.body.user.password;
+    }
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.units = req.body.user.units;
@@ -458,7 +465,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
       });
     });
   } else {
-    req.flash('Error', 'Malformed userID.');
+    req.flash('error', 'Malformed userID.');
     res.redirect('/admin/users');
   }
 });
