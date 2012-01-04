@@ -75,7 +75,7 @@ function defineModels(mongoose, fn) {
       required: true
     },
     grade: {
-      type: Number,
+      type: String,
       required: true
     },
     weight: {

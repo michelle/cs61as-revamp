@@ -1,0 +1,35 @@
+<div id="centered">
+  <div class="note">
+    <div class="padding">
+      Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Editing grade: <strong><%-grade.id%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/grades/<%-user.username%>/<%-grade.id%>">
+      <div class="formbox">
+        <h3>Editing a grade for user: <%-user.username%></h3>
+        <span class="left boxy noselect">name</span>
+        <input type="text" class="right textboxy" name='grade[name]' required value='<%-grade.name%>'>
+        <br>
+        <span class="left boxy noselect">order</span>
+        <input type="number" class="right textboxy" name='grade[order]' required value='<%-grade.order%>'>
+        <br>
+        <span class="left boxy noselect">grade</span>
+        <input type="text" class="right textboxy" name='grade[grade]' required value='<%-grade.grade%>'>
+        <br>
+        <span class="left boxy noselect">weight</span>
+        <input type="number" class="right textboxy" name='grade[weight]' required value='<%-grade.weight%>'>
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton noselect" id="submitUserEdit">
+        Edit
+      </button>
+    </form>
+  </div>
+</div>
