@@ -99,7 +99,7 @@ body, html {
   padding: 10px 0px;
 }
 
-#home span, #topbar a, #bottombar a {
+#alllessons span, #home span, #topbar a, #bottombar a {
   color: #9aa7b0;
   font-size: 30px;
   text-shadow: 0px 1px 0px #fff;
@@ -112,7 +112,7 @@ body, html {
   transition: color 0.2s linear;
 }
 
-#home span {
+#alllessons span, #home span {
   font-size: 50px;
 }
 
@@ -213,7 +213,7 @@ body, html {
   clear: both;
 }
 
-.mybutton {
+.anotherbutton, .mybutton {
   background-color: #9aa7b0;
   width: 100px;
   height: 50px;
@@ -224,6 +224,11 @@ body, html {
   cursor: pointer;
   border-bottom: 1px solid #fff;
   border-radius: 0px 0px 15px 15px;
+}
+
+.anotherbutton {
+  background-color: rgba(200,215,220,1);
+  margin: 0;
 }
 
 #top {
@@ -365,7 +370,7 @@ a {
   padding: 10px;
 }
 
-#home {
+#alllessons, #home {
   position: fixed;
   top: 120px;
   right: 0px;
@@ -389,7 +394,11 @@ a {
   transition: opacity 0.2s linear;
 }
 
-#home:hover {
+#alllessons {
+  top: 230px;
+}
+
+#alllessons:hover, #home:hover {
   opacity: 1;
 }
 
@@ -603,6 +612,37 @@ h1 {
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+#settings {
+  width: 500px;
+  line-height: 60px;
+  margin: 0 auto;
+  background-color: rgba(200,215,220,1);
+  padding: 10px;
+}
+
+.boxy {
+  height: 50px;
+  margin: 2px;
+  width: 45%;
+  padding: 0px 15px;
+  text-align: left;
+  background-color: #394349;
+  color: #fff;
+  text-shadow: none;
+}
+
+.textboxy {
+  height: 50px;
+  margin: 2px;
+  width: 40%;
+  padding: 0px 15px;
+  border: 0px;
+}
+
+input {
+  outline: none;
 }
 
 #nopadding {

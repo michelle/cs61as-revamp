@@ -19,7 +19,7 @@ $(document).ready(function() {
   });
   /** Superficial things. */
   $(function() {
-    $('#home').fadeIn('slow');
+    $('#home, #alllessons').fadeIn('slow');
     $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
   });
   /** Smooth scrolling. */

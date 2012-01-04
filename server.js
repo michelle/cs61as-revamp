@@ -511,21 +511,26 @@ app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res
 /** Save edit an user. */
 app.post('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
   trace('POST /settings');
-  req.currentUser.email = req.body.user.email;
-  req.currentUser.password = req.body.user.password;
-  req.currentUser.units = req.body.user.units;
-  req.currentUser.save(function(err){
-    log(err);
-    if (err) {
-      req.flash('error', 'User %s is not saved sucessfully.', req.currentUser.username);
-    } else {
-      req.flash('info', 'User %s is saved sucessfully.', req.currentUser.username);
+  if (req.currentUser && req.currentUser.authenticate(req.body.user.password)) {
+    req.currentUser.email = req.body.user.email;
+    if (req.body.user.newpassword != '') {
+      req.currentUser.password = req.body.user.newpassword;
     }
-    res.render('settings', {
-      page: 'settings',
-      currentUser: req.currentUser
+    // TODO: Fix getter/setter error?
+    req.currentUser.units = req.body.user.units;
+    req.currentUser.save(function(err) {
+      log(err);
+      if (err) {
+        req.flash('error', 'User %s is not saved sucessfully.', req.currentUser.username);
+      } else {
+        req.flash('info', 'User %s is saved sucessfully.', req.currentUser.username);
+      }
+      res.redirect('/settings');
     });
-  });
+  } else {
+    req.flash('error', 'Please enter your current password to make any changes.');
+    res.redirect('/settings');
+  }
 });
 /** Collective lessons. */
 app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {

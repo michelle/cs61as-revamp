@@ -1,20 +1,28 @@
-<div id="content">
-  <h1> Settings </h1>
-  <p>
-    Logged in as <%-currentUser.username%>
-  </p>
+<div id="centered">
+  <div id="lesson" class="noselect">
+    <h2>Settings - <strong><%-currentUser.username%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
   <form method="post" action="/settings">
-    <span class="left">email</span>
-    <input type="text" class="right" name='user[email]' value=<%-currentUser.email%>>
+  <div id="settings">
+    <span class="left boxy">email</span>
+    <input type="text" class="right textboxy" name='user[email]' value=<%-currentUser.email%>>
     <br>
-    <span class="left">password</span>
-    <input type="text" class="right" name='user[password]'>
+    <span class="left boxy">current password</span>
+    <input type="password" class="right textboxy" name='user[password]' required>
     <br>
-    <span class="left">units</span>
-    <input type="text" class="right" name='user[units]' value=<%-currentUser.units%>>
+    <span class="left boxy">new password</span>
+    <input type="password" class="right textboxy" name='user[newpassword]'>
+    <br>
+    <span class="left boxy">units</span>
+    <input type="text" class="right textboxy" name='user[units]' value=<%-currentUser.units%>>
     <div class="clear"></div>
-    <button class="mybutton left" id="submitUserEdit">
+  </div>
+    <button class="anotherbutton" id="submitUserEdit">
       Save
     </button>
   </form>
+  </div>
 </div>

@@ -1,9 +1,12 @@
-<!-- TODO: make this beautiful. -->
+<!-- TODO: Make permission options like: Grader, TA, Student for easy creation of users. -->
 <div id="centered">
-  <h1>admin/index</h1>
-  <p>
-    Logged in as <%-currentUser.username%>
-  </p>
+  <div id="lesson" class="noselect">
+    <h2>Admin Panel - <strong><%-currentUser.username%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
   <a href="/admin/users">Users management</a><br/>
   <a href="/grades">Enter grades</a>
+  </div>
 </div>
