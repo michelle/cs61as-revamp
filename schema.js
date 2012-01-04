@@ -98,7 +98,8 @@ function defineModels(mongoose, fn) {
     number: {
       type: Number,
       min: 1,
-      required: true
+      required: true,
+      index: true
     },
     name: {
       type: String,
@@ -150,6 +151,7 @@ function defineModels(mongoose, fn) {
       'default': false
     }],
   });
+  Progress.index({ lesson: 1, user: 1 }, { unique: true });
 
   /** A user. */
   User = new Schema({
@@ -161,8 +163,8 @@ function defineModels(mongoose, fn) {
       }
     },
     username: {
-      // TODO: regex username
       type: String,
+      match: /^[a-z][a-z0-9_-]{3,31}$/i,
       required: true,
       index: {
         unique: true
@@ -280,8 +282,8 @@ function defineModels(mongoose, fn) {
   /** Login token for remembering logins. */
   LoginToken = new Schema({
     username: {
-      // TODO: regex username
       type: String,
+      match: /^[a-z][a-z0-9_-]{3,31}$/i,
       required: true,
       index: {
         unique: true
@@ -293,7 +295,6 @@ function defineModels(mongoose, fn) {
     },
     token: {
       type: String,
-      index: true
     }
   });
 
