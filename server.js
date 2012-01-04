@@ -555,7 +555,7 @@ app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
     });
   } else {
     req.flash('error', 'Whoops! webcast for this lesson does not exist.');
-    res.redirect('/lessons');
+    res.redirect('/default');
   }
 });
 /** Viewing webcast at LESSONID.
@@ -577,7 +577,7 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
     });
   } else {
     req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
-    res.redirect('/lessons');
+    res.redirect('/default');
   }
 });
 /** Viewing webcast by its URL. */
@@ -598,7 +598,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
     });
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
-    res.redirect('/lessons');
+    res.redirect('/default');
   }
 });
 /** Homework.
@@ -616,7 +616,7 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
-    res.redirect('/lessons');
+    res.redirect('/default');
   }
 });
 /** View homework at LESSONID.
@@ -637,7 +637,7 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
-    res.redirect('/lessons');
+    res.redirect('/default');
   }
 });
 /** Announcements. */

@@ -1,7 +1,13 @@
 <div id="nocenter">
-  <% if (currentLesson.homework) {%>
-  <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
-  <%} else {%>
+  <% var homework = false; %>
+  <% for (var i in currentLesson.assignments) { var assignment = currentLesson.assignments[i]; %>
+    <% if (!assignment.project) { %>
+      <% homework = true; %>
+    <% } %>
+  <% } %>
+  <% if (homework) { %>
+    <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+  <% } else { %>
   <p>
     Homework for this lesson does not exist.
   </p>
