@@ -384,12 +384,9 @@ app.get('/logout', loadUser, function(req, res) {
   if (req.session) {
     LoginToken.remove({ username: req.currentUser.username }, function() {});
     res.clearCookie('rememberme');
+    delete req.session.user_id;
     req.flash('info', 'Logged out successfully!');
-    req.session.destroy(function(err) {
-      log(err);
-    });
   }
-  // TODO: How to get flash to work if session is destroyed?
   res.redirect('/home');
 });
 /** Admin Control Panel. */
