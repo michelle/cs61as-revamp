@@ -15,6 +15,7 @@ var Progress;
 var permissions = {
   SuperAdmin: 0x1FFFFF,
   Instructor: 0x1FFC4F,
+  Grader: 0x1FFC07,
   User: 0x1FC006,
   Guest: 0x000004
 };
