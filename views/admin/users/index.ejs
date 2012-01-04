@@ -8,7 +8,7 @@
   <div class="contentpadding">
   <form method="post" action="/admin/users/add">
   <div class="formbox">
-  <h3>Add a user (<%-users.length %> total)</h3>
+  <h3>Add a user</h3>
     <span class="left boxy noselect">username</span>
     <input type="text" class="right textboxy" name='user[username]'>
     <br>
@@ -23,14 +23,16 @@
       Add
     </button>
   </form>
-  
+  <br><br>
+  <div class="formbox">
+  <h3>Edit a user (<%-users.length %> total)</h3>
   <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%>
-  <ul>
-    <li>
-      <span class="left">username: <%-user.username %></span>
-      <a href="/admin/users/edit/<%-user.id%>">(edit)</a>
-    </li>
-  </ul>
+  
+      <span class="left boxy noselect displaymargin">username: <%-user.username %></span>
+      <a class="right linkboxy displaymargin" href="/admin/users/edit/<%-user.id%>">(edit)</a>
+
   <% } %>
+  <div class="clear"></div>
+  </div>
 </div>
 </div>

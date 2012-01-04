@@ -1,36 +1,39 @@
-<div id="content">
-<div class="contentpadding">
-  <h1> admin/users/edit </h1>
-  <p>
-    Logged in as <%-currentUser.username%>
-  </p>
-  <p>
+<div id="centered">
+  <div class="note">
+  <div class="padding">
     Think twice before you click save.
-    <br/>
-    This is dangerous, and it has the potential to break your DB (no security yet).
-    <br/>
-    Editing user with ID: <%-user.id%>
-  </p>
+    This is dangerous, and it has the potential to break the DB (no security yet).
+  </div>
+  </div>
+ <div id="lesson" class="noselect">
+    <h2>Editing user with ID: <strong><%-user.id%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+<div class="contentpadding">
+
   <form method="post" action="/admin/users/edit/<%-user.id%>">
-    <span class="left">username</span>
-    <input type="text" class="right" name='user[username]' value=<%-user.username%>>
+  <div class="formbox">
+    <span class="left boxy noselect" required>username</span>
+    <input type="text" class="right textboxy" name='user[username]' value=<%-user.username%>>
     <br>
-    <span class="left">password</span>
-    <input type="text" class="right" name='user[password]'>
+    <span class="left boxy noselect" required>password</span>
+    <input type="text" class="right textboxy" name='user[password]'>
     <br>
-    <span class="left">email</span>
-    <input type="text" class="right" name='user[email]' value=<%-user.email%>>
+    <span class="left boxy noselect">email</span>
+    <input type="email" class="right textboxy" name='user[email]' value=<%-user.email%>>
     <br>
-    <span class="left">currentLesson</span>
-    <input type="text" class="right" name='user[currentLesson]' value=<%-user.currentLesson%>>
+    <span class="left boxy noselect">currentLesson</span>
+    <input type="number" min="0" class="right textboxy" name='user[currentLesson]' value=<%-user.currentLesson%>>
     <br>
-    <span class="left">units</span>
-    <input type="text" class="right" name='user[units]' value=<%-user.units%>>
+    <span class="left boxy noselect">units</span>
+    <input type="number" min="0" max="5" class="right textboxy" name='user[units]' value=<%-user.units%>>
     <br>
-    <span class="left">permission</span>
-    <input type="text" class="right" name='user[permission]' value=<%-user.permission%>>
+    <span class="left boxy noselect" required>permission</span>
+    <input type="text" class="right textboxy" name='user[permission]' value=<%-user.permission%>>
     <div class="clear"></div>
-    <button class="mybutton left" id="submitUserEdit">
+  </div>
+    <button class="anotherbutton" id="submitUserEdit">
       Save
     </button>
   </form>

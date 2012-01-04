@@ -624,7 +624,7 @@ h1 {
 
 .boxy {
   height: 50px;
-  margin: 2px;
+  margin: 5px;
   width: 45%;
   padding: 0px 15px;
   text-align: left;
@@ -634,13 +634,22 @@ h1 {
   border-bottom: 1px solid rgba(242,245,246,1);
 }
 
-.textboxy {
+.linkboxy, .textboxy {
   height: 50px;
-  margin: 2px;
-  width: 40%;
+  margin: 5px;
+  width: 38%;
   padding: 0px 15px;
   border: 0px;
   border-bottom: 1px solid rgba(242,245,246,1);
+  background-color: #fff;
+}
+
+.linkboxy {
+  color: #394349;
+}
+
+.linkboxy:hover {
+  background-color: #FCFCD0;
 }
 
 .textboxy:focus {
