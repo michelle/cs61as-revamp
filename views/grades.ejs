@@ -5,11 +5,14 @@
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-    <div class="formbox">
+    <div class="gradebox">
       <h3>You have <%-currentUser.grades.length %> grades in total</h3>
       <% currentUser.grades.sort(function(a,b){ return a.order - b.order; })
-        for (var i = 0; i < currentUser.grades.length; i += 1) { var grade = currentUser.grades[i];%>
-        <span class="left boxy noselect displaymargin"><%-grade.name %> (<%-grade.grade %>)</span>
+        for (var i = 0; i < currentUser.grades.length; i += 1) { var grade = currentUser.grades[i]; var color = 'yellow';%>
+        <% if (grade.grade >= 90) { color = 'green'; } %>
+        <% if (grade.grade < 75) { color = 'red'; } %>
+        <span class="left displayboxyleft displaymargin"><%-grade.name %></span>
+        <span class="right displayboxyright displaymargin <%-color%>"><%-grade.grade %></span>
       <% } %> <div class="clear"></div>
     </div>
   </div>

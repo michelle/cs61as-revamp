@@ -529,7 +529,7 @@ h1 {
   color: #609472;
 }
 
-#homeflash .errornote, #homeflash .flash {
+#homeflash .errornote, #homeflash .flash, #homeflash .infonote {
   box-shadow: none;
   -mox-box-shadow: none;
   -webkit-box-shadow: none;
@@ -616,12 +616,16 @@ h1 {
   user-select: none;
 }
 
-.formbox {
+.gradebox, .formbox {
   width: 500px;
   line-height: 60px;
   margin: 0 auto;
   background-color: rgba(200,215,220,1);
   padding: 10px;
+}
+
+.gradebox {
+  background-color: transparent;
 }
 
 .boxy {
@@ -636,7 +640,7 @@ h1 {
   border-bottom: 1px solid rgba(242,245,246,1);
 }
 
-.selectboxy, .linkboxy, .textboxy {
+.displayboxyleft, .displayboxyright, .selectboxy, .linkboxy, .textboxy {
   height: 50px;
   margin: 5px;
   width: 38%;
@@ -644,6 +648,27 @@ h1 {
   border: 0px;
   border-bottom: 1px solid rgba(242,245,246,1);
   background-color: #fff;
+}
+
+.displayboxyright {
+  text-align: left;
+}
+
+.green {
+  background-color: #BEE1CA;
+}
+
+.red {
+  background-color: #e1bfbe;
+}
+
+.yellow {
+  background-color: #FCFCD0;
+}
+
+.displayboxyleft {
+  text-align: right;
+  width: 45%;
 }
 
 .selectboxy {
@@ -666,7 +691,7 @@ h1 {
   background-color: #e1bfbe;
 }
 
-.formbox h3 {
+.gradebox h3, .formbox h3 {
   margin: 0px;
   margin-bottom: 5px;
   padding: 0px;
