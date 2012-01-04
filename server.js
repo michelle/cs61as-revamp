@@ -282,11 +282,7 @@ app.param('userId', function(req, res, next, userId) {
   trace('param userId');
   User.findById(userId, function(err, user) {
     log(err);
-    if (!err && user) {
-      req.user = user;
-    } else {
-      req.user = null;
-    }
+    req.user = !err && user;
     next();
   });
 });
@@ -297,11 +293,7 @@ app.param('username', function(req, res, next, username) {
     username: username
   }, function(err, user) {
     log(err);
-    if(!err && user) {
-      req.user = user;
-    } else {
-      req.user = null;
-    }
+    req.user = !err && user;
     next();
   });
 });
@@ -312,11 +304,7 @@ app.param('lessonId', function(req, res, next, lessonId) {
     number: lessonId
   }, function(err, lesson) {
     log(err);
-    if (!err && lesson) {
-      req.currentLesson = lesson;
-    } else {
-      req.currentLesson = null;
-    }
+    req.currentLesson = !err && lesson;
     next();
   });
 });
@@ -329,7 +317,7 @@ app.param('gradeId', function(req, res, next, gradeId) {
 /** Pre condition param videoId into req.video. */
 app.param('videoId', function(req, res, next, videoId) {
   trace('param videoId');
-  req.video = req.currentLesson.videos[videoId] || null;
+  req.video = req.currentLesson.videos && req.currentLesson.videos[videoId];
   next();
 });
 /** Defaults for each type of user. */
@@ -440,15 +428,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canWriteUserInfoEveryone'), 
     } else {
       req.flash('info', 'User created!');
     }
-    // TODO: redirect instead
-    User.find({}, function(err, users) {
-      log(err);
-      res.render('admin/users', {
-        page: 'admin/users/index',
-        currentUser: req.currentUser,
-        users: users
-      });
-    });
+    res.redirect('/admin/users');
   });
 });
 /** Edit an user. */
