@@ -40,7 +40,9 @@
     </a>
   <% } %>
   
-  <% if (page != 'dashboard' && !(!currentUser.canAccessDashboard() && page === 'lessons') ) { %>
+  <% if (page !== 'admin/index'
+     && (page !== 'dashboard' || currentUser.canAccessAdminPanel())
+     && (page !== 'lessons' || currentUser.canAccessDashboard())) { %>
     <a href="/default">
       <div id="home">
         <span class="iconic home"></span>
