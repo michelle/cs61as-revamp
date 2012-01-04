@@ -574,6 +574,14 @@ app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', same
     res.redirect('/default');
   }
 });
+/** Get grades for current user. */
+app.get('/grades', loadUser, checkPermit('canReadGrade'), function(req, res) {
+  trace('GET /grades');
+  res.render('grades', {
+    page: 'grades',
+    currentUser: req.currentUser,
+  });
+});
 /** Settings page. */
 app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res) {
   trace('GET /settings');
