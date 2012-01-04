@@ -155,7 +155,6 @@ function defineModels(mongoose, fn) {
     email: {
       // TODO: regex email
       type: String,
-      required: true,
       index: {
         unique: true
       }

@@ -88,6 +88,20 @@ function trace(msg) {
   }
 }
 
+/** Determine permissions. */
+function getType(type) {
+  switch(type) {
+    case('Grader'):
+      return schema.permissions.Grader;
+    case('Student'):
+      return schema.permissions.User;
+    case('Instructor'):
+      return schema.permissions.Instructor;
+    default:
+      return schema.permissions.Guest;
+  }
+}
+
 /** Load current user if logged in
  *  else set current user to GUEST. */
 function loadUser(req, res, next) {
@@ -393,7 +407,7 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
   });
 });
 /** Manage users. */
-app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+app.get('/admin/users', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
   User.find({}, function(err, users) {
     log(err);
@@ -405,13 +419,14 @@ app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), function(r
   });
 });
 /** Add an user. */
-app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+app.post('/admin/users/add', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
   var user = new User({
     username: req.body.user.username,
     email: req.body.user.email,
   });
   user.password = req.body.user.password;
+  user.permission = getType(req.body.user.type);
   user.save(function(err) {
     if (err) {
       log(err);
@@ -430,7 +445,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), funct
   });
 });
 /** Edit an user. */
-app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+app.get('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
     res.render('admin/users/edit', {
@@ -444,7 +459,7 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
   }
 });
 /** Save edit an user. */
-app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+app.post('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
     req.user.username = req.body.user.username;
@@ -458,9 +473,9 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     req.user.save(function(err){
       log(err);
       if (err) {
-        req.flash('error', 'User %s is not saved sucessfully.', req.user.username);
+        req.flash('error', 'User %s was not saved successfully.', req.user.username);
       } else {
-        req.flash('info', 'User %s is saved sucessfully.', req.user.username);
+        req.flash('info', 'User %s was saved successfully.', req.user.username);
       }
       res.render('admin/users/edit', {
         page: 'admin/users/edit',
@@ -524,17 +539,24 @@ app.post('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, r
   trace('POST /settings');
   if (req.currentUser && req.currentUser.authenticate(req.body.user.password)) {
     req.currentUser.email = req.body.user.email;
+    var pwerr = false
     if (req.body.user.newpassword != '') {
-      req.currentUser.password = req.body.user.newpassword;
+      if (req.body.user.newpassword === req.body.user.confirm) {
+        req.currentUser.password = req.body.user.newpassword;
+      } else {
+        pwerr = true;
+        req.flash('error', 'New password was not saved because passwords did not match.');
+      }
     }
-    // TODO: Fix getter/setter error?
     req.currentUser.units = req.body.user.units;
     req.currentUser.save(function(err) {
       log(err);
       if (err) {
-        req.flash('error', 'User %s is not saved sucessfully.', req.currentUser.username);
+        req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
       } else {
-        req.flash('info', 'User %s is saved sucessfully.', req.currentUser.username);
+        if (!pwerr) {
+          req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
+        }
       }
       res.redirect('/settings');
     });

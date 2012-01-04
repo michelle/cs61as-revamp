@@ -15,7 +15,7 @@
   <form method="post" action="/admin/users/edit/<%-user.id%>">
   <div class="formbox">
     <span class="left boxy noselect" required>username</span>
-    <input type="text" class="right textboxy" name='user[username]' value=<%-user.username%>>
+    <input type="text" class="right textboxy" name='user[username]' value=<%-user.username%> required>
     <br>
     <span class="left boxy noselect" required>password</span>
     <input type="text" class="right textboxy" name='user[password]'>
@@ -24,13 +24,13 @@
     <input type="email" class="right textboxy" name='user[email]' value=<%-user.email%>>
     <br>
     <span class="left boxy noselect">currentLesson</span>
-    <input type="number" min="0" class="right textboxy" name='user[currentLesson]' value=<%-user.currentLesson%>>
+    <input type="number" min="0" class="right textboxy" name='user[currentLesson]' value=<%-user.currentLesson%> required>
     <br>
     <span class="left boxy noselect">units</span>
-    <input type="number" min="0" max="5" class="right textboxy" name='user[units]' value=<%-user.units%>>
+    <input type="number" min="0" max="5" class="right textboxy" name='user[units]' value=<%-user.units%> required>
     <br>
     <span class="left boxy noselect" required>permission</span>
-    <input type="text" class="right textboxy" name='user[permission]' value=<%-user.permission%>>
+    <input type="text" class="right textboxy" name='user[permission]' value=<%-user.permission%> required>
     <div class="clear"></div>
   </div>
     <button class="anotherbutton" id="submitUserEdit">
