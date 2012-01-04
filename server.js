@@ -622,7 +622,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
  *  Only displays progress control when the user has permission. */
 app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
   trace('GET /homework');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
       page: 'homework',
       currentUser: req.currentUser,
@@ -639,7 +639,7 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
  *  Only displays progress control when the user has permission. */
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework/:lessonId');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.homework) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
@@ -653,6 +653,45 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
+    res.redirect('/default');
+  }
+});
+/** Project.
+ *  Defaults: display the one specified by currentUser.currentLesson.
+ *  Only displays progress control when the user has permission. */
+app.get('/project', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+  trace('GET /project');
+  if (req.currentLesson && req.currentLesson.project) {
+    res.render('project', {
+      page: 'project',
+      currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
+      // TODO: implement progress controls
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Project for this lesson does not exist.');
+    res.redirect('/default');
+  }
+});
+/** View project at LESSONID.
+ *  Only displays progress control when the user has permission. */
+app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /project/:lessonId');
+  if (req.currentLesson && req.currentLesson.project) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('project', {
+        page: 'project',
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        // TODO: implement progress controls
+        showControls: req.currentUser.canWriteProgress
+      });
+    });
+  } else {
+    req.flash('error', 'Whoops! Project for this lesson does not exist.');
     res.redirect('/default');
   }
 });

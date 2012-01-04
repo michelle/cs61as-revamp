@@ -87,18 +87,9 @@ function defineModels(mongoose, fn) {
   /** An assignment.
    *  Only accessible through Lesson. */
   Assignment = new Schema({
-    order: {
-      type: Number,
-      min: 0,
-      required: true
-    },
     name: {
       type: String,
       required: true
-    },
-    project: {
-      type: Boolean,
-      'default': false
     }
   });
 
@@ -126,7 +117,13 @@ function defineModels(mongoose, fn) {
       'default': []
     },
   });
-  
+  Lesson.virtual('homework').get(function() {
+    return this.assignments && this.assignments[0];
+  });
+  Lesson.virtual('project').get(function() {
+    return this.assignments && this.assignments[1];
+  });
+
   Progress = new Schema({
     lesson: {
       type: ObjectId,
