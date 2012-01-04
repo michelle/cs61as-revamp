@@ -112,6 +112,10 @@ function defineModels(mongoose, fn) {
       type: [Assignment],
       'default': []
     },
+    extra: {
+      type: [Assignment],
+      'default': []
+    },
     readings: {
       type: [Reading],
       'default': []

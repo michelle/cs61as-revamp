@@ -5,7 +5,7 @@
   <div id="lefttriangle"></div>
 <div class="contentpadding">
   <div id="accordion">
-    <% for (var i in lessons) { lesson = lessons[i]; n = lesson.number; %>
+    <% for (var i in lessons) { lesson = lessons[i]; var n = lesson.number; %>
 
         <h3 class="noselect"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
@@ -16,13 +16,15 @@
               <% } %>
             <br>
           <% } %>
+          
           <% if (lesson.readings.length > 0) { %>
             <strong>Readings:</strong>
-              <% for (var k = 0; j < lesson.readings.length; j += 1) { var reading = lesson.readings[k]; %>
+              <% for (var k = 0; k < lesson.readings.length; k += 1) { var reading = lesson.readings[k]; %>
                 <br><span class="indent">- <%-reading.name%></span>
               <% } %>
             <br>
           <% } %>
+          
           <% if (lesson.assignments.length > 0) { %>
             <strong>Assignments:</strong>
               <% if (lesson.homework) { %>
@@ -30,6 +32,14 @@
               <% } %>
               <% if (lesson.project) { %>
                 <br><span class="indent">- Project: <a href="/project/<%-n%>"><%-lesson.project.name%></a></span>
+              <% } %>
+            <br>
+          <% } %>
+          
+          <% if (lesson.extra.length > 0) { %>
+            <strong>Extras for Experts:</strong>
+              <% for (var l = 0; l < lesson.extra.length; l += 1) { var extra = lesson.extra[l]; %>
+                <br><span class="indent">- <a href="/extra/<%-n%>/<%-j%>"><%-extra.name%></a></span>
               <% } %>
             <br>
           <% } %>

@@ -313,30 +313,24 @@ a {
    margin-top: 0px;
 }
 
-#sortable, #sortable2, #sortable3 { 
+.nolist { 
   list-style-type: none; 
   margin: 0; 
   padding: 0; 
   width: 100%; 
-
 }
-#sortable li, #sortable2 li, #sortable3 li { 
+.nolist li { 
   margin: 0 5px 5px 5px; 
   padding: 5px; 
   font-size: 1.2em; 
   height: 1.5em; 
 }
 
-#sortable li, #sortable2 li, #sortable3 li { 
+.nolist li { 
   height: 1.5em; 
   line-height: 1.2em; 
 }
 
-.ui-state-highlight { 
-  height: 1.5em; 
-  line-height: 1.2em; 
-  background-color: #FCFCD0;
-}
 
 .incomplete {
   background-color: #e1bfbe;

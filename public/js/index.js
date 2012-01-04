@@ -5,11 +5,6 @@ $(document).ready(function() {
 		$( "#accordion" ).accordion({
 			collapsible: true
 		});
-    $("#sortable, #sortable2, #sortable3").sortable({
-      placeholder: "ui-state-highlight",
-      items: "li:not(.ui-state-completed)"
-    });
-    $("#sortable li, #sortable2 li, #sortable3 li").disableSelection();
   });
   /** Login form fanciness. */
   $('#showlogin').click(function() {

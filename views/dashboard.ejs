@@ -17,25 +17,57 @@
   <div id="lefttriangle"></div>
   
   <div class="clear"></div>
+  <% var n = currentLesson.number; %>
   <div class="thirds left">
     <h1>Learn</h1>
-    <ul id="sortable">
-	    <a href="/webcast"><li class="completed">Webcast</li></a>
-	    <li class="incomplete">Lecture Notes</li>
-	    <li class="incomplete">SICP Reading</li>
+    <ul class="nolist">
+          <% if (currentLesson.videos.length > 0) { %>
+            <a href="/webcast"><li class="incomplete">Webcast</li></a>
+          <% } %>
+          
+          <% if (currentLesson.readings.length > 0) { %>
+              <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
+                <li class="incomplete"><%-reading.name%></li>
+              <% } %>
+          <% } %>
+          
     </ul>
   </div>
   <div class="thirds left">
     <h1>Practice</h1>
-    <ul id="sortable2">
-	    <a href="/homework/<%-currentLesson.number%>"><li class="ui-state-completed">Homework</li></a>
-	    <li class="incomplete">Project</li>
+      <ul class="nolist">
+          <% if (currentLesson.assignments.length > 0) { %>
+              <% if (currentLesson.homework) { %>
+                <a href="/homework/<%-n%>"><li class="incomplete">Homework</li></a>
+              <% } %>
+              <% if (currentLesson.project) { %>
+                <a href="/project/<%-n%>"><li class="incomplete">Project</li></a>
+              <% } %>
+          <% } else { %>
+            <div class="note"> 
+              <div class="padding">
+                Looks like there's no assignments for this lesson.
+              </div>
+            </div>
+          <% } %>
+          
     </ul>
   </div>
   <div class="thirds left">
     <h1>Master</h1>
-    <ul id="sortable3">
-	    <li class="incomplete">Extra for Experts</li>
+    <ul class="nolist">
+          <% if (currentLesson.extra.length > 0) { %>
+              <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %>
+                <a href="/extra/<%-n%>/<%-j%>"><li class="incomplete"><%-extra.name%></li></a>
+              <% } %>
+          <% } else { %>
+            <div class="note"> 
+              <div class="padding">
+                Looks like there's no extras for this lesson.
+              </div>
+            </div>
+          <% } %>
+  
     </ul>
   </div>
 
