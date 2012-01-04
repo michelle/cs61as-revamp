@@ -1,12 +1,18 @@
 <div id="nocenter">
   <% var homework = false; %>
-  <% for (var i in currentLesson.assignments) { var assignment = currentLesson.assignments[i]; %>
+  <% for (var i in currentLesson.assignments) { %>
+    <% var assignment = currentLesson.assignments[i]; %>
     <% if (!assignment.project) { %>
-      <% homework = true; %>
+      <% homework = assignment; // TODO: multiple homeworks %>
     <% } %>
   <% } %>
   <% if (homework) { %>
-    <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+    <div id="lesson"><h2>Homework <%-currentLesson.number + ': ' + homework.name%></h2></div>
+    <div id="lefttriangle"></div>
+    <div class="clear"></div>
+    <div id="homework">
+      <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+    </div>
   <% } else { %>
   <p>
     Homework for this lesson does not exist.
