@@ -240,7 +240,7 @@ function loadProgress(req, res, next) {
  *  Redirect to /default if the user doesn't have the required permissions. */
 function checkPermit(permit, sameuser) {
   return function(req, res, next) {
-    trace('checkPermit');
+    trace('checkPermit: ' + permit);
     if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
@@ -319,8 +319,12 @@ app.get('/default', loadUser, function(req, res) {
     res.redirect('/admin');
   } else if (req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
-  } else {
+  } else if (req.currentUser.canReadLesson()) {
     res.redirect('/lessons');
+  } else {
+    // ERROR 101: permission not set.
+    req.flash('error', 'ERROR 101: Your account appears to be corrupted. Please see admin.');
+    res.redirect('/home');
   }
 });
 /** Default view iff logged in. */
