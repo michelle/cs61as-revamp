@@ -193,7 +193,6 @@ function defineModels(mongoose, fn) {
     },
     salt: {
       type: String,
-      required: true
     }
   });
 
