@@ -448,7 +448,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   if (req.user) {
     req.user.username = req.body.user.username;
     if (req.body.user.password != '') {
-      user.password = req.body.user.password;
+      req.user.password = req.body.user.password;
     }
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
@@ -591,28 +591,27 @@ app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res
   });
 });
 /** Save edit an user. */
-app.post('/settings', loadUser, checkPermit('canWriteUserInfo'), function(req, res) {
+app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, res) {
   trace('POST /settings');
-  if (req.currentUser && req.currentUser.authenticate(req.body.user.password)) {
-    req.currentUser.email = req.body.user.email;
-    var pwerr = false
+  if (req.currentUser.authenticate(req.body.user.password)) {
     if (req.body.user.newpassword != '') {
       if (req.body.user.newpassword === req.body.user.confirm) {
         req.currentUser.password = req.body.user.newpassword;
       } else {
-        pwerr = true;
-        req.flash('error', 'New password was not saved because passwords did not match.');
+        req.flash('error', 'User %s was not saved successfully because because new passwords did not match.', req.currentUser.username);
+        res.redirect('/settings');
+        return;
       }
     }
+    req.currentUser.email = req.body.user.email;
     req.currentUser.units = req.body.user.units;
+
     req.currentUser.save(function(err) {
       log(err);
       if (err) {
         req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
       } else {
-        if (!pwerr) {
-          req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
-        }
+        req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
       }
       res.redirect('/settings');
     });
