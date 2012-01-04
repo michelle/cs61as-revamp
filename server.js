@@ -398,7 +398,7 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
   });
 });
 /** Manage users. */
-app.get('/admin/users', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
   User.find({}, function(err, users) {
     log(err);
@@ -410,7 +410,7 @@ app.get('/admin/users', loadUser, checkPermit('canWriteUserInfoEveryone'), funct
   });
 });
 /** Add an user. */
-app.post('/admin/users/add', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
   var user = new User({
     username: req.body.user.username,
@@ -429,7 +429,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canWriteUserInfoEveryone'), 
   });
 });
 /** Edit an user. */
-app.get('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
     res.render('admin/users/edit', {
@@ -443,7 +443,7 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEver
   }
 });
 /** Save edit an user. */
-app.post('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
     req.user.username = req.body.user.username;
