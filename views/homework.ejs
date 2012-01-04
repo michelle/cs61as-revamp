@@ -1,13 +1,6 @@
 <div id="nocenter">
-  <% var homework = false; %>
-  <% for (var i in currentLesson.assignments) { %>
-    <% var assignment = currentLesson.assignments[i]; %>
-    <% if (!assignment.project) { %>
-      <% homework = assignment; /* TODO: Multiple homeworks */%>
-    <% } %>
-  <% } %>
-  <% if (homework) { %>
-    <div id="lesson"><h2>Homework <%-currentLesson.number + ': ' + homework.name%></h2></div>
+  <% if (currentLesson.homework) { %>
+    <div id="lesson"><h2>Homework <%-currentLesson.number + ': ' + currentLesson.homework.name%></h2></div>
     <div id="lefttriangle"></div>
     <div class="clear"></div>
     <div id="homework">
@@ -15,7 +8,8 @@
     </div>
   <% } else { %>
   <p>
-    Homework for this lesson does not exist.
+    Homework for this lesson does not exist.<br/>
+    TODO: each lesson should have one homework.
   </p>
   <%}%>
 </div>

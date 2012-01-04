@@ -25,12 +25,11 @@
           <% } %>
           <% if (lesson.assignments.length > 0) { %>
             <strong>Assignments:</strong>
-              <% for (var l = 0; l < lesson.assignments.length; l += 1) { var assignment = lesson.assignments[l]; %>
-                <% if (assignment.project) { %>
-                  <br><span class="indent">- Project <%-n%>: <a href="/project/<%-n%>"><%-assignment.name%></a></span>
-                <% } else { %>
-                  <br><span class="indent">- Homework <%-n%>: <a href="/homework/<%-n%>"><%-assignment.name%></a></span>
-                <% } %>
+              <% if (lesson.homework) { %>
+                <br><span class="indent">- Homework: <a href="/homework/<%-n%>"><%-lesson.homework.name%></a></span>
+              <% } %>
+              <% if (lesson.project) { %>
+                <br><span class="indent">- Project: <a href="/project/<%-n%>"><%-lesson.project.name%></a></span>
               <% } %>
             <br>
           <% } %>

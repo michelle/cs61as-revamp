@@ -320,6 +320,12 @@ app.param('lessonId', function(req, res, next, lessonId) {
     next();
   });
 });
+/** Pre condition param lessonId into req.lesson. */
+app.param('gradeId', function(req, res, next, gradeId) {
+  trace('param gradeId');
+  req.grade = req.user.grades && req.user.grades.id(gradeId)
+  next();
+});
 /** Pre condition param videoId into req.video. */
 app.param('videoId', function(req, res, next, videoId) {
   trace('param videoId');
@@ -434,6 +440,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canWriteUserInfoEveryone'), 
     } else {
       req.flash('info', 'User created!');
     }
+    // TODO: redirect instead
     User.find({}, function(err, users) {
       log(err);
       res.render('admin/users', {
@@ -488,18 +495,82 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canWriteUserInfoEve
     res.redirect('/admin/users');
   }
 });
-/** Enter grades. */
-// TODO: Determine how to organize assignments so that all are shown and then can be saved into grades.
-app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+/** Manage grades. */
+app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades');
-  res.render('admin/grades', {
-    page: 'admin/grades',
-    currentUser: req.currentUser,
+  User.find({}, function(err, users) {
+    log(err);
+    res.render('admin/grades/index', {
+      page: 'admin/grades/index',
+      currentUser: req.currentUser,
+      users: users
+    });
   });
 });
-/** Post grades. */
-app.post('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
-  trace('GET /admin/grades');
+/** Get grades from a user. */
+app.get('/admin/grades/:username', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
+  trace('GET /admin/grades/:username');
+  if(req.user) {
+    res.render('admin/grades/user', {
+      page: 'admin/grades/user',
+      currentUser: req.currentUser,
+      user: req.user
+    });
+  } else {
+    req.flash('error', 'Whoops! User does not exist.');
+    res.redirect('/default');
+  }
+});
+/** Add a grade. */
+app.post('/admin/grades/:username/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
+  trace('POST /admin/:username/add');
+  req.user.grades.push({
+    name: req.body.grade.name,
+    order: req.body.grade.order,
+    grade: req.body.grade.grade,
+    weight: req.body.grade.weight
+  });
+  req.user.save(function(err) {
+    if (err) {
+      log(err);
+      req.flash('error', 'Grade is not entered.');
+    } else {
+      req.flash('info', 'Grade is entered!');
+    }
+    res.redirect('/admin/grades/' + req.user.username);
+  });
+});
+/** Edit a grade from a user. */
+app.get('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
+  trace('GET /admin/grades/:username/:gradeId');
+  if(req.user && req.grade) {
+    res.render('admin/grades/edit', {
+      page: 'admin/grades/edit',
+      currentUser: req.currentUser,
+      user: req.user,
+      grade: req.grade
+    });
+  } else {
+    req.flash('error', 'Whoops! Grade does not exist.');
+    res.redirect('/default');
+  }
+});
+/** Edit a grade. */
+app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
+  trace('POST /admin/:username/:gradeId');
+  req.grade.name = req.body.grade.name;
+  req.grade.order = req.body.grade.order;
+  req.grade.grade = req.body.grade.grade;
+  req.grade.weight = req.body.grade.weight;
+  req.user.save(function(err) {
+    if (err) {
+      log(err);
+      req.flash('error', 'Grade is not saved.');
+    } else {
+      req.flash('info', 'Grade is saved!');
+    }
+    res.redirect('/admin/grades/' + req.user.username);
+  });
 });
 /** Student dashboard. */
 app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
@@ -644,7 +715,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
  *  Only displays progress control when the user has permission. */
 app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
   trace('GET /homework');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
       page: 'homework',
       currentUser: req.currentUser,
@@ -661,7 +732,7 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), functio
  *  Only displays progress control when the user has permission. */
 app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework/:lessonId');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.homework) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
@@ -675,6 +746,45 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
+    res.redirect('/default');
+  }
+});
+/** Project.
+ *  Defaults: display the one specified by currentUser.currentLesson.
+ *  Only displays progress control when the user has permission. */
+app.get('/project', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+  trace('GET /project');
+  if (req.currentLesson && req.currentLesson.project) {
+    res.render('project', {
+      page: 'project',
+      currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
+      // TODO: implement progress controls
+      showControls: req.currentUser.canWriteProgress
+    });
+  } else {
+    req.flash('error', 'Whoops! Project for this lesson does not exist.');
+    res.redirect('/default');
+  }
+});
+/** View project at LESSONID.
+ *  Only displays progress control when the user has permission. */
+app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /project/:lessonId');
+  if (req.currentLesson && req.currentLesson.project) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('project', {
+        page: 'project',
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        // TODO: implement progress controls
+        showControls: req.currentUser.canWriteProgress
+      });
+    });
+  } else {
+    req.flash('error', 'Whoops! Project for this lesson does not exist.');
     res.redirect('/default');
   }
 });

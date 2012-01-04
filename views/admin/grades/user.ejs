@@ -1,0 +1,45 @@
+<div id="centered">
+  <div class="note">
+    <div class="padding">
+      Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Editing user: <strong><%-user.username%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/grades/<%-user.username%>/add">
+      <div class="formbox">
+        <h3>Add a grade for user: <%-user.username%></h3>
+        <span class="left boxy noselect">name</span>
+        <input type="text" class="right textboxy" name='grade[name]' required>
+        <br>
+        <span class="left boxy noselect">order</span>
+        <input type="number" class="right textboxy" name='grade[order]' required>
+        <br>
+        <span class="left boxy noselect">grade</span>
+        <input type="text" class="right textboxy" name='grade[grade]' required>
+        <br>
+        <span class="left boxy noselect">weight</span>
+        <input type="number" class="right textboxy" name='grade[weight]' required value="1">
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton noselect" id="submitUserEdit">
+        Add
+      </button>
+    </form>
+    <br>
+    <br>
+    <div class="formbox">
+      <h3>Edit a grade (<%-user.grades.length %> total)</h3>
+      <% user.grades.sort(function(a,b){ return a.order - b.order; })
+        for (var i = 0; i < user.grades.length; i += 1) { var grade = user.grades[i];%>
+        <span class="left boxy noselect displaymargin"><%-grade.name %> (<%-grade.grade %>)</span>
+        <a class="right linkboxy displaymargin" href="/admin/grades/<%-user.username%>/<%-grade._id%>">(edit)</a>
+      <% } %> <div class="clear"></div>
+    </div>
+  </div>
+</div>
