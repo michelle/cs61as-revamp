@@ -1,7 +1,7 @@
 <div id="centered">
   <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i];%>
     <h1><%-video.name%></h1>
-    <% if (progress[i]) {%>
+    <% if (video.isCompleted) {%>
     <p>watched: click here to mark it not watched. (TODO: implement)</p>
     <%} else {%>
     <p>not watched: click here to mark it watched. (TODO: implement)</p>
