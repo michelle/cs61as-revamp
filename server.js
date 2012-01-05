@@ -800,12 +800,8 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
 app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
-    req.currentLesson.progress.videos[req.params.videoId].isCompleted = true;
-    req.currentLesson.progress.save(function(err) {
-      console.log(req.currentLesson.videos[req.params.videoId].name);
-      log(err);
-      res.redirect('/dashboard');
-    });
+    req.video.isCompleted = true;
+    res.redirect('/dashboard');
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
     res.redirect('/dashboard');
