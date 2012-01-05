@@ -48,7 +48,18 @@ function defineModels(mongoose, fn) {
       'default': false
     }
   });
-
+  /** Attach a progress. */
+  Reading.method('attachProgress').set(function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Reading.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+  
   /** A video.
    *  url: youtube video id. */
   Video = new Schema({
@@ -60,6 +71,17 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     }
+  });
+  /** Attach a progress. */
+  Reading.method('attachProgress').set(function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Reading.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
   });
 
   /** A grade.
@@ -91,6 +113,17 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     }
+  });
+  /** Attach a progress. */
+  Reading.method('attachProgress').set(function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Reading.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
   });
 
   /** A lesson. */
@@ -143,6 +176,10 @@ function defineModels(mongoose, fn) {
       'default': false
     }],
     assignments: [{
+      type: Boolean,
+      'default': false
+    }],
+    extra: [{
       type: Boolean,
       'default': false
     }],
