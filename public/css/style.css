@@ -14,6 +14,7 @@ body, html {
   font-weight: 200;
   font-size: 18px;
   line-height: 30px;
+  height: 100%;
   background-color: #4D5A63;
   letter-spacing: 1px;
 }
@@ -73,6 +74,7 @@ body, html {
 
 #topbar, #bottombar {
   position: relative;
+  color: #626B70;
 }
 
 #bottombar {
@@ -372,7 +374,7 @@ a {
   padding: 10px;
 }
 
-#alllessons,#dashboard, #admin {
+#alllessons, #dashboard, #admin {
   position: fixed;
   right: 0px;
   width: 50px;
@@ -387,7 +389,6 @@ a {
   box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
   -webkit-box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
   -moz-box-shadow: 0px 2px 5px rgba(77, 90, 99, 0.4);
-  display: none;
   opacity: 0.9;
   -webkit-transition: opacity 0.2s linear;
   -moz-transition: opacity 0.2s linear;
@@ -552,6 +553,11 @@ h1 {
 .center {
   margin: 0 auto;
   width: 640px;
+}
+
+.topcenter {
+  margin: 0 auto;
+  width: 100px;
 }
 
 #homework {
@@ -751,6 +757,38 @@ input {
   margin: 0 auto;
 }
 
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin-bottom: -50px;
+}
+
 .checkbox {
   float: right;
 }
+
+#push {
+  height: 50px;
+}
+
+#topbar input, #topbar button {
+  border: 0px;
+  line-height: 20px;
+  height: 20px;
+  width: 100px;
+  background-color: #fff;
+  margin: 5px 10px;
+  font-size: 14px;
+  padding: 0px 5px;
+  border-radius: 3px;
+}
+
+#topbar button {
+  text-transform: uppercase;
+  width: 50px;
+  background-color: #4D5A63;
+  color: #fff;
+  line-height: 20px;
+}
+

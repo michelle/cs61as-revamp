@@ -5,7 +5,15 @@
       </div>
       <div id="topfloater" class="right">
         <% if (!currentUser.canAccessDashboard()) { %>
-          <a><div class="left up margin">Welcome, guest</div></a>
+          <form method="post" action="/login">
+            <span class="left small">username</span>
+            <input type="text" class="left" name='user[username]'% />
+            <span class="left small">password</span>
+            <input type="password" class="left" name='user[password]'% />
+            <button class="left" id="submitlogin">
+              Login
+            </button>
+          </form>
         <% } else { %>
           <% if (currentUser) { %>
             <div class="topnav left">
@@ -16,18 +24,25 @@
             </div>
           <% } %>
           <div class="topnav left">
+            <a href="http://www.piazza.com/">
+              <div class="smallwidth left"><span class="iconic chat-alt"></span></div>
+              <div class="left up">Piazza</div>
+            </a>
+          </div>
+          <div class="topnav left">
             <a href="/settings" id="settingstop">
               <div class="smallwidth left"><span class="iconic cog"></span></div>
               <div class="left up">Settings</div>
             </a>
           </div>
-        <% } %>
           <div class="topnav left">
             <a href="/logout">
               <div class="smallwidth left"><span class="iconic unlocked"></span></div>
               <div class="left up">Logout</div>
             </a>
           </div>
+        <% } %>
+
       </div>
     </div>
   </div>

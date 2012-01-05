@@ -22,11 +22,17 @@
  
 <body> 
   <div id="top"></div>
+  
   <% if (page != 'home') { %>
+  <div id="wrapper">
     <%-partial('partials/header.ejs')%>
   <% } %>
   <%-body%>
+  
   <% if (page != 'home') { %>
+  
+  <div id="push"></div>
+  </div>
     <%-partial('partials/footer.ejs')%>
   <% } %>
 </body> 

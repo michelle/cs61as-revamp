@@ -283,7 +283,7 @@ function loadProgress(req, res, next) {
         return function() {
           return progress.extra[id];
         }
-      }(i));
+      }(i));O
     }
     for(var i = 0; i < req.currentLesson.readings.length; i++) {
       req.currentLesson.readings[i].attachProgress( function(id) {
@@ -769,6 +769,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
+      console.log(req.video.isCompleted);
       res.render('video', {
         page: 'webcast',
         currentUser: req.currentUser,
@@ -788,9 +789,9 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
 app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('POST /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
-    req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentLesson.videos[req.params.videoId].isCompleted = true;
-    req.currentLesson.save(function(err) {
+    req.currentLesson.progress.videos[req.params.videoId].isCompleted = true;
+    req.currentLesson.progress.save(function(err) {
+      console.log(req.currentLesson.videos[req.params.videoId].name);
       log(err);
       res.redirect('/dashboard');
     });
