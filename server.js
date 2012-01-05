@@ -858,7 +858,7 @@ app.get('*', function(req, res) {
 
 // TODO: Add labs to schema
 
-// TODO: Move everything to public so we can use filesystem to edit files.
+// TODO: ATTACKING! Move everything to public so we can use filesystem to edit files.
 
 /** Start server. */
 var port = process.env.PORT || 8086;
