@@ -162,7 +162,7 @@ function defineModels(mongoose, fn) {
     return this.assignments && this.assignments[1];
   });
   /** Attach a progress. */
-  Assignment.method('attachProgress', function(get) {
+  Lesson.method('attachProgress', function(get) {
     this._get = get;
   });
   Lesson.virtual('isCompleted').get(function() {
@@ -208,7 +208,7 @@ function defineModels(mongoose, fn) {
     },
     username: {
       type: String,
-      match: /^[a-z][a-z0-9_-]{3,31}$/i,
+      match: /^[a-z][a-z0-9_-]{2,31}$/i,
       required: true,
       index: {
         unique: true
@@ -327,7 +327,7 @@ function defineModels(mongoose, fn) {
   LoginToken = new Schema({
     username: {
       type: String,
-      match: /^[a-z][a-z0-9_-]{3,31}$/i,
+      match: /^[a-z][a-z0-9_-]{2,31}$/i,
       required: true,
       index: {
         unique: true

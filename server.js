@@ -244,36 +244,44 @@ function loadProgress(req, res, next) {
     }
 
     for (var i = 0; i < req.currentLesson.videos.length; i++) {
-      req.currentLesson.videos[i].attachProgress(function(value) {
-        progress.videos[i] = value;
+      req.currentLesson.videos[i].attachProgress(function(id) {
+        return function(value) {
+        progress.videos[id] = value;
         progress.save();
-      }, function() {
-        return progress.videos[i];
-      });
+      }}(i), function(id) {
+        return function() {
+        return progress.videos[id];
+      }}(i));
     }
     for (var i = 0; i < req.currentLesson.assignments.length; i++) {
-      req.currentLesson.assignments[i].attachProgress(function(value) {
-        progress.assignments[i] = value;
+      req.currentLesson.assignments[i].attachProgress(function(id) {
+        return function(value) {
+        progress.assignments[id] = value;
         progress.save();
-      }, function() {
-        return progress.assignments[i];
-      });
+      }}(i), function(id) {
+        return function() {
+        return progress.assignments[id];
+      }}(i));
     }
     for (var i = 0; i < req.currentLesson.extra.length; i++) {
-      req.currentLesson.extra[i].attachProgress(function(value) {
-        progress.extra[i] = value;
+      req.currentLesson.extra[i].attachProgress(function(id) {
+        return function(value) {
+        progress.extra[id] = value;
         progress.save();
-      }, function() {
-        return progress.extra[i];
-      });
+      }}(i), function(id) {
+        return function() {
+        return progress.extra[id];
+      }}(i));
     }
     for (var i = 0; i < req.currentLesson.readings.length; i++) {
-      req.currentLesson.readings[i].attachProgress(function(value) {
-        progress.readings[i] = value;
+      req.currentLesson.readings[i].attachProgress(function(id) {
+        return function(value) {
+        progress.readings[id] = value;
         progress.save();
-      }, function() {
-        return progress.readings[i];
-      });
+      }}(i), function(id) {
+        return function() {
+        return progress.readings[id];
+      }}(i));
     }
     req.currentLesson.attachProgress(function() {
       return progress.assignments[0];
