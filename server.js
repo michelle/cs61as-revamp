@@ -127,7 +127,7 @@ function loadUserFromSession(req, res, next) {
       next();
     } else {
       log(req.currentUser);
-      log('WARNING: Session tampering attempt detected: %s.', req.session);
+      log('WARNING: Session tampering attempt detected: ' + req.session);
       res.clearCookie('rememberme');
       req.flash('info', 'Please login.');
       res.redirect('/home');
@@ -157,7 +157,7 @@ function loadUserFromCookie(req, res, next) {
 
     if (token) {
       if (token.token != cookie.token) {
-        log('WARNING: Cookie tampering attempt detected for user: %s', cookie.username);
+        log('WARNING: Cookie tampering attempt detected for user: ' + cookie.username);
 
         LoginToken.remove({
           username: cookie.username
