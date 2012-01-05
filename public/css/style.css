@@ -99,7 +99,7 @@ body, html {
   padding: 10px 0px;
 }
 
-#alllessons span, #home span, #topbar a, #bottombar a {
+#alllessons span, #admin span, #dashboard span, #topbar a, #bottombar a {
   color: #9aa7b0;
   font-size: 30px;
   text-shadow: 0px 1px 0px #fff;
@@ -112,7 +112,7 @@ body, html {
   transition: color 0.2s linear;
 }
 
-#alllessons span, #home span {
+#alllessons span, #admin span, #dashboard span {
   font-size: 50px;
 }
 
@@ -372,9 +372,8 @@ a {
   padding: 10px;
 }
 
-#alllessons, #home {
+#alllessons,#dashboard, #admin {
   position: fixed;
-  top: 120px;
   right: 0px;
   width: 60px;
   padding-left: 10px;
@@ -397,10 +396,18 @@ a {
 }
 
 #alllessons {
-  top: 230px;
+  top: 120px;
 }
 
-#alllessons:hover, #home:hover {
+#dashboard {
+  top: 210px;
+}
+
+#admin {
+  top: 300px;
+}
+
+#alllessons:hover, #dashboard:hover, #admin:hover {
   opacity: 1;
 }
 

@@ -32,24 +32,27 @@
     </div>
   </div>
   
-  <% if (page != 'lessons' && (page != 'dashboard' && currentUser.canAccessDashboard())) { %>
+  <% if (page != 'lessons') { %>
     <a href="/lessons">
       <div id="alllessons">
-        <span class="iconic read-more"></span>
+        <span class="iconic book-alt"></span>
       </div>
     </a>
   <% } %>
-  
-  <% if (page !== 'admin/index'
-     && (page !== 'dashboard' || currentUser.canAccessAdminPanel())
-     && (page !== 'lessons' || currentUser.canAccessDashboard())) { %>
-    <a href="/default">
-      <div id="home">
+  <% if (page !== 'dashboard' && currentUser.canAccessDashboard()) { %>
+    <a href="/dashboard">
+      <div id="dashboard">
         <span class="iconic home"></span>
       </div>
     </a>
   <% } %>
-
+  <% if (page !== 'admin/index' && currentUser.canAccessAdminPanel()) { %>
+    <a href="/admin">
+      <div id="admin">
+        <span class="iconic pencil"></span>
+      </div>
+    </a>
+  <% } %>
   
   
   <div id="pusher"></div><%-flashMessages%>
