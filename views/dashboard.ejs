@@ -17,12 +17,14 @@
     <h1>Learn</h1>
     <ul class="nolist">
           <% if (currentLesson.videos.length > 0) { %>
-            <a href="/webcast"><li class="incomplete">Webcast</li></a>
+              <% for (var j = 0; j < currentLesson.videos.length; j += 1) { var video = currentLesson.videos[j]; %>
+                <a href="/webcast/<%-n%>/<%-j%>"><li class="<% if (video.isCompleted) { %>complete<% } else { %>incomplete<% } %>">Webcast <%-(j + 1)%></li></a>
+              <% } %>
           <% } %>
           
           <% if (currentLesson.readings.length > 0) { %>
               <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
-                <a href="/reading/<%-n%>/<%-k%>"><li class="incomplete"><%-reading.name%></li></a>
+                <a href="/reading/<%-n%>/<%-k%>"><li class="<% if (reading.isCompleted) { %>complete<% } else { %>incomplete<% } %>"><%-reading.name%></li></a>
               <% } %>
           <% } %>
           
@@ -33,10 +35,10 @@
       <ul class="nolist">
           <% if (currentLesson.assignments.length > 0) { %>
               <% if (currentLesson.homework) { %>
-                <a href="/homework/<%-n%>"><li class="incomplete">Homework</li></a>
+                <a href="/homework/<%-n%>"><li class="<% if (currentLesson.homework.isCompleted) { %>complete<% } else { %>incomplete<% } %>">Homework</li></a>
               <% } %>
               <% if (currentLesson.project) { %>
-                <a href="/project/<%-n%>"><li class="incomplete">Project</li></a>
+                <a href="/project/<%-n%>"><li class="<% if (currentLesson.project.isCompleted) { %>complete<% } else { %>incomplete<% } %>">Project</li></a>
               <% } %>
           <% } else { %>
             <div class="note"> 
@@ -53,7 +55,7 @@
     <ul class="nolist">
           <% if (currentLesson.extra.length > 0) { %>
               <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %>
-                <a href="/extra/<%-n%>/<%-j%>"><li class="incomplete"><%-extra.name%></li></a>
+                <a href="/extra/<%-n%>/<%-j%>"><li class="<% if (extra.isCompleted) { %>complete<% } else { %>incomplete<% } %>"><%-extra.name%></li></a>
               <% } %>
           <% } else { %>
             <div class="note"> 

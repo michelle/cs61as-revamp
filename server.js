@@ -708,7 +708,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
 });
 /** Webcast viewing.
  *  Default: display the one specified by currentUser.currentLesson.
- *  Only displays progress control when the user has permission. */
+ *  Only displays progress control when the user has permission. 
 app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProgress, function(req, res) {
   trace('GET /webcast');
   if (req.currentLesson.videos) {
@@ -724,8 +724,8 @@ app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
     res.redirect('/default');
   }
 });
-/** Viewing webcast at LESSONID.
- *  Only displays progress control when the user has permission. */
+Viewing webcast at LESSONID.
+ *  Only displays progress control when the user has permission. 
 app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId');
   if (req.currentLesson) {
@@ -744,7 +744,7 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
     req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
     res.redirect('/default');
   }
-});
+});*/
 /** Viewing webcast by its URL. */
 app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
@@ -756,6 +756,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
         page: 'webcast',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
+        videoId: req.params.videoId,
         videos: [req.video],
         showControls: req.currentUser.canWriteProgress
       });
@@ -763,6 +764,22 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
     res.redirect('/default');
+  }
+});
+
+/** Marking webcast as read. */
+app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('POST /webcast/:lessonId/:videoId');
+  if(req.currentLesson && req.video) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentLesson.videos[req.params.videoId].isCompleted = true;
+    req.currentLesson.save(function(err) {
+      log(err);
+      res.redirect('/dashboard');
+    });
+  } else {
+    req.flash('error', 'Whoops! Webcast does not exist.');
+    res.redirect('/dashboard');
   }
 });
 /** Viewing reading. */
