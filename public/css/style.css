@@ -580,6 +580,12 @@ h1 {
   font-size: 16px;
 }
 
+#nocenter img {
+  max-width: 90%;
+  margin: 3%;
+  border: 5px solid rgba(200,215,220,0.5);
+}
+
 .contentpadding {
   padding: 10px 40px 40px 40px;
 }

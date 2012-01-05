@@ -1,0 +1,312 @@
+<!--Lecture Notes 7: Object-Oriented Programming-->
+
+<b>Reading:</b>
+<a href="http://inst.eecs.berkeley.edu/~cs61as/reader/aboveline.pdf">OOP Above the Line</a>
+notes in course reader
+
+<p>
+  OOP is an abstraction.  Above the line we have the metaphor of multiple
+  independent intelligent agents; instead of one computer carrying out one
+  program we have hordes of <i>objects</i>, each of which can carry out
+  computations.  To make this work there are three key ideas within this
+  metaphor:
+</p>
+
+<ul>
+  <li>Message passing:  An object can ask other objects to do things for it.</li>
+  <li>Local state:  An object can remember stuff about its own past history.</li>
+  <li>Inheritance:  One object type can be just like another except for a few differences.</li>
+</ul>
+
+<img src="/resources/8-1.jpg" />
+
+<p>
+  We have invented an OOP language as an extension to Scheme.  Basically you
+  are still writing Scheme programs, but with the vocabulary extended to use
+  some of the usual OOP buzzwords.  For example, a <i>class </i> is a type of
+  object; an <i>instance </i> is a particular object.  "Complex number" is a
+  class; 3+4i is an instance.  Here's how the message-passing complex
+  numbers from last lesson would look in OOP notation:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo.scm
+(define-class (complex real-part imag-part)
+  (method (magnitude)
+    (sqrt (+ (* real-part real-part)
+             (* imag-part imag-part))))
+  (method (angle)
+    (atan (/ imag-part real-part))) )
+
+> (define c (instantiate complex 3 4))
+> (ask c 'magnitude)
+5
+> (ask c 'real-part)
+3
+</pre>
+
+<p>
+  This shows how we define the <i>class</i> <tt>complex</tt>; then we create
+  the <i>instance</i> <tt>c</tt> whose value is 3+4i; then we send <tt>c</tt> a
+  message (we <tt>ask</tt> it to do something) in order to find out that its
+  magnitude is 5.  We can also ask <tt>c</tt> about its <i>instantiation
+  variables</i>, which are the arguments used when the class is instantiated.
+</p>
+
+<p>
+  When we send a message to an object, it responds by carrying out a <i>
+  method</i>, i.e., a procedure that the object associates with the message.
+</p>
+
+<p>
+  So far, although the notation is new, we haven't done anything different
+  from what we did last lesson in chapter 2.  Now we take the big step of
+  letting an object remember its past history, so that we are no longer doing
+  functional programming.  The result of sending a message to an object
+  depends not only on the arguments used right now, but also on what messages
+  we've sent the object before:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo.scm
+(define-class (counter)
+  (instance-vars (count 0))
+  (method (next)
+    (set! count (+ count 1))
+    count) )
+
+> (define c1 (instantiate counter))
+> (ask c1 'next)
+1
+> (ask c1 'next)
+2
+> (define c2 (instantiate counter))
+> (ask c2 'next)
+1
+> (ask c1 'next)
+3
+</pre>
+
+<p>
+  Each counter has its own <i>instance variable</i> to remember
+  how many times it's been sent the <tt>next</tt> message.
+</p>
+
+<p>
+  Don't get confused about the terms <i>instance </i> variable versus
+  <i>instantiation </i> variable.  They are similar in that each instance has
+  its own version; the difference is that instantiation variables are given
+  values when an instance is created, using extra arguments to <tt>
+  instantiate</tt>, whereas the initial values of instance variables are specified
+  in the class definition and are generally the same for every instance
+  (although the values may change as the computation goes on.)
+</p>
+
+<p>
+  Methods can have arguments.  You supply the argument when you <tt>ask</tt> the
+  corresponding message:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo.scm
+(define-class (doubler)
+  (method (say stuff) (se stuff stuff)))
+
+> (define dd (instantiate doubler))
+> (ask dd 'say 'hello)
+(hello hello)
+> (ask dd 'say '(she said))
+(she said she said)
+</pre>
+
+<p>
+  Besides having a variable for each instance, it's also possible to have
+  variables that are shared by every instance of the same class:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo1.scm
+(define-class (counter)
+  (instance-vars (count 0))
+  (class-vars (total 0))
+  (method (next)
+    (set! total (+ total 1))
+    (set! count (+ count 1))
+    (list count total)))
+
+> (define c1 (instantiate counter))
+> (ask c1 'next)
+(1 1)
+> (ask c1 'next)
+(2 2)
+> (define c2 (instantiate counter))
+> (ask c2 'next)
+(1 3)
+> (ask c1 'next)
+(3 4)
+</pre>
+
+<p>
+  Now each <tt>next</tt> message tells us both the count for this particular
+  counter and the overall count for all counters combined.
+</p>
+
+<p>
+  To understand the idea of inheritance, we'll first define a <tt>person</tt>
+  class that knows about talking in various ways, and then define a <tt>
+  pigger</tt> class that's just like a <tt>person</tt> except for talking in Pig
+  Latin:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo1.scm
+(define-class (person name)
+  (method (say stuff) stuff)
+  (method (ask stuff) (ask self 'say (se '(would you please) stuff)))
+  (method (greet) (ask self 'say (se '(hello my name is) name))) )
+
+> (define marc (instantiate person 'marc))
+> (ask marc 'say '(good morning))
+(good morning)
+> (ask marc 'ask '(open the door))
+(would you please open the door)
+> (ask marc 'greet)
+(hello my name is marc)
+</pre>
+
+<p>
+  Notice that an object can refer to itself by the name <tt>self</tt>; this is an
+  automatically-created instance variable in every object whose value is the
+  object itself.  (We'll see when we look below the line that there are some
+  complications about making this work.)
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo1.scm
+(define-class (pigger name)
+  (parent (person name))
+  (method (pigl wd)
+    (if (member? (first wd) '(a e i o u))
+        (word wd 'ay)
+        (ask self 'pigl (word (bf wd) (first wd))) ))
+  (method (say stuff)
+    (if (atom? stuff)
+        (ask self 'pigl stuff)
+        (map (lambda (w) (ask self 'pigl w)) stuff))) )
+
+> (define porky (instantiate pigger 'porky))
+> (ask porky 'say '(good morning))
+(oodgay orningmay)
+> (ask porky 'ask '(open the door))
+(ouldway ouyay easeplay openay ethay oorday)
+</pre>
+
+<p>
+  The crucial point here is that the <tt>pigger</tt> class doesn't have an <tt>
+ ask</tt> method in its definition.  When we ask <tt>porky</tt> to <tt>ask</tt>
+  something, it uses the <tt>ask</tt> method in its parent (<tt>person</tt>) class.
+</p>
+
+<p>
+  Also, when the parent's <tt>ask</tt> method says <tt>(ask&nbsp;self&nbsp;'say&nbsp;...)</tt>
+  it uses the <tt>say</tt> method from the <tt>pigger</tt> class, not the one from
+  the <tt>person</tt> class.  So Porky speaks Pig Latin even when asking
+  something.
+</p>
+
+<p>
+  What happens when you send an object a message for which there is no method
+  defined in its class?  If the class has no parent, this is an error.  If the
+  class does have a parent, and the parent class understands the message, it
+  works as we've seen here.  But you might want to create a class that follows
+  some rule of your own devising for unknown messages:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo2.scm
+(define-class (squarer)
+  (default-method (* message message))
+  (method (7) 'buzz) )
+
+> (define s (instantiate squarer))
+> (ask s 6)                > (ask s 7)                > (ask s 8)
+36                         buzz                       64
+</pre>
+
+<p>
+  Within the default method, the name <tt>message</tt> refers to whatever message
+  was sent.  (The name <tt>args</tt> refers to a list containing any additional
+  arguments that were used.)
+</p>
+
+<p>
+  Let's say we want to maintain a list of all the instances that have been
+  created in a certain class.  It's easy enough to establish the list as a
+  class variable, but we also have to make sure that each new instance
+  automatically adds itself to the list.  We do this with an <tt>initialize</tt>
+  clause:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo2.scm
+(define-class (counter)
+  (instance-vars (count 0))
+  (class-vars (total 0) (counters '()))
+  (initialize (set! counters (cons self counters)))
+  (method (next)
+    (set! total (+ total 1))
+    (set! count (+ count 1))
+    (list count total)))
+
+> (define c1 (instantiate counter))
+> (define c2 (instantiate counter))
+> (ask counter 'counters)
+(#<procedure> #<procedure>)
+</pre>
+
+<p>
+  There was a bug in our <tt>pigger</tt> class definition; Scheme gets into an
+  infinite loop if we ask Porky to <tt>greet</tt>, because it tries to translate
+  the word <tt>my</tt> into Pig Latin but there are no vowels <tt>aeiou</tt> in that
+  word.  To get around this problem, we can redefine the <tt>pigger</tt> class so
+  that its <tt>say</tt> method says every word in Pig Latin except for the word
+  <tt>my</tt>, which it'll say using the usual method that <tt>person</tt>s who
+  aren't <tt>pigger</tt>s use:
+</p>
+
+<pre>
+;;;;; In file cs61as/lectures/3.0/demo2.scm
+(define-class (pigger name)
+  (parent (person name))
+  (method (pigl wd)
+    (if (member? (first wd) '(a e i o u))
+        (word wd 'ay)
+        (ask self 'pigl (word (bf wd) (first wd))) ))
+  (method (say stuff)
+    (if (atom? stuff)
+        (if (equal? stuff 'my) (usual 'say stuff) (ask self 'pigl stuff))
+        (map (lambda (w) (ask self 'say w)) stuff))) )
+
+> (define porky (instantiate pigger 'porky))
+> (ask porky 'greet)
+(ellohay my amenay isay orkypay)
+</pre>
+
+<p>
+  (Notice that we had to create a new instance of the new class.  Just
+  doing a new define-class doesn't change any instances that have already been
+  created in the old class.  Watch out for this while you're debugging the
+  OOP programming project.)
+</p>
+
+<p>
+  We invoke <tt>usual</tt> in the <tt>say</tt> method to mean "say this stuff in
+  the usual way, the way that my parent class would use."
+</p>
+
+<p>
+  The OOP above-the-line section in the course reader talks about even more
+  capabilities of the system, e.g., <i>multiple inheritance </i> with more
+  than one parent class for a single child class.
+</p>
+

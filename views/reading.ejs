@@ -1,0 +1,14 @@
+<div id="nocenter">
+  <% if (reading) { %>
+    <div id="lesson"><h2><%-reading.name%></h2></div>
+    <div id="lefttriangle"></div>
+    <div class="clear"></div>
+    <div id="homework">
+      <%-partial('CS61AS/readings/' + reading.location +'.ejs')%>
+    </div>
+  <% } else { %>
+  <p>
+    This reading does not exist.
+  </p>
+  <%}%>
+</div>

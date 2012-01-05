@@ -587,6 +587,7 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   });
 });
 /** Viewing user profiles. */
+// TODO: determine if user profiles should actually be kept.
 app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo')), function(req, res) {
   trace('GET /user/:username');
   if(req.user) {
@@ -626,7 +627,7 @@ app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, r
       if (req.body.user.newpassword === req.body.user.confirm) {
         req.currentUser.password = req.body.user.newpassword;
       } else {
-        req.flash('error', 'User %s was not saved successfully because because new passwords did not match.', req.currentUser.username);
+        req.flash('error', 'User %s was not saved successfully because new passwords did not match.', req.currentUser.username);
         res.redirect('/settings');
         return;
       }
@@ -725,6 +726,29 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
     });
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
+    res.redirect('/default');
+  }
+});
+/** Viewing reading. */
+app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /reading/:lessonId/:readingId');
+  // TODO: iframe view for SICP readings.
+  if (req.currentLesson && req.currentLesson.readings) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    var reading = req.currentLesson.readings[req.params.readingId];
+    req.currentUser.save(function(err) {
+      log(err);
+      res.render('reading', {
+        page: 'reading',
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        reading: reading,
+        // TODO: implement progress controls
+        showControls: req.currentUser.canWriteProgress
+      });
+    });
+  } else {
+    req.flash('error', 'Whoops! This reading does not exist.');
     res.redirect('/default');
   }
 });
@@ -831,6 +855,10 @@ app.get('*', function(req, res) {
 // TODO: Search function
 
 // TODO: Feedback
+
+// TODO: Add labs to schema
+
+// TODO: Move everything to public so we can use filesystem to edit files.
 
 /** Start server. */
 var port = process.env.PORT || 8086;
