@@ -774,13 +774,18 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
 });
 /** Announcements. */
 // TODO: Integrate Wordpress to post updates.
-app.get('/blog', loadUser, function(req, res) {
+app.get('/blog', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('GET /blog');
+  res.send('Under construction. Please come back later.');
 });
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
-app.get('/administration', loadUser, function(req, res) {
+app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req, res) {
   trace('GET /administration');
+  res.render('administration', {
+    page: 'administration',
+    currentUser: req.currentUser,
+  });
 });
 /** Redirect everything else back to default if logged in. */
 app.get('*', function(req, res) {
