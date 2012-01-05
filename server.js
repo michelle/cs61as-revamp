@@ -598,7 +598,7 @@ app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, r
       if (req.body.user.newpassword === req.body.user.confirm) {
         req.currentUser.password = req.body.user.newpassword;
       } else {
-        req.flash('error', 'User %s was not saved successfully because because new passwords did not match.', req.currentUser.username);
+        req.flash('error', 'User %s was not saved successfully because new passwords did not match.', req.currentUser.username);
         res.redirect('/settings');
         return;
       }
