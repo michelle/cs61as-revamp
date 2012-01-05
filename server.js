@@ -243,46 +243,63 @@ function loadProgress(req, res, next) {
       }
     }
 
-    for (var i = 0; i < req.currentLesson.videos.length; i++) {
-      req.currentLesson.videos[i].attachProgress(function(id) {
+    for(var i = 0; i < req.currentLesson.videos.length; i++) {
+      req.currentLesson.videos[i].attachProgress( function(id) {
         return function(value) {
-        progress.videos[id] = value;
-        progress.save();
-      }}(i), function(id) {
+          progress.videos[id] = value;
+          if (req.currentUser.canWriteProgress()) {
+            progress.save();
+          }
+        }
+      }(i), function(id) {
         return function() {
-        return progress.videos[id];
-      }}(i));
+          return progress.videos[id];
+        }
+      }(i));
     }
-    for (var i = 0; i < req.currentLesson.assignments.length; i++) {
-      req.currentLesson.assignments[i].attachProgress(function(id) {
+    for(var i = 0; i < req.currentLesson.assignments.length; i++) {
+      req.currentLesson.assignments[i].attachProgress( function(id) {
         return function(value) {
-        progress.assignments[id] = value;
-        progress.save();
-      }}(i), function(id) {
+          progress.assignments[id] = value;
+          if (req.currentUser.canWriteProgress()) {
+            progress.save();
+          }
+        }
+      }(i), function(id) {
         return function() {
-        return progress.assignments[id];
-      }}(i));
+          return progress.assignments[id];
+        }
+      }(i));
     }
-    for (var i = 0; i < req.currentLesson.extra.length; i++) {
-      req.currentLesson.extra[i].attachProgress(function(id) {
+    for(var i = 0; i < req.currentLesson.extra.length; i++) {
+      req.currentLesson.extra[i].attachProgress( function(id) {
         return function(value) {
-        progress.extra[id] = value;
-        progress.save();
-      }}(i), function(id) {
+          progress.extra[id] = value;
+          if (req.currentUser.canWriteProgress()) {
+            progress.save();
+          }
+        }
+      }(i), function(id) {
         return function() {
-        return progress.extra[id];
-      }}(i));
+          return progress.extra[id];
+        }
+      }(i));
     }
-    for (var i = 0; i < req.currentLesson.readings.length; i++) {
-      req.currentLesson.readings[i].attachProgress(function(id) {
+    for(var i = 0; i < req.currentLesson.readings.length; i++) {
+      req.currentLesson.readings[i].attachProgress( function(id) {
         return function(value) {
-        progress.readings[id] = value;
-        progress.save();
-      }}(i), function(id) {
+          progress.readings[id] = value;
+          if (req.currentUser.canWriteProgress()) {
+            progress.save();
+          }
+        }
+      }(i), function(id) {
         return function() {
-        return progress.readings[id];
-      }}(i));
+          return progress.readings[id];
+        }
+      }(i));
     }
+
     req.currentLesson.attachProgress(function() {
       return progress.assignments[0];
     });
