@@ -161,6 +161,13 @@ function defineModels(mongoose, fn) {
   Lesson.virtual('project').get(function() {
     return this.assignments && this.assignments[1];
   });
+  /** Attach a progress. */
+  Assignment.method('attachProgress', function(get) {
+    this._get = get;
+  });
+  Lesson.virtual('isCompleted').get(function() {
+    return this._get[0];
+  });
 
   Progress = new Schema({
     lesson: {

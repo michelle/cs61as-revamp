@@ -275,6 +275,9 @@ function loadProgress(req, res, next) {
         return progress.readings[i];
       });
     }
+    req.currentLesson.attachProgress(function() {
+      return progress.assignments[0];
+    });
     next();
   });
 }
