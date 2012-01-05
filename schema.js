@@ -73,12 +73,12 @@ function defineModels(mongoose, fn) {
     }
   });
   /** Attach a progress. */
-  Reading.method('attachProgress').set(function(set, get) {
+  Video.method('attachProgress').set(function(set, get) {
     this._set = set;
     this._get = get;
   });
   /** isCompleted. */
-  Reading.virtual('isCompleted').set(function(value) {
+  Video.virtual('isCompleted').set(function(value) {
     this._set(value);
   }).get(function() {
     return this._get();
@@ -115,12 +115,12 @@ function defineModels(mongoose, fn) {
     }
   });
   /** Attach a progress. */
-  Reading.method('attachProgress').set(function(set, get) {
+  Assignment.method('attachProgress').set(function(set, get) {
     this._set = set;
     this._get = get;
   });
   /** isCompleted. */
-  Reading.virtual('isCompleted').set(function(value) {
+  Assignment.virtual('isCompleted').set(function(value) {
     this._set(value);
   }).get(function() {
     return this._get();
