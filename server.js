@@ -207,11 +207,13 @@ function loadLesson(req, res, next) {
       req.currentLesson = lesson;
       next();
     } else {
-      // TODO: fail gracefully. reset currentLesson.
-      // ERROR 102: currentLesson points to an invalid lesson.
-      log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
-      req.flash('error', 'ERROR 102: Looks like there is something wrong with your account. Please see an administrator.');
-      res.redirect('/home');
+      req.currentUser.currentLesson = 1;
+      req.currentUser.save(function(err) {
+        log(err);
+        log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
+        req.flash('error', 'Looks like there is something wrong with your account. If the problem persists, please contact administrators.');
+        res.redirect('/default');
+      });
     }
   });
 }
