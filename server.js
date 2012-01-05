@@ -706,7 +706,6 @@ app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       videos: req.currentLesson.videos,
-      progress: req.currentProgress.videos,
       showControls: req.currentUser.canWriteProgress
     });
   } else {
@@ -727,7 +726,6 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         videos: req.currentLesson.videos,
-        progress: req.currentProgress.videos,
         showControls: req.currentUser.canWriteProgress
       });
     });
@@ -748,7 +746,6 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         videos: [req.video],
-        progress: [req.currentProgress.videos[req.video]],
         showControls: req.currentUser.canWriteProgress
       });
     });
