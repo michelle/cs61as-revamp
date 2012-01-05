@@ -1,7 +1,7 @@
 /** debug flags. */
 var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
-var DEBUG_USER = true;
+var DEBUG_USER = false;
 var DEBUG_WARNING = true;
 
 /** Default cookie lifetime is 1 day. */
@@ -207,6 +207,7 @@ function loadLesson(req, res, next) {
       req.currentLesson = lesson;
       next();
     } else {
+      // TODO: fail gracefully. reset currentLesson.
       log("WARNING: User %s's currentLesson is corrupted.", req.currentUser.currentLesson);
       req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
       res.redirect('/home');
@@ -258,7 +259,8 @@ function checkPermit(permit, sameuser) {
     if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
-      req.flash('error', "Looks like you don't have the required permissions to access this page.");
+      console.log(req);
+      req.flash('error', "Looks like you don't have the required permissions to access " + req.url);
       res.redirect('/default');
     }
   }
@@ -420,7 +422,9 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
   user.permission = getType(req.body.user.type);
   user.save(function(err) {
     if (err) {
-      log(err);
+      for (var e in err.errors) {
+        req.flash('error', err.errors[e].message);
+      }
       req.flash('error', 'User cannot be created.');
     } else {
       req.flash('info', 'User created!');
