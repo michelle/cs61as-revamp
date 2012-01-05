@@ -208,8 +208,9 @@ function loadLesson(req, res, next) {
       next();
     } else {
       // TODO: fail gracefully. reset currentLesson.
-      log("WARNING: User %s's currentLesson is corrupted.", req.currentUser.currentLesson);
-      req.flash('error', 'Looks like there is something wrong with your account. Please see an administrator.');
+      // ERROR 102: currentLesson points to an invalid lesson.
+      log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
+      req.flash('error', 'ERROR 102: Looks like there is something wrong with your account. Please see an administrator.');
       res.redirect('/home');
     }
   });
@@ -259,7 +260,6 @@ function checkPermit(permit, sameuser) {
     if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
-      console.log(req);
       req.flash('error', "Looks like you don't have the required permissions to access " + req.url);
       res.redirect('/default');
     }
@@ -368,10 +368,12 @@ app.post('/login', function(req, res) {
           token.save(function(err){
             log(err);
             res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+            req.flash('info', 'Logged in successfully as ' + user.username);
             res.redirect('/default');
           });
         });
       } else {
+        req.flash('info', 'Logged in successfully as ' + user.username);
         res.redirect('/default');
       }
     } else {
@@ -422,12 +424,16 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
   user.permission = getType(req.body.user.type);
   user.save(function(err) {
     if (err) {
+      log(err);
       for (var e in err.errors) {
         req.flash('error', err.errors[e].message);
       }
-      req.flash('error', 'User cannot be created.');
+      if (err.err) {
+        req.flash('error', err.err);
+      }
+      req.flash('error', 'User %s was not added successfully.', user.username);
     } else {
-      req.flash('info', 'User created!');
+      req.flash('info', 'User %s was added successfully.', user.username);
     }
     res.redirect('/admin/users');
   });
@@ -459,8 +465,14 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
     req.user.save(function(err){
-      log(err);
       if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
         req.flash('error', 'User %s was not saved successfully.', req.user.username);
       } else {
         req.flash('info', 'User %s was saved successfully.', req.user.username);
@@ -514,6 +526,12 @@ app.post('/admin/grades/:username/add', loadUser, checkPermit('canAccessAdminPan
   req.user.save(function(err) {
     if (err) {
       log(err);
+      for (var e in err.errors) {
+        req.flash('error', err.errors[e].message);
+      }
+      if (err.err) {
+        req.flash('error', err.err);
+      }
       req.flash('error', 'Grade is not entered.');
     } else {
       req.flash('info', 'Grade is entered!');
@@ -546,6 +564,12 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
   req.user.save(function(err) {
     if (err) {
       log(err);
+      for (var e in err.errors) {
+        req.flash('error', err.errors[e].message);
+      }
+      if (err.err) {
+        req.flash('error', err.err);
+      }
       req.flash('error', 'Grade is not saved.');
     } else {
       req.flash('info', 'Grade is saved!');
@@ -611,8 +635,14 @@ app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, r
     req.currentUser.units = req.body.user.units;
 
     req.currentUser.save(function(err) {
-      log(err);
       if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', 'Email is registered. Please use your email.');
+        }
         req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
       } else {
         req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
@@ -793,6 +823,7 @@ app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req,
 });
 /** Redirect everything else back to default if logged in. */
 app.get('*', function(req, res) {
+  trace('GET URL: ' + req.url);
   req.flash('error', "Whoops! The url you just went to does not exist.");
   res.redirect('/default');
 });
