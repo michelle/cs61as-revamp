@@ -20,7 +20,7 @@
           <% if (lesson.readings.length > 0) { %>
             <strong>Readings:</strong>
               <% for (var k = 0; k < lesson.readings.length; k += 1) { var reading = lesson.readings[k]; %>
-                <br><span class="indent">- <%-reading.name%></span>
+                <br><span class="indent">- <a href="/reading/<%-n%>/<%-k%>"><%-reading.name%></a></span>
               <% } %>
             <br>
           <% } %>

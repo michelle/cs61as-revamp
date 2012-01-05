@@ -1,10 +1,5 @@
 <!-- TODO: Switch between lessons other than currentLesson on dashboard. Check completedness of each section for class="completed" li elements. -->
 <div id="dash">
-  <div class="note">
-    <div class="padding">
-      Drag and drop each block into the order you would like to complete each section. You can always switch between modules after you begin a section.
-    </div>
-  </div>
   <div id="lesson" class="noselect">
     <h2><strong><%-currentLesson.number%> - </strong> <%-currentLesson.name%></h2>
   </div>
@@ -28,7 +23,7 @@
           
           <% if (currentLesson.readings.length > 0) { %>
               <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
-                <li class="incomplete"><%-reading.name%></li>
+                <a href="/reading/<%-n%>/<%-k%>"><li class="incomplete"><%-reading.name%></li></a>
               <% } %>
           <% } %>
           
