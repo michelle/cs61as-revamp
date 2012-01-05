@@ -246,9 +246,12 @@ function loadProgress(req, res, next) {
     for(var i = 0; i < req.currentLesson.videos.length; i++) {
       req.currentLesson.videos[i].attachProgress( function(id) {
         return function(value) {
-          progress.videos[id] = value;
           if (req.currentUser.canWriteProgress()) {
-            progress.save();
+            progress.videos[id] = value;
+            progress.markModified('videos');
+            progress.save(function (err) {
+              log(err);
+            });
           }
         }
       }(i), function(id) {
@@ -260,9 +263,12 @@ function loadProgress(req, res, next) {
     for(var i = 0; i < req.currentLesson.assignments.length; i++) {
       req.currentLesson.assignments[i].attachProgress( function(id) {
         return function(value) {
-          progress.assignments[id] = value;
           if (req.currentUser.canWriteProgress()) {
-            progress.save();
+            progress.assignments[id] = value;
+            progress.markModified('assignments');
+            progress.save(function (err) {
+              log(err);
+            });
           }
         }
       }(i), function(id) {
@@ -274,9 +280,12 @@ function loadProgress(req, res, next) {
     for(var i = 0; i < req.currentLesson.extra.length; i++) {
       req.currentLesson.extra[i].attachProgress( function(id) {
         return function(value) {
-          progress.extra[id] = value;
           if (req.currentUser.canWriteProgress()) {
-            progress.save();
+            progress.extra[id] = value;
+            progress.markModified('extra');
+            progress.save(function (err) {
+              log(err);
+            });
           }
         }
       }(i), function(id) {
@@ -288,9 +297,12 @@ function loadProgress(req, res, next) {
     for(var i = 0; i < req.currentLesson.readings.length; i++) {
       req.currentLesson.readings[i].attachProgress( function(id) {
         return function(value) {
-          progress.readings[id] = value;
           if (req.currentUser.canWriteProgress()) {
-            progress.save();
+            progress.readings[id] = value;
+            progress.markModified('readings');
+            progress.save(function (err) {
+              log(err);
+            });
           }
         }
       }(i), function(id) {
@@ -784,9 +796,8 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
     res.redirect('/default');
   }
 });
-
 /** Marking webcast as read. */
-app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.currentLesson.progress.videos[req.params.videoId].isCompleted = true;
