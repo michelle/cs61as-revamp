@@ -227,27 +227,55 @@ function loadProgress(req, res, next) {
 
   Progress.findOne({ lesson: req.currentLesson, user: req.currentUser }, function (err, progress) {
     log(err);
-    if (progress) {
-      req.currentProgress = progress;
-      next();
-    } else {
-      var progress = new Progress({
+    if (!progress) {
+      progress = new Progress({
         lesson: req.currentLesson,
         user: req.currentUser,
         videos: req.currentLesson.videos.map(function (videos) { return false }),
         assignments: req.currentLesson.assignments.map(function (assignment) { return false }),
+        extra: req.currentLesson.extra.map(function (extra) { return false }),
         readings: req.currentLesson.readings.map(function (reading) { return false })
-      })
-      req.currentProgress = progress;
+      });
       if (req.currentUser.canWriteProgress()) {
         progress.save(function (err){
           log(err);
-          next();
         });
-      } else {
-        next();
       }
     }
+
+    for (var i = 0; i < req.currentLesson.videos.length; i++) {
+      req.currentLesson.videos[i].attachProgress(function(value) {
+        progress.videos[i] = value;
+        progress.save();
+      }, function() {
+        return progress.videos[i];
+      });
+    }
+    for (var i = 0; i < req.currentLesson.assignments.length; i++) {
+      req.currentLesson.assignments[i].attachProgress(function(value) {
+        progress.assignments[i] = value;
+        progress.save();
+      }, function() {
+        return progress.assignments[i];
+      });
+    }
+    for (var i = 0; i < req.currentLesson.extra.length; i++) {
+      req.currentLesson.extra[i].attachProgress(function(value) {
+        progress.extra[i] = value;
+        progress.save();
+      }, function() {
+        return progress.extra[i];
+      });
+    }
+    for (var i = 0; i < req.currentLesson.readings.length; i++) {
+      req.currentLesson.readings[i].attachProgress(function(value) {
+        progress.readings[i] = value;
+        progress.save();
+      }, function() {
+        return progress.readings[i];
+      });
+    }
+    next();
   });
 }
 
@@ -678,7 +706,6 @@ app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       videos: req.currentLesson.videos,
-      progress: req.currentProgress.videos,
       showControls: req.currentUser.canWriteProgress
     });
   } else {
@@ -699,7 +726,6 @@ app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         videos: req.currentLesson.videos,
-        progress: req.currentProgress.videos,
         showControls: req.currentUser.canWriteProgress
       });
     });
@@ -720,7 +746,6 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         videos: [req.video],
-        progress: [req.currentProgress.videos[req.video]],
         showControls: req.currentUser.canWriteProgress
       });
     });
