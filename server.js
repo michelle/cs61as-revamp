@@ -748,7 +748,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
 /** Manage grades. */
 app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades');
-  User.find({}, function(err, users) {
+  User.find({ permission: User.Permissions.Student }, function(err, users) {
     log(err);
     res.render('admin/grades/index', {
       page: 'admin/grades/index',
