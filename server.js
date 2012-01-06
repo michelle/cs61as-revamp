@@ -1034,7 +1034,6 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 });
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
-// TODO: add view solution
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
   if (['homework', 'extra'].indexOf(req.params.type) === -1) {
