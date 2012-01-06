@@ -649,8 +649,8 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
     }, function(err, grader) {
     log(err);
     if (!err && grader) {
-      req.user.grader = grader;
-      req.user.save(function(err){
+      user.grader = grader;
+      user.save(function(err){
         if (err) {
           log(err);
           for (var e in err.errors) {
@@ -659,16 +659,16 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
           if (err.err) {
             req.flash('error', err.err);
           }
-          req.flash('error', 'User %s was not saved successfully.', req.user.username);
+          req.flash('error', 'User %s was not saved successfully.', user.username);
         } else {
-          req.flash('info', 'User %s was saved successfully.', req.user.username);
+          req.flash('info', 'User %s was saved successfully.', user.username);
         }
         res.redirect('/admin/users');
       });
     } else {
       log(err);
       req.flash('error', 'Grader %s does not exist.', req.body.user.grader);
-      req.flash('error', 'User %s was not saved successfully.', req.user.username);
+      req.flash('error', 'User %s was not saved successfully.', user.username);
       res.redirect('/admin/users');
     }
   });
