@@ -1040,12 +1040,6 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
     res.redirect('/default');
   }
 });
-/** Announcements. */
-// TODO: Integrate Wordpress to post updates.
-app.get('/blog', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  trace('GET /blog');
-  res.send('Under construction. Please come back later.');
-});
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
 app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req, res) {
