@@ -5,6 +5,10 @@ $(document).ready(function() {
 			collapsible: true
 		});
   });
+  $("#solution").accordion({
+    collapsible: true,
+    active: false
+  });
   /** Login form fanciness. */
   $('#showlogin').click(function() {
     $('#showlogin').attr('disabled', 'disabled');
