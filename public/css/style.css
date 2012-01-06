@@ -346,7 +346,7 @@ a {
   color: #609472;
 }
 
-.errornote, .infonote, .note {
+.errornote, .infonote, .note, .rednote {
   background-color: #BEE1CA;
   border: 1px solid #609472;
   color: #333;
@@ -359,7 +359,7 @@ a {
   margin-bottom: 20px;
 }
 
-.errornote {
+.rednote, .errornote {
   background-color: #e1bfbe;
   border: 1px solid #BD9392;
 }
@@ -790,5 +790,17 @@ input {
   background-color: #4D5A63;
   color: #fff;
   line-height: 20px;
+}
+
+.mark {
+  margin: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #282F33;
+  border-radius: 3px;
+}
+
+.mark:hover {
+  background-color: rgba(242,245,246,1);
 }
 

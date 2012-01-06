@@ -807,6 +807,29 @@ app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'
     res.redirect('/dashboard');
   }
 });
+/** Marking reading as read. */
+app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /reading/:lessonId/:readingId');
+  var reading = req.currentLesson.readings[req.params.readingId];
+  if(req.currentLesson && reading) {
+    reading.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Reading does not exist.');
+    res.redirect('/dashboard');
+  }
+});
+/** Marking homework as complete. */
+app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /homework/:lessonId');
+  if(req.currentLesson && req.currentLesson.homework) {
+    req.currentLesson.homework.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Homework does not exist.');
+    res.redirect('/dashboard');
+  }
+});
 /** Viewing reading. */
 app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /reading/:lessonId/:readingId');
@@ -821,6 +844,7 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         reading: reading,
+        readingId: req.params.readingId,
         // TODO: implement progress controls
         showControls: req.currentUser.canWriteProgress
       });

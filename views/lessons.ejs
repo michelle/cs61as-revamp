@@ -5,8 +5,8 @@
   <div id="lefttriangle"></div>
 <div class="contentpadding">
   <div id="accordion">
-    <% for (var i in lessons) { lesson = lessons[i]; var n = lesson.number; %>
-
+    <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
+        
         <h3 class="noselect"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (lesson.videos.length > 0) { %>

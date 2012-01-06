@@ -3,9 +3,22 @@
     <div id="lesson"><h2><%-reading.name%></h2></div>
     <div id="lefttriangle"></div>
     <div class="clear"></div>
+    
+    <% if (reading.isCompleted) {%>
+      <div class="note"><div class="padding">You have watched this video.</div></div>
+    <% } %>
+    
     <div id="homework">
       <%-partial('CS61AS/readings/' + reading.location +'.ejs')%>
     </div>
+    
+    <% if (showControls) { %>
+    <% if (!reading.isCompleted) {%>
+      <center><form method="post" action="/reading/<%-currentLesson.number%>/<%-readingId%>">
+      <button class="mark">Mark as complete</button>
+      </form></center>
+    <% } %>
+    <% } %>
   <% } else { %>
   <p>
     This reading does not exist.

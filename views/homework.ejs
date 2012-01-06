@@ -4,7 +4,19 @@
     <div id="lefttriangle"></div>
     <div class="clear"></div>
     <div id="homework">
+    <% if (showControls) { %>
+    <% if (currentLesson.homework.isCompleted) {%>
+      <div class="note"><div class="padding">You have completed this homework.</div></div>
+    <%} else {%>
+      <div class="rednote"><div class="padding"><form method="post" action="/homework/<%-currentLesson.number%>">
+      I understand that by clicking the button below I acknowledge that my reader will grade my most recently submitted version of this homework.
+      <br><button class="mark">I am ready to be graded</button>
+      </form></div></div>
+    <% } %>
+    <% } %>
+    
       <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+      
     </div>
   <% } else { %>
   <p>
