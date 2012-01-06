@@ -390,7 +390,7 @@ function sendGraderNotification(req, next) {
 /** Pre condition param userId into req.user. */
 app.param('userId', function(req, res, next, userId) {
   trace('param userId');
-  User.findById(userId, function(err, user) {
+  User.findById(userId).populate('grader').run(function(err, user) {
     log(err);
     req.user = !err && user;
     next();
@@ -692,6 +692,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
       }, function(err, grader) {
       log(err);
       if (!err && grader) {
+        req.user.grader = grader;
         req.user.save(function(err){
           if (err) {
             log(err);
