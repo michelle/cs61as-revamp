@@ -188,11 +188,11 @@ function defineModels(mongoose, fn) {
   Progress = new Schema({
     lesson: {
       type: ObjectId,
-      ref: Lesson
+      ref: 'Lesson'
     },
     user: {
       type: ObjectId,
-      ref: User
+      ref: 'User'
     },
     videos: [{
       type: Boolean,
@@ -256,7 +256,7 @@ function defineModels(mongoose, fn) {
     },
     grader: {
       type: ObjectId,
-      ref: User,
+      ref: 'User'
     },
     salt: {
       type: String,
