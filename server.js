@@ -977,7 +977,7 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
           showControls: req.currentUser.canWriteProgress()
         });
       } else {
-        req.flash('error', "You haven't finished the homework yet, so you can't look at these solutions!");
+        req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
         res.redirect('/dashboard');
       }
     });
