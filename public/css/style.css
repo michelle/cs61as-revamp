@@ -596,7 +596,7 @@ h1 {
   padding: 10px 40px 40px 40px;
 }
 
-#accordion h3 {
+#accordion h3, #solution h3 {
   border-bottom: 0px;
   background-color: rgba(200,215,220,0.5);
   border: 1px solid rgba(200,215,220,1);
@@ -608,7 +608,7 @@ h1 {
   outline: none;
 }
 
-#accordion .links {
+#accordion .links, #solution .wrapper {
   border: 1px solid rgba(200,215,220,1);
   border-top: 0px;
   background-color: #fff;

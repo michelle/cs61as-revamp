@@ -208,11 +208,13 @@ function loadLesson(req, res, next) {
       req.currentLesson = lesson;
       next();
     } else {
-      // TODO: fail gracefully. reset currentLesson.
-      // ERROR 102: currentLesson points to an invalid lesson.
-      log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
-      req.flash('error', 'ERROR 102: Looks like there is something wrong with your account. Please see an administrator.');
-      res.redirect('/home');
+      req.currentUser.currentLesson = 1;
+      req.currentUser.save(function(err) {
+        log(err);
+        log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
+        req.flash('error', 'Looks like there is something wrong with your account. If the problem persists, please contact administrators.');
+        res.redirect('/default');
+      });
     }
   });
 }
@@ -398,6 +400,12 @@ app.param('gradeId', function(req, res, next, gradeId) {
 app.param('videoId', function(req, res, next, videoId) {
   trace('param videoId');
   req.video = req.currentLesson.videos && req.currentLesson.videos[videoId];
+  next();
+});
+/** Pre condition param readingId into req.reading. */
+app.param('readingId', function(req, res, next, readingId) {
+  trace('param readingId');
+  req.reading = req.currentLesson.readings && req.currentLesson.readings[readingId];
   next();
 });
 /** Defaults for each type of user. */
@@ -844,45 +852,6 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
     });
   });
 });
-/** Webcast viewing.
- *  Default: display the one specified by currentUser.currentLesson.
- *  Only displays progress control when the user has permission. 
-app.get('/webcast', loadUser, checkPermit('canReadLesson'), loadLesson, loadProgress, function(req, res) {
-  trace('GET /webcast');
-  if (req.currentLesson.videos) {
-    res.render('video', {
-      page: 'webcast',
-      currentUser: req.currentUser,
-      currentLesson: req.currentLesson,
-      videos: req.currentLesson.videos,
-      showControls: req.currentUser.canWriteProgress
-    });
-  } else {
-    req.flash('error', 'Whoops! webcast for this lesson does not exist.');
-    res.redirect('/default');
-  }
-});
-Viewing webcast at LESSONID.
- *  Only displays progress control when the user has permission. 
-app.get('/webcast/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /webcast/:lessonId');
-  if (req.currentLesson) {
-    req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      res.render('video', {
-        page: 'webcast',
-        currentUser: req.currentUser,
-        currentLesson: req.currentLesson,
-        videos: req.currentLesson.videos,
-        showControls: req.currentUser.canWriteProgress
-      });
-    });
-  } else {
-    req.flash('error', 'Whoops! Webcast for this lesson does not exist.');
-    res.redirect('/default');
-  }
-});*/
 /** Viewing webcast by its URL. */
 app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
@@ -897,7 +866,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
         currentLesson: req.currentLesson,
         videoId: req.params.videoId,
         videos: [req.video],
-        showControls: req.currentUser.canWriteProgress
+        showControls: req.currentUser.canWriteProgress()
       });
     });
   } else {
@@ -916,46 +885,21 @@ app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'
     res.redirect('/dashboard');
   }
 });
-/** Marking reading as read. */
-app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
-  trace('POST /reading/:lessonId/:readingId');
-  var reading = req.currentLesson.readings[req.params.readingId];
-  if(req.currentLesson && reading) {
-    reading.isCompleted = true;
-    res.redirect('/dashboard');
-  } else {
-    req.flash('error', 'Whoops! Reading does not exist.');
-    res.redirect('/dashboard');
-  }
-});
-/** Marking homework as complete. */
-app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
-  trace('POST /homework/:lessonId');
-  if(req.currentLesson && req.currentLesson.homework) {
-    req.currentLesson.homework.isCompleted = true;
-    res.redirect('/dashboard');
-  } else {
-    req.flash('error', 'Whoops! Homework does not exist.');
-    res.redirect('/dashboard');
-  }
-});
 /** Viewing reading. */
 app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /reading/:lessonId/:readingId');
   // TODO: iframe view for SICP readings.
-  if (req.currentLesson && req.currentLesson.readings) {
+  if (req.currentLesson && req.reading) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    var reading = req.currentLesson.readings[req.params.readingId];
     req.currentUser.save(function(err) {
       log(err);
       res.render('reading', {
         page: 'reading',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
-        reading: reading,
+        reading: req.reading,
         readingId: req.params.readingId,
-        // TODO: implement progress controls
-        showControls: req.currentUser.canWriteProgress
+        showControls: req.currentUser.canWriteProgress()
       });
     });
   } else {
@@ -963,18 +907,28 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
     res.redirect('/default');
   }
 });
+/** Marking reading as read. */
+app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /reading/:lessonId/:readingId');
+  if(req.currentLesson && req.reading) {
+    req.reading.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Reading does not exist.');
+    res.redirect('/dashboard');
+  }
+});
 /** Homework.
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
-app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework');
   if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
       page: 'homework',
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
-      // TODO: implement progress controls
-      showControls: req.currentUser.canWriteProgress
+      showControls: req.currentUser.canWriteProgress()
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
@@ -993,13 +947,23 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
         page: 'homework',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
-        // TODO: implement progress controls
-        showControls: req.currentUser.canWriteProgress
+        showControls: req.currentUser.canWriteProgress()
       });
     });
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
     res.redirect('/default');
+  }
+});
+/** Marking homework as complete. */
+app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /homework/:lessonId');
+  if(req.currentLesson && req.currentLesson.homework) {
+    req.currentLesson.homework.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Homework does not exist.');
+    res.redirect('/dashboard');
   }
 });
 /** Project.
@@ -1013,7 +977,7 @@ app.get('/project', loadUser, loadLesson, checkPermit('canReadLesson'), function
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       // TODO: implement progress controls
-      showControls: req.currentUser.canWriteProgress
+      showControls: req.currentUser.canWriteProgress()
     });
   } else {
     req.flash('error', 'Whoops! Project for this lesson does not exist.');
@@ -1033,7 +997,7 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         // TODO: implement progress controls
-        showControls: req.currentUser.canWriteProgress
+        showControls: req.currentUser.canWriteProgress()
       });
     });
   } else {
