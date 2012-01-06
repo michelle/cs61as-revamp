@@ -51,8 +51,7 @@ schema.defineModels(mongoose, function() {
 /** Default unauthenticated user. */
 var GUEST = new User({
   username: 'Guest',
-  hashed_password: 'Guest',
-  permission: schema.permissions.Guest
+  permission: User.Permissions.Guest
 });
 
 /** Set up server, session management. */
@@ -104,13 +103,13 @@ function trace(msg) {
 function getType(type) {
   switch(type) {
     case('Grader'):
-      return schema.permissions.Grader;
+      return User.Permissions.Grader;
     case('Student'):
-      return schema.permissions.User;
+      return User.Permissions.User;
     case('Instructor'):
-      return schema.permissions.Instructor;
+      return User.Permissions.Instructor;
     default:
-      return schema.permissions.Guest;
+      return User.Permissions.Guest;
   }
 }
 
@@ -630,7 +629,7 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
-  User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+  User.find({ permission: User.Permissions.Grader }, function(err, graders) {
     log(err);
     User.find({}, function(err, users) {
       log(err);
@@ -686,7 +685,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
 app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
-    User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+    User.find({ permission: User.Permissions.Grader }, function(err, graders) {
       log(err);
         res.render('admin/users/edit', {
         page: 'admin/users/edit',
