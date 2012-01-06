@@ -4,6 +4,9 @@ var DEBUG_TRACE = true;
 var DEBUG_USER = false;
 var DEBUG_WARNING = true;
 
+/** option flags. */
+var SEND_GRADER_NOTIFICATION = true;
+
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
 /** Default fav icon lifetime is 30 days. */
@@ -355,6 +358,11 @@ function sameUser(permit, identification) {
 
 
 function sendGraderNotification(req, next) {
+  if (!SEND_GRADER_NOTIFICATION) {
+    req.flash('info', "Grader notification is not sent because option flag is off.");
+    next();
+    return;
+  }
   var html = "<p>You receive a grade request from " + req.currentUser.username
            + " regarding homework " + req.currentLesson.number + " at "
            +  String(new Date())
