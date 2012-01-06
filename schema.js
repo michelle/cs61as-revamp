@@ -116,6 +116,7 @@ function defineModels(mongoose, fn) {
       required: true
     },
     grade: {
+      // TODO: regex for grade, --, number, maybe ABCDF, maybe pass/nopass?
       type: String,
       required: true
     },
