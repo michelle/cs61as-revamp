@@ -285,7 +285,6 @@ a {
 
 #dash, #content, #nocenter, #centered {
   width: 90%;
-  min-height: 520px;
   margin: 0 auto;
   padding: 20px;
   background-color: rgba(242,245,246,1);
