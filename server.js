@@ -126,7 +126,7 @@ function loadUser(req, res, next) {
 /** Attempt to load current user from session.
  *  Redirect to /home if session.user_id points to an invalid user. */
 function loadUserFromSession(req, res, next) {
-  User.findById(req.session.user_id, function(err, user) {
+  User.findById(req.session.user_id).populate('grader').run(function(err, user) {
     trace('loadUserFromSession');
     log(err);
     if (user) {
@@ -177,7 +177,7 @@ function loadUserFromCookie(req, res, next) {
       } else {
         User.findOne({
           username: cookie.username
-        }, function(err, user) {
+        }).populate('grader').run(function(err, user) {
           log(err);
           if (user) {
             req.currentUser = user;
@@ -354,7 +354,7 @@ function sameUser(permit, identification) {
 }
 
 
-function sendGraderNotification(req) {
+function sendGraderNotification(req, next) {
   var html = "<p>You receive a grade request from " + req.currentUser.username
            + " regarding homework " + req.currentLesson.number + " at "
            +  String(new Date())
@@ -365,23 +365,24 @@ function sendGraderNotification(req) {
            + ". If you receive this email in error. Please discard immediately.";
 
   nodemailer.send_mail({
-    to: 'thanhhaipmai@gmail.com, michelle@michellebu.com',
+    sender: 'astudent@somewhere.com',
+    to: req.currentUser.grader.email,
     subject: 'Grade request from student: ' + req.currentUser.username,
     html: html,
     body: body
   }, function(err, success) {
     if(err) {
       log(err)
-      // wrong smtp information
       req.flash('error', "ERROR 103: Email to grader not sent! Please contact administrators.");
+      next(new Error("wrong smtp information"));
       return;
     }
     if(success) {
       req.flash('info', "Your grader is notified of your submission. Any submission after this period is discarded.");
+      next();
     } else {
-      log(err)
-      // smtp server downs, or refuse to take our email.
       req.flash('error', "ERROR 104: Email to grader not sent! Please contact administrators.");
+      next(new Error("smtp server downs, or refuse to take our email."));
     }
   });
 
@@ -1027,8 +1028,12 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
   trace('POST /homework/:lessonId');
   if(req.currentLesson && req.currentLesson.homework) {
     if (req.body.confirm) {
-      req.currentLesson.homework.isCompleted = true;
-      sendGraderNotification(req);
+      sendGraderNotification(req, function(err){
+        if (!err) {
+          req.currentLesson.homework.isCompleted = true;
+        }
+        res.redirect('/dashboard');
+      });
     } else {
       req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
     }
