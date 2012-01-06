@@ -955,8 +955,15 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 });
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
+// TODO: add view solution
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
+  if (!(type in ['homework', 'extra'])) {
+    req.flash('error', "Whoops! The url you just went to does not exist.");
+    res.redirect('/default');
+    return;
+  }
+
   if (req.currentLesson && req.currentLesson[req.params.type]) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
@@ -970,7 +977,7 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
           showControls: req.currentUser.canWriteProgress()
         });
       } else {
-        req.flash('error', 'You haven\'t finished the homework yet, so you can\'t look at these solutions!');
+        req.flash('error', "You haven't finished the homework yet, so you can't look at these solutions!");
         res.redirect('/dashboard');
       }
     });
