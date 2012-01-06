@@ -5,7 +5,7 @@ var DEBUG_USER = false;
 var DEBUG_WARNING = true;
 
 /** option flags. */
-var SEND_GRADER_NOTIFICATION = true;
+var SEND_GRADER_NOTIFICATION = false;
 
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
@@ -1074,12 +1074,12 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
         if (!err) {
           req.currentLesson.homework.isCompleted = true;
         }
-        res.redirect('/dashboard');
+        res.redirect('/homework/' + req.params.lessonId);
       });
     } else {
       req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
+      res.redirect('/homework/' + req.params.lessonId);
     }
-    res.redirect('/homework/' + req.params.lessonId);
   } else {
     req.flash('error', 'Whoops! Homework does not exist.');
     res.redirect('/dashboard');
