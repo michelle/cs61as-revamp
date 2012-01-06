@@ -16,9 +16,13 @@ var mongoose = require('mongoose');
 var mongoStore = require('connect-mongodb');
 var schema = require('./schema.js');
 var fs = require('fs');
+var nodemailer = require('nodemailer');
 
 /** Database. */
 var db;
+
+/** Configuration. */
+var config = JSON.parse(fs.readFileSync('private/config.conf'));
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -62,6 +66,9 @@ app.use(express.static(__dirname + '/public'));
 /** Where to look for templates. */
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+// setting up SMTP information
+nodemailer.SMTP = config.SMTP;
 
 /** Log OBJ to console bases on the type of OBJ and debug flags.*/
 function log(obj) {
@@ -346,6 +353,39 @@ function sameUser(permit, identification) {
   }
 }
 
+
+function sendGraderNotification(req) {
+  var html = "<p>You receive a grade request from " + req.currentUser.username
+           + " regarding homework " + req.currentLesson.number + " at "
+           +  String(new Date())
+           + ".<br /> If you receive this email in error. Please discard immediately.</p>";
+  var body = "You receive a grade request from " + req.currentUser.username
+           + " regarding homework " + req.currentLesson.number + " at "
+           +  String(new Date())
+           + ". If you receive this email in error. Please discard immediately.";
+
+  nodemailer.send_mail({
+    to: 'thanhhaipmai@gmail.com, michelle@michellebu.com',
+    subject: 'Grade request from student: ' + req.currentUser.username,
+    html: html,
+    body: body
+  }, function(err, success) {
+    if(err) {
+      log(err)
+      // wrong smtp information
+      req.flash('error', "ERROR 103: Email to grader not sent! Please contact administrators.");
+      return;
+    }
+    if(success) {
+      req.flash('info', "Your grader is notified of your submission. Any submission after this period is discarded.");
+    } else {
+      log(err)
+      // smtp server downs, or refuse to take our email.
+      req.flash('error', "ERROR 104: Email to grader not sent! Please contact administrators.");
+    }
+  });
+
+}
 /** Pre condition param userId into req.user. */
 app.param('userId', function(req, res, next, userId) {
   trace('param userId');
@@ -988,6 +1028,7 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
   if(req.currentLesson && req.currentLesson.homework) {
     if (req.body.confirm) {
       req.currentLesson.homework.isCompleted = true;
+      sendGraderNotification(req);
     } else {
       req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
     }
