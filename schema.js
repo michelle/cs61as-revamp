@@ -30,6 +30,23 @@ function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
 
+  /** An announcement. */
+  Announcement = new Schema({
+    title: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: String,
+      required: true
+    },
+    date: {
+      type: Date,
+      default: new Date(),
+      required: true
+    }
+  });
+
   /** A reading.
    *  location: a relative link to a reading assignment.
    *  if SICP, an absolute link to SICP page. */
@@ -373,6 +390,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Video', Video);
   mongoose.model('Grade', Grade);
   mongoose.model('Progress', Progress);
+  mongoose.model('Announcement', Announcement);
 
   fn();
 }

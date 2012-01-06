@@ -426,7 +426,7 @@ a {
   color: #BD9392;
 }
 
-#lesson {
+#lesson, .otherflag {
 	background-color: #394349;
 	padding-right: 30px;
 	padding-left: 25px;
@@ -444,7 +444,7 @@ a {
 	color: #9aa7b0;
 }
 
-#lefttriangle {
+#lefttriangle, .triangle {
 	border-color: transparent #282F33 transparent transparent;
 	border-style:solid;
 	border-width:25px;
@@ -456,7 +456,7 @@ a {
 	z-index: 98;
 }
 
-#lesson h2 {
+#lesson h2, .otherflag h2 {
 	font-size: 30px;
 	line-height: 30px;
 	margin: 10px 0px;
