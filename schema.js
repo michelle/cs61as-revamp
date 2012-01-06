@@ -224,7 +224,7 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       },
-      match: /^[a-z0-9_-\.]{2,31}@berkeley\.edu$/i
+      match: /^[\.a-z0-9_-]{2,31}@berkeley\.edu$/i
     },
     username: {
       type: String,
