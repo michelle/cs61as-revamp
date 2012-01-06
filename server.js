@@ -1004,6 +1004,7 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
 /** Project.
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
+// TODO: view for projects
 app.get('/project', loadUser, checkPermit('canReadLesson'), loadLesson, loadProgress, function(req, res) {
   trace('GET /project');
   if (req.currentLesson && req.currentLesson.project) {
@@ -1011,7 +1012,6 @@ app.get('/project', loadUser, checkPermit('canReadLesson'), loadLesson, loadProg
       page: 'project',
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
-      // TODO: implement progress controls
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
@@ -1031,7 +1031,6 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
         page: 'project',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
-        // TODO: implement progress controls
         showControls: req.currentUser.canWriteProgress()
       });
     });
