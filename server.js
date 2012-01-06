@@ -957,7 +957,7 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
  *  Only displays progress control when the user has permission. */
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson[req.params.type]) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
