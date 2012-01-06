@@ -15,17 +15,24 @@ $(document).ready(function() {
     if ($('#topfloater').width() > .96*$(window).width()) {
       $('#topbar .up').hide();
     }
+    if ($(document).height() <= $(window).height() + 200) {
+      $('#bottombar').hide();
+    }
     $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
   });
   /** Window resizing. */
   $(window).resize(function() {
     if (topbarwidth > .96*$(window).width()) {
       $('#topbar .up').hide();
-      console.log('hidden');
     }
     if (topbarwidth <= .96*$(window).width()) {
       $('#topbar .up').show();
-      console.log('shown');
+    }
+    if ($(document).height() > $(window).height() + 200) {
+      $('#bottombar').show();
+    }
+    if ($(document).height() <= $(window).height() + 200) {
+      $('#bottombar').hide();
     }
   });
   /** Smooth scrolling. */
