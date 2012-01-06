@@ -881,6 +881,11 @@ input {
 
 .resource {
   border: 1px solid rgba(200,215,220,1);
-  background-color: rgba(200,215,220,0.5);
+  background-color: rgba(256,256,256,0.5);
   color: #4D5A63;
+}
+
+.resources {
+  border: 1px solid rgba(200,215,220,1);
+  background-color: rgba(200,215,220,0.5);
 }

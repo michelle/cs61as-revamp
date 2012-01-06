@@ -255,7 +255,7 @@ function defineModels(mongoose, fn) {
     },
     units: {
       type: Number,
-      min: 1,
+      min: 2,
       max: 5,
       'default': 2
     },
