@@ -29,6 +29,13 @@
     <span class="left boxy noselect">units</span>
     <input type="number" min="2" max="5" class="right textboxy" name='user[units]' value='<%-user.units%>' required>
     <br>
+    <span class="left boxy noselect">Grader</span>
+    <select class="right selectboxy" name='user[grader]'>
+      <% for (var i = 0; i < graders.length; i += 1) { var grader = graders[i] ;%>
+        <option value="<%-grader.username%>"><%-grader.username%></option>
+      <% } %>
+    </select>
+    <br>
     <span class="left boxy noselect" required>permission</span>
     <input type="text" class="right textboxy" name='user[permission]' value='<%-user.permission%>' required>
     <div class="clear"></div>

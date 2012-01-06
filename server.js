@@ -661,10 +661,14 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
 app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
-    res.render('admin/users/edit', {
-      page: 'admin/users/edit',
-      currentUser: req.currentUser,
-      user: req.user
+    User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+      log(err);
+        res.render('admin/users/edit', {
+        page: 'admin/users/edit',
+        currentUser: req.currentUser,
+        user: req.user,
+        graders: graders
+      });
     });
   } else {
     req.flash('error', 'Malformed userID.');
@@ -683,8 +687,27 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
-    req.user.save(function(err){
-      if (err) {
+    User.findOne({
+        username: req.body.user.grader
+      }, function(err, grader) {
+      log(err);
+      if (!err && grader) {
+        req.user.save(function(err){
+          if (err) {
+            log(err);
+            for (var e in err.errors) {
+              req.flash('error', err.errors[e].message);
+            }
+            if (err.err) {
+              req.flash('error', err.err);
+            }
+            req.flash('error', 'User %s was not saved successfully.', req.user.username);
+          } else {
+            req.flash('info', 'User %s was saved successfully.', req.user.username);
+          }
+          res.redirect('/admin/users');
+        });
+      } else {
         log(err);
         for (var e in err.errors) {
           req.flash('error', err.errors[e].message);
@@ -693,10 +716,8 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
           req.flash('error', err.err);
         }
         req.flash('error', 'User %s was not saved successfully.', req.user.username);
-      } else {
-        req.flash('info', 'User %s was saved successfully.', req.user.username);
+        res.redirect('/admin/users');
       }
-      res.redirect('/admin/users');
     });
   } else {
     req.flash('error', 'Malformed userID.');
