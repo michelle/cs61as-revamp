@@ -958,6 +958,12 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 // TODO: add view solution
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
+  if (['homework', 'extra'].indexOf(req.params.type) === -1) {
+    req.flash('error', "Whoops! The url you just went to does not exist.");
+    res.redirect('/default');
+    return;
+  }
+
   if (req.currentLesson && req.currentLesson[req.params.type]) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
