@@ -15,7 +15,8 @@
     "ejs":"",
     "mongoose": "",
     "connect-mongodb": "",
-    "connect": ""
+    "connect": "",
+    "nodemailer": ""
   },
   "devDependencies": {}
 }

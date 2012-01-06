@@ -4,6 +4,9 @@ var DEBUG_TRACE = true;
 var DEBUG_USER = false;
 var DEBUG_WARNING = true;
 
+/** option flags. */
+var SEND_GRADER_NOTIFICATION = false;
+
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
 /** Default fav icon lifetime is 30 days. */
@@ -16,9 +19,13 @@ var mongoose = require('mongoose');
 var mongoStore = require('connect-mongodb');
 var schema = require('./schema.js');
 var fs = require('fs');
+var nodemailer = require('nodemailer');
 
 /** Database. */
 var db;
+
+/** Configuration. */
+var config = JSON.parse(fs.readFileSync('private/config.conf'));
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -44,6 +51,7 @@ schema.defineModels(mongoose, function() {
 /** Default unauthenticated user. */
 var GUEST = new User({
   username: 'Guest',
+  hashed_password: 'Guest',
   permission: schema.permissions.Guest
 });
 
@@ -62,6 +70,9 @@ app.use(express.static(__dirname + '/public'));
 /** Where to look for templates. */
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+// setting up SMTP information
+nodemailer.SMTP = config.SMTP;
 
 /** Log OBJ to console bases on the type of OBJ and debug flags.*/
 function log(obj) {
@@ -119,7 +130,7 @@ function loadUser(req, res, next) {
 /** Attempt to load current user from session.
  *  Redirect to /home if session.user_id points to an invalid user. */
 function loadUserFromSession(req, res, next) {
-  User.findById(req.session.user_id, function(err, user) {
+  User.findById(req.session.user_id).populate('grader').run(function(err, user) {
     trace('loadUserFromSession');
     log(err);
     if (user) {
@@ -170,7 +181,7 @@ function loadUserFromCookie(req, res, next) {
       } else {
         User.findOne({
           username: cookie.username
-        }, function(err, user) {
+        }).populate('grader').run(function(err, user) {
           log(err);
           if (user) {
             req.currentUser = user;
@@ -314,10 +325,6 @@ function loadProgress(req, res, next) {
         }
       }(i));
     }
-
-    req.currentLesson.attachProgress(function() {
-      return progress.assignments[0];
-    });
     next();
   });
 }
@@ -350,10 +357,49 @@ function sameUser(permit, identification) {
   }
 }
 
+
+function sendGraderNotification(req, next) {
+  if (!SEND_GRADER_NOTIFICATION) {
+    req.flash('info', "Grader notification is not sent because option flag is off.");
+    next();
+    return;
+  }
+  var html = "<p>You receive a grade request from " + req.currentUser.username
+           + " regarding homework " + req.currentLesson.number + " at "
+           +  String(new Date())
+           + ".<br /> If you receive this email in error. Please discard immediately.</p>";
+  var body = "You receive a grade request from " + req.currentUser.username
+           + " regarding homework " + req.currentLesson.number + " at "
+           +  String(new Date())
+           + ". If you receive this email in error. Please discard immediately.";
+
+  nodemailer.send_mail({
+    sender: 'astudent@somewhere.com',
+    to: req.currentUser.grader.email,
+    subject: 'Grade request from student: ' + req.currentUser.username,
+    html: html,
+    body: body
+  }, function(err, success) {
+    if(err) {
+      log(err)
+      req.flash('error', "ERROR 103: Email to grader not sent! Please contact administrators.");
+      next(new Error("wrong smtp information"));
+      return;
+    }
+    if(success) {
+      req.flash('info', "Your grader is notified of your submission. Any submission after this period is discarded.");
+      next();
+    } else {
+      req.flash('error', "ERROR 104: Email to grader not sent! Please contact administrators.");
+      next(new Error("smtp server downs, or refuse to take our email."));
+    }
+  });
+
+}
 /** Pre condition param userId into req.user. */
 app.param('userId', function(req, res, next, userId) {
   trace('param userId');
-  User.findById(userId, function(err, user) {
+  User.findById(userId).populate('grader').run(function(err, user) {
     log(err);
     req.user = !err && user;
     next();
@@ -584,12 +630,16 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
-  User.find({}, function(err, users) {
+  User.find({ permission: schema.permissions.Grader }, function(err, graders) {
     log(err);
-    res.render('admin/users', {
-      page: 'admin/users/index',
-      currentUser: req.currentUser,
-      users: users
+    User.find({}, function(err, users) {
+      log(err);
+      res.render('admin/users', {
+        page: 'admin/users/index',
+        currentUser: req.currentUser,
+        users: users,
+        graders: graders
+      });
     });
   });
 });
@@ -599,35 +649,51 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
   var user = new User({
     username: req.body.user.username
   });
-  if (req.body.user.email != '') {
-    user.email = req.body.user.email;
-  }
+  user.email = req.body.user.email;
   user.password = req.body.user.password;
   user.permission = getType(req.body.user.type);
-  user.save(function(err) {
-    if (err) {
-      log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
-      if (err.err) {
-        req.flash('error', err.err);
-      }
-      req.flash('error', 'User %s was not added successfully.', user.username);
+
+  User.findOne({
+      username: req.body.user.grader
+    }, function(err, grader) {
+    log(err);
+    if (!err && grader) {
+      user.grader = grader;
+      user.save(function(err){
+        if (err) {
+          log(err);
+          for (var e in err.errors) {
+            req.flash('error', err.errors[e].message);
+          }
+          if (err.err) {
+            req.flash('error', err.err);
+          }
+          req.flash('error', 'User %s was not saved successfully.', user.username);
+        } else {
+          req.flash('info', 'User %s was saved successfully.', user.username);
+        }
+        res.redirect('/admin/users');
+      });
     } else {
-      req.flash('info', 'User %s was added successfully.', user.username);
+      log(err);
+      req.flash('error', 'Grader %s does not exist.', req.body.user.grader);
+      req.flash('error', 'User %s was not saved successfully.', user.username);
+      res.redirect('/admin/users');
     }
-    res.redirect('/admin/users');
   });
 });
 /** Edit an user. */
 app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
-    res.render('admin/users/edit', {
-      page: 'admin/users/edit',
-      currentUser: req.currentUser,
-      user: req.user
+    User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+      log(err);
+        res.render('admin/users/edit', {
+        page: 'admin/users/edit',
+        currentUser: req.currentUser,
+        user: req.user,
+        graders: graders
+      });
     });
   } else {
     req.flash('error', 'Malformed userID.');
@@ -638,28 +704,42 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
 app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
-    req.user.username = req.body.user.username;
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
     }
+    req.user.username = req.body.user.username;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
-    req.user.save(function(err){
-      if (err) {
-        log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
-        if (err.err) {
-          req.flash('error', err.err);
-        }
-        req.flash('error', 'User %s was not saved successfully.', req.user.username);
+
+    User.findOne({
+        username: req.body.user.grader
+      }, function(err, grader) {
+      log(err);
+      if (!err && grader) {
+        req.user.grader = grader;
+        req.user.save(function(err){
+          if (err) {
+            log(err);
+            for (var e in err.errors) {
+              req.flash('error', err.errors[e].message);
+            }
+            if (err.err) {
+              req.flash('error', err.err);
+            }
+            req.flash('error', 'User %s was not saved successfully.', req.user.username);
+          } else {
+            req.flash('info', 'User %s was saved successfully.', req.user.username);
+          }
+          res.redirect('/admin/users');
+        });
       } else {
-        req.flash('info', 'User %s was saved successfully.', req.user.username);
+        log(err);
+        req.flash('error', 'Grader %s does not exist.', req.body.user.grader);
+        req.flash('error', 'User %s was not saved successfully.', req.user.username);
+        res.redirect('/admin/users');
       }
-      res.redirect('/admin/users');
     });
   } else {
     req.flash('error', 'Malformed userID.');
@@ -955,7 +1035,6 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 });
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
-// TODO: add view solution
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
   if (['homework', 'extra'].indexOf(req.params.type) === -1) {
@@ -991,11 +1070,16 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
   trace('POST /homework/:lessonId');
   if(req.currentLesson && req.currentLesson.homework) {
     if (req.body.confirm) {
-      req.currentLesson.homework.isCompleted = true;
+      sendGraderNotification(req, function(err){
+        if (!err) {
+          req.currentLesson.homework.isCompleted = true;
+        }
+        res.redirect('/homework/' + req.params.lessonId);
+      });
     } else {
       req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
+      res.redirect('/homework/' + req.params.lessonId);
     }
-    res.redirect('/homework/' + req.params.lessonId);
   } else {
     req.flash('error', 'Whoops! Homework does not exist.');
     res.redirect('/dashboard');
