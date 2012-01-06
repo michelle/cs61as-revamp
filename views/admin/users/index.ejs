@@ -10,13 +10,13 @@
   <div class="formbox">
   <h3>Add a user</h3>
     <span class="left boxy noselect">username</span>
-    <input type="text" class="right textboxy" name='user[username]' required>
+    <input type="text" class="right textboxy" name='user[username]' pattern="^[a-z][a-z0-9_-]{2,31}$" title="Must start with a letter, between 3 to 32 characters, contains only a-z, 0-9, underscore, and dash." required>
     <br>
     <span class="left boxy noselect">password</span>
     <input type="text" class="right textboxy" name='user[password]' required>
     <br>
     <span class="left boxy noselect">email</span>
-    <input type="email" class="right textboxy" name='user[email]'>
+    <input type="email" class="right textboxy" name='user[email]' pattern="^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$" title="Must be a berkeley.edu email, start with a letter, between 2-32 characters long before the @ sign, and contains at most one dot.">
     <br>
     <span class="left boxy noselect">type</span>
     <select class="right selectboxy" name='user[type]'>

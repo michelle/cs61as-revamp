@@ -488,7 +488,7 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
   });
 });
 /** Announcements panel */
-app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/announcements');
   Announcement.find({}, function(err, news) {
     log(err);
@@ -500,7 +500,7 @@ app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Post new announcement */
-app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcement/new');
   var announcement = new Announcement({
     title: req.body.announcement.title,
@@ -522,6 +522,64 @@ app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'
     }
     res.redirect('/admin/announcements');
   });
+});
+/** Edit an announcement. */
+app.get('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/announcements/edit/:noteId');
+  if (req.note) {
+    res.render('admin/announcements/edit', {
+      page: 'admin/announcements/edit',
+      currentUser: req.currentUser,
+      note: req.note
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
+  }
+});
+/** Save edit a note. */
+app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/announcements/edit/:noteId');
+  if (req.note) {
+    req.note.title = req.body.note.title;
+    if (req.body.note.content != '') {
+      req.note.content = req.body.note.content;
+    }
+    req.note.date = new Date();
+    req.note.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'Note was not saved successfully.');
+      } else {
+        req.flash('info', 'Note was saved successfully.');
+      }
+      res.redirect('/admin/announcements');
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
+  }
+});
+/** Delete an announcement. */
+app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/announcements/delete/:noteId');
+  if (req.note) {
+    Announcement.findById(req.note.id, function(err, note) {
+      log(err);
+      note.remove();
+      req.flash('info', 'Post deleted.');
+      res.redirect('/admin/announcements');
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
+  }
 });
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
@@ -576,35 +634,6 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
     res.redirect('/admin/users');
   }
 });
-/** Edit an announcement. */
-app.get('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
-  trace('GET /admin/announcements/edit/:noteId');
-  if (req.note) {
-    res.render('admin/announcements/edit', {
-      page: 'admin/announcements/edit',
-      currentUser: req.currentUser,
-      note: req.note
-    });
-  } else {
-    req.flash('error', 'Malformed noteID.');
-    res.redirect('/admin/announcements');
-  }
-});
-/** Delete an announcement. */
-app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
-  trace('GET /admin/announcements/edit/:noteId');
-  if (req.note) {
-    Announcement.findById(req.note.id, function(err, note) {
-      log(err);
-      note.remove();
-      req.flash('info', 'Post deleted.');
-      res.redirect('/admin/announcements');
-    });
-  } else {
-    req.flash('error', 'Malformed noteID.');
-    res.redirect('/admin/announcements');
-  }
-});
 /** Save edit an user. */
 app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
@@ -635,35 +664,6 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   } else {
     req.flash('error', 'Malformed userID.');
     res.redirect('/admin/users');
-  }
-});
-/** Save edit a note. */
-app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
-  trace('POST /admin/announcements/edit/:nodeId');
-  if (req.note) {
-    req.note.title = req.body.note.title;
-    if (req.body.note.content != '') {
-      req.note.content = req.body.note.content;
-    }
-    req.note.date = new Date();
-    req.note.save(function(err){
-      if (err) {
-        log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
-        if (err.err) {
-          req.flash('error', err.err);
-        }
-        req.flash('error', 'Note was not saved successfully.');
-      } else {
-        req.flash('info', 'Note was saved successfully.');
-      }
-      res.redirect('/admin/announcements');
-    });
-  } else {
-    req.flash('error', 'Malformed noteID.');
-    res.redirect('/admin/announcements');
   }
 });
 /** Manage grades. */
@@ -955,8 +955,15 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
 });
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
+// TODO: add view solution
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
+  if (!(type in ['homework', 'extra'])) {
+    req.flash('error', "Whoops! The url you just went to does not exist.");
+    res.redirect('/default');
+    return;
+  }
+
   if (req.currentLesson && req.currentLesson[req.params.type]) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
@@ -970,7 +977,7 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
           showControls: req.currentUser.canWriteProgress()
         });
       } else {
-        req.flash('error', 'You haven\'t finished the homework yet, so you can\'t look at these solutions!');
+        req.flash('error', "You haven't finished the homework yet, so you can't look at these solutions!");
         res.redirect('/dashboard');
       }
     });
@@ -997,14 +1004,14 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
 /** Project.
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
-app.get('/project', loadUser, loadLesson, checkPermit('canReadLesson'), function(req, res) {
+// TODO: view for projects
+app.get('/project', loadUser, checkPermit('canReadLesson'), loadLesson, loadProgress, function(req, res) {
   trace('GET /project');
   if (req.currentLesson && req.currentLesson.project) {
     res.render('project', {
       page: 'project',
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
-      // TODO: implement progress controls
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
@@ -1024,7 +1031,6 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
         page: 'project',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
-        // TODO: implement progress controls
         showControls: req.currentUser.canWriteProgress()
       });
     });
@@ -1032,12 +1038,6 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
     req.flash('error', 'Whoops! Project for this lesson does not exist.');
     res.redirect('/default');
   }
-});
-/** Announcements. */
-// TODO: Integrate Wordpress to post updates.
-app.get('/blog', loadUser, checkPermit('canReadLesson'), function(req, res) {
-  trace('GET /blog');
-  res.send('Under construction. Please come back later.');
 });
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
