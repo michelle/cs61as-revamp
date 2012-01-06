@@ -539,9 +539,11 @@ app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermi
 app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
   var user = new User({
-    username: req.body.user.username,
-    email: req.body.user.email,
+    username: req.body.user.username
   });
+  if (req.body.user.email != '') {
+    user.email = req.body.user.email;
+  }
   user.password = req.body.user.password;
   user.permission = getType(req.body.user.type);
   user.save(function(err) {
