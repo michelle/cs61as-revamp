@@ -14,6 +14,7 @@
       </div>
     <% } %>
     <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+    <br><br>
     <% if (showControls) { %>
       <% if (!currentLesson.homework.isCompleted) {%>
       <div class="rednote">
@@ -29,9 +30,10 @@
       </div>
       <% } else { %>
       <hr />
-      <div id="#solution">
-        <h3 class="noselect">Solution</h3>
-        <div class="links">
+      <br>
+      <div id="solution">
+        <h3 class="noselect">View Solutions</h3>
+        <div class="wrapper">
           <%-partial('CS61AS/homework/sol' + currentLesson.number + '.ejs')%>
         </div>
       </div>

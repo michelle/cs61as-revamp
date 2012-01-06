@@ -66,8 +66,20 @@
     </ul>
   </div>
   <div class="clear"></div>
+  <br>
   
-  <div class="otherflag" class="noselect">
+  <div class="otherflag noselect">
+    <h2>Resources</h2>
+  </div>
+  <div class="triangle"></div>
+  <div class="clear"></div>
+  <a href="/grades" class="resource">Grades</a>
+  <a href="/administration" class="resource">Administration</a>
+  <a href="/#" class="resource">Feedback</a>
+  <div class="clear"></div>
+<br>
+<% if (news.length > 0) { %>
+  <div class="otherflag noselect">
     <h2>Announcements</h2>
   </div>
   <div class="triangle"></div>
@@ -82,11 +94,5 @@
     <h4>Posted: <%-article.date%></h4>
     </div>
   <% } %>
-  
-  <div class="otherflag" class="noselect">
-    <h2>Resources</h2>
-  </div>
-  <div class="triangle"></div>
-  <div class="clear"></div>
-
+<% } %>
 </div>

@@ -15,14 +15,6 @@
             </button>
           </form>
         <% } else { %>
-          <% if (currentUser) { %>
-            <div class="topnav left">
-              <a href="/grades">
-                <div class="smallwidth left"><span class="iconic user"></span></div>
-                <div class="left up"><%-currentUser.username%></div>
-              </a>
-            </div>
-          <% } %>
           <div class="topnav left">
             <a href="http://www.piazza.com/">
               <div class="smallwidth left"><span class="iconic chat-alt"></span></div>
@@ -38,7 +30,7 @@
           <div class="topnav left">
             <a href="/logout">
               <div class="smallwidth left"><span class="iconic unlocked"></span></div>
-              <div class="left up">Logout</div>
+              <div class="left up">Logout (<%-currentUser.username%>)</div>
             </a>
           </div>
         <% } %>
@@ -50,7 +42,7 @@
   <% if (page != 'lessons') { %>
     <a href="/lessons">
       <div id="alllessons">
-        <span class="iconic book-alt"></span>
+        <span class="iconic article"></span>
       </div>
     </a>
   <% } %>

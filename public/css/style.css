@@ -825,7 +825,6 @@ input {
   background-color: #fff;
   margin: 10px auto;
   margin-bottom: 30px;
-  font-weight: 300;
   text-shadow: none;
   font-family: 'Open Sans';
   font-size: 16px;
@@ -841,6 +840,10 @@ input {
 }
 
 .announcement h3 {
+  letter-spacing: 1px;
+}
+
+.resource, .announcement h3 {
   background-color: rgba(200,215,220,0.5);
   border-bottom: 1px solid rgba(200,215,220,1);
   margin: 0px;
@@ -852,6 +855,8 @@ input {
 
 .announcement h4 {
   color: #4D5A63;
+  font-weight: 300;
+  border-top: 1px solid rgba(200,215,220,1);
   text-transform: uppercase;
 }
 
@@ -859,4 +864,17 @@ input {
   padding: 10px 30px;
 }
 
+.linkboxy a {
+  color: #394349;
+}
+
+.linkboxy a:hover {
+  color: #BD9392;
+}
+
+.resource {
+ border: 1px solid rgba(200,215,220,1);
+ border-radius: 5px;
+ margin: 5px;
+}
 

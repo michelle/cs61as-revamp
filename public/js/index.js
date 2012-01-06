@@ -4,10 +4,10 @@ $(document).ready(function() {
 		$( "#accordion" ).accordion({
 			collapsible: true
 		});
-  });
-  $("#solution").accordion({
-    collapsible: true,
-    active: false
+    $("#solution").accordion({
+      collapsible: true,
+      active: false
+    });
   });
   /** Login form fanciness. */
   $('#showlogin').click(function() {
@@ -19,18 +19,18 @@ $(document).ready(function() {
   $(function() {
     topbarwidth = $('#topfloater').width();
     if ($('#topfloater').width() > .9*$(window).width()) {
-      $('.up').hide();
+      $('#topbar .up').hide();
     }
     $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
   });
   /** Window resizing. */
   $(window).resize(function() {
     if (topbarwidth > .9*$(window).width()) {
-      $('.up').hide();
+      $('#topbar .up').hide();
       console.log('hidden');
     }
     if (topbarwidth <= .9*$(window).width()) {
-      $('.up').show();
+      $('#topbar .up').show();
       console.log('shown');
     }
   });
