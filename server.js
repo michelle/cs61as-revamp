@@ -630,11 +630,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
       } else {
         req.flash('info', 'User %s was saved successfully.', req.user.username);
       }
-      res.render('admin/users/edit', {
-        page: 'admin/users/edit',
-        currentUser: req.currentUser,
-        user: req.user
-      });
+      res.redirect('/admin/users');
     });
   } else {
     req.flash('error', 'Malformed userID.');

@@ -9,12 +9,6 @@ $(document).ready(function() {
       active: false
     });
   });
-  /** Login form fanciness. */
-  $('#showlogin').click(function() {
-    $('#showlogin').attr('disabled', 'disabled');
-    $('#loginform').slideToggle(500);
-    $('#login').fadeToggle('slow');
-  });
   /** Superficial things. */
   $(function() {
     topbarwidth = $('#topfloater').width();
