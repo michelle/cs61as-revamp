@@ -343,6 +343,23 @@ function defineModels(mongoose, fn) {
   User.method('canWriteProgress', function() {
     return this.permission & (1 << 20);
   });
+
+  User.virtual('isSuperAdmin').get(function() {
+    return this.permission == permissions.SuperAdmin;
+  });
+  User.virtual('Instructor').get(function() {
+    return this.permission == permissions.Instructor;
+  });
+  User.virtual('Grader').get(function() {
+    return this.permission == permissions.Grader;
+  });
+  User.virtual('User').get(function() {
+    return this.permission == permissions.User;
+  });
+  User.virtual('Guest').get(function() {
+    return this.permission == permissions.Guest;
+  });
+
   /** Login token for remembering logins. */
   LoginToken = new Schema({
     username: {
