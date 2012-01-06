@@ -1,3 +1,5 @@
+
+
 <div id="nocenter">
   <div id="lesson" class="noselect">
     <h2>Lessons</h2>
@@ -7,7 +9,7 @@
   <div id="accordion">
     <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
         
-        <h3 class="noselect"><%-n%> - <%-lesson.name%></h3>
+        <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (lesson.videos.length > 0) { %>
             <strong>Webcasts</strong>:

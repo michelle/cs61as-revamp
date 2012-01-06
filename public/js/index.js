@@ -1,7 +1,7 @@
 $(document).ready(function() {
   /** Dashboard UI. */
   $(function() {
-		$( "#accordion" ).accordion({
+    $( "#accordion" ).accordion({
 			collapsible: true
 		});
     $("#solution").accordion({
@@ -12,18 +12,18 @@ $(document).ready(function() {
   /** Superficial things. */
   $(function() {
     topbarwidth = $('#topfloater').width();
-    if ($('#topfloater').width() > .9*$(window).width()) {
+    if ($('#topfloater').width() > .96*$(window).width()) {
       $('#topbar .up').hide();
     }
     $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
   });
   /** Window resizing. */
   $(window).resize(function() {
-    if (topbarwidth > .9*$(window).width()) {
+    if (topbarwidth > .96*$(window).width()) {
       $('#topbar .up').hide();
       console.log('hidden');
     }
-    if (topbarwidth <= .9*$(window).width()) {
+    if (topbarwidth <= .96*$(window).width()) {
       $('#topbar .up').show();
       console.log('shown');
     }

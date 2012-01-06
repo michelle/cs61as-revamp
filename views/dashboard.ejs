@@ -69,9 +69,23 @@
   <div class="thirds left resources">
     <h1>Resources</h1>
     <ul class="nolist">
+      
+      <% if (currentLesson.homework) { %>
+        <% if (currentLesson.homework.isCompleted) { %>
+          <a href="/solutions/homework/<%-n%>"><li class="resource">HW<%-n%> Solutions</li></a>
+        <% } %>
+      <% } %>
+      <% if (currentLesson.project) { %>
+        <% if (currentLesson.project.isCompleted) { %>
+          <!-- TODO: Project #s? -->
+          <a href="/solutions/project/<%-n%>"><li class="resource">Proj<%-n%> Solutions</li></a>
+        <% } %>
+      <% } %>
+      
       <a href="/grades"><li class="resource">Grades</li></a>
       <a href="/administration"><li class="resource">Administration</li></a>
       <a href="/#"><li class="resource">Feedback</li></a>
+      
     </ul>
   </div>
   

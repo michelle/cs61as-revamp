@@ -953,12 +953,42 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
     res.redirect('/default');
   }
 });
+/** View solution for TYPE at lessonId.
+ *  Only displays progress control when the user has permission. */
+app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /solutions/:type/:lessonId');
+  if (req.currentLesson) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      if (req.currentLesson[req.params.type].isCompleted) {
+        res.render('solution', {
+          page: 'solution',
+          currentUser: req.currentUser,
+          type: req.params.type,
+          currentLesson: req.currentLesson,
+          showControls: req.currentUser.canWriteProgress()
+        });
+      } else {
+        req.flash('error', 'You haven\'t finished the homework yet, so you can\'t look at these solutions!');
+        res.redirect('/dashboard');
+      }
+    });
+  } else {
+    req.flash('error', 'Whoops! This solution does not exist.');
+    res.redirect('/default');
+  }
+});
 /** Marking homework as complete. */
 app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /homework/:lessonId');
   if(req.currentLesson && req.currentLesson.homework) {
-    req.currentLesson.homework.isCompleted = true;
-    res.redirect('/dashboard');
+    if (req.body.confirm) {
+      req.currentLesson.homework.isCompleted = true;
+    } else {
+      req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
+    }
+    res.redirect('/homework/' + req.params.lessonId);
   } else {
     req.flash('error', 'Whoops! Homework does not exist.');
     res.redirect('/dashboard');

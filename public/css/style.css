@@ -39,7 +39,7 @@ body, html {
                0 20px 20px rgba(200,215,220,.25);
 }
 
-#splash, #topbar, #bottombar {
+#splash, #topbar {
   color: #ccc;
   background: rgb(242,245,246); /* Old browsers */
   background: -moz-radial-gradient(center, ellipse cover, rgba(242,245,246,1) 0%, rgba(227,234,237,1) 37%, rgba(200,215,220,1) 100%); /* FF3.6+ */
@@ -72,17 +72,28 @@ body, html {
   margin-right: 20px;
 }
 
-#topbar, #bottombar {
+#topbar {
   position: relative;
   color: #626B70;
 }
 
 #bottombar {
   bottom: 0px;
-  border-top: 1px solid #fff;
   border-bottom: 0px;
-  padding: 10px 0px;
-  height: 30px;
+  height: 50px;
+  position: relative;
+  z-index: 100;
+  font-size: 50px;
+}
+
+#bottombar a {
+  color: #88A0AF;
+  text-shadow: 0px 1px 0px #394349;
+  opacity: 0.5;
+}
+
+#bottombar a:hover {
+  opacity: 0.7;
 }
 
 #topbar {
@@ -101,11 +112,11 @@ body, html {
   padding: 10px 0px;
 }
 
-#alllessons span, #admin span, #dashboard span, #topbar a, #bottombar a {
+#alllessons span, #admin span, #dashboard span, #topbar a {
   color: #9aa7b0;
   font-size: 30px;
   text-shadow: 0px 1px 0px #fff;
-  margin: 10px;
+  margin: 10px 7px;
   line-height: 30px;
   letter-spacing: 2px;
   -webkit-transition: color 0.2s linear;
@@ -118,14 +129,14 @@ body, html {
   font-size: 50px;
 }
 
-#topbar a:hover, #bottombar a:hover {
+#topbar a:hover {
   color: #626B70;
 }
 
-.up, #bottombar a {
+.up {
   text-transform: uppercase;
   font-family: 'League Gothic', Arial;
-  font-size: 25px;
+  font-size: 20px;
   line-height: 37px;
 }
 
@@ -508,7 +519,7 @@ h1 {
 }
 
 .smallwidth {
-  width: 30px;
+  width: 28px;
 }
 
 #dash a {
@@ -564,7 +575,7 @@ h1 {
 
 .topcenter {
   margin: 0 auto;
-  width: 100px;
+  width: 60px;
 }
 
 #homework {

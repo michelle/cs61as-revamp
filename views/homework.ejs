@@ -9,7 +9,7 @@
     <% if (currentLesson.homework.isCompleted) {%>
       <div class="note">
         <div class="padding">
-          You have completed this homework.
+          You have completed this homework. Solutions are now available at bottom of this page and on your dashboard.
         </div>
       </div>
     <% } %>
@@ -20,7 +20,7 @@
       <div class="rednote">
         <div class="padding">
           <form method="post" action="/homework/<%-currentLesson.number%>">
-            I understand that by clicking the button below I acknowledge that my reader will grade my most recently submitted version of this homework.
+            <input type="checkbox" name="confirm"></input> I understand that by checking this box and clicking the button below I hereby acknowledge that my reader will grade my most recently submitted version of this homework.
             <br>
             <button class="mark">
               I am ready to be graded

@@ -18,6 +18,15 @@
 <script type="text/javascript" src="/js/index.js"></script>
 <script type="text/javascript" src="/js/validator-min.js"></script>
 
+<% if (page === 'lessons' && currentUser) { %>
+  <script type="text/javascript">
+    // TODO: fix this so it works.
+    $(document).ready(function() {
+		  $('#accordion').accordion('activate', $('#lesson<%-currentUser.currentLesson%>'));
+		})
+  </script>
+<% } %>
+
 </head> 
  
 <body> 
