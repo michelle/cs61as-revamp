@@ -647,7 +647,7 @@ h1 {
   background-color: transparent;
 }
 
-.boxy {
+.bigboxy, .boxy {
   height: 50px;
   margin: 5px;
   width: 45%;
@@ -659,7 +659,7 @@ h1 {
   border-bottom: 1px solid rgba(242,245,246,1);
 }
 
-.displayboxyleft, .displayboxyright, .selectboxy, .linkboxy, .textboxy {
+.bigtextboxy, .displayboxyleft, .displayboxyright, .selectboxy, .linkboxy, .textboxy {
   height: 50px;
   margin: 5px;
   width: 38%;
@@ -667,6 +667,20 @@ h1 {
   border: 0px;
   border-bottom: 1px solid rgba(242,245,246,1);
   background-color: #fff;
+}
+
+.bigtextboxy {
+  font-family: courier;
+  font-size: 14px;
+}
+
+.bigboxy {
+  height: 300px;
+}
+
+.bigtextboxy {
+  padding: 15px;
+  height: 270px;
 }
 
 .displayboxyright {
@@ -793,6 +807,7 @@ input {
 }
 
 .mark {
+  cursor: pointer;
   margin: 10px;
   padding: 10px;
   background-color: #fff;
@@ -803,4 +818,45 @@ input {
 .mark:hover {
   background-color: rgba(242,245,246,1);
 }
+
+.announcement {
+  text-align: left;
+  width: 90%;
+  background-color: #fff;
+  margin: 10px auto;
+  margin-bottom: 30px;
+  font-weight: 300;
+  text-shadow: none;
+  font-family: 'Open Sans';
+  font-size: 16px;
+  letter-spacing: .5px;
+  border-radius: 5px;
+  border: 1px solid rgba(200,215,220,1);
+}
+
+.announcement h4, .announcement h3 {
+  margin: 0px;
+  text-align: center;
+  font-weight: normal;
+}
+
+.announcement h3 {
+  background-color: rgba(200,215,220,0.5);
+  border-bottom: 1px solid rgba(200,215,220,1);
+  margin: 0px;
+  padding: 10px 20px;
+  color: #4D5A63;
+  font-size: 30px;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+}
+
+.announcement h4 {
+  color: #4D5A63;
+  text-transform: uppercase;
+}
+
+.morepadding {
+  padding: 10px 30px;
+}
+
 

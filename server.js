@@ -37,6 +37,7 @@ schema.defineModels(mongoose, function() {
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
   app.Grade = Grade = mongoose.model('Grade');
   app.Progress = Progress = mongoose.model('Progress');
+  app.Announcement = Announcement = mongoose.model('Announcement');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -356,6 +357,15 @@ app.param('userId', function(req, res, next, userId) {
     next();
   });
 });
+/** Pre condition param noteId into req.note. */
+app.param('noteId', function(req, res, next, noteId) {
+  trace('param noteId');
+  Announcement.findById(noteId, function(err, note) {
+    log(err);
+    req.note = !err && note;
+    next();
+  });
+});
 /** Pre condition param username into req.user. */
 app.param('username', function(req, res, next, username) {
   trace('param username');
@@ -469,6 +479,42 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
     currentUser: req.currentUser
   });
 });
+/** Announcements panel */
+app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+  trace('GET /admin/announcements');
+  Announcement.find({}, function(err, news) {
+    log(err);
+    res.render('admin/announcements', {
+      page: 'admin/announcements',
+      currentUser: req.currentUser,
+      news: news
+    });
+  });
+});
+/** Post new announcement */
+app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+  trace('POST /admin/announcement/new');
+  var announcement = new Announcement({
+    title: req.body.announcement.title,
+    content: req.body.announcement.content,
+    date: new Date()
+  });
+  announcement.save(function(err) {
+    if (err) {
+      log(err);
+      for (var e in err.errors) {
+        req.flash('error', err.errors[e].message);
+      }
+      if (err.err) {
+        req.flash('error', err.err);
+      }
+      req.flash('error', 'Announcement was not added successfully.');
+    } else {
+      req.flash('info', 'Announcement was added successfully.');
+    }
+    res.redirect('/admin/announcements');
+  });
+});
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
@@ -520,6 +566,35 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
     res.redirect('/admin/users');
   }
 });
+/** Edit an announcement. */
+app.get('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+  trace('GET /admin/announcements/edit/:noteId');
+  if (req.note) {
+    res.render('admin/announcements/edit', {
+      page: 'admin/announcements/edit',
+      currentUser: req.currentUser,
+      note: req.note
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
+  }
+});
+/** Delete an announcement. */
+app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+  trace('GET /admin/announcements/edit/:noteId');
+  if (req.note) {
+    Announcement.findById(req.note.id, function(err, note) {
+      log(err);
+      note.remove();
+      req.flash('info', 'Post deleted.');
+      res.redirect('/admin/announcements');
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
+  }
+});
 /** Save edit an user. */
 app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
@@ -554,6 +629,35 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   } else {
     req.flash('error', 'Malformed userID.');
     res.redirect('/admin/users');
+  }
+});
+/** Save edit a note. */
+app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+  trace('POST /admin/announcements/edit/:nodeId');
+  if (req.note) {
+    req.note.title = req.body.note.title;
+    if (req.body.note.content != '') {
+      req.note.content = req.body.note.content;
+    }
+    req.note.date = new Date();
+    req.note.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'Note was not saved successfully.');
+      } else {
+        req.flash('info', 'Note was saved successfully.');
+      }
+      res.redirect('/admin/announcements');
+    });
+  } else {
+    req.flash('error', 'Malformed noteID.');
+    res.redirect('/admin/announcements');
   }
 });
 /** Manage grades. */
@@ -648,10 +752,15 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
 /** Student dashboard. */
 app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
-  res.render('dashboard', {
-    page: 'dashboard',
-    currentUser: req.currentUser,
-    currentLesson: req.currentLesson
+  Announcement.find({}, function(err, news) {
+    log(err);
+    news.sort(function(b, a) { return a.date - b.date } );
+    res.render('dashboard', {
+      page: 'dashboard',
+      currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
+      news: news
+    });
   });
 });
 /** Viewing user profiles. */

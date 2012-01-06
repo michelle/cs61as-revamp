@@ -71,14 +71,22 @@
     <h2>Announcements</h2>
   </div>
   <div class="triangle"></div>
-  <!-- TODO: Announcements -->
-  
-  hdsifhdsfh
-  <br>
+  <div class="clear"></div>
+  <% for (var i = 0; i < news.length; i += 1) { var article = news[i];%>
+    <div class="announcement">
+      <h3><%-article.title%></h3>
+      
+    <div class="morepadding">
+      <%-article.content%>
+    </div>
+    <h4>Posted: <%-article.date%></h4>
+    </div>
+  <% } %>
   
   <div class="otherflag" class="noselect">
     <h2>Resources</h2>
   </div>
   <div class="triangle"></div>
+  <div class="clear"></div>
 
 </div>

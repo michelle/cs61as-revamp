@@ -46,7 +46,9 @@ function defineModels(mongoose, fn) {
       required: true
     }
   });
-
+  Announcement.virtual('created').get(function() {
+    return this.date.getMonth() + '/' + this.date.getDate();
+  });
   /** A reading.
    *  location: a relative link to a reading assignment.
    *  if SICP, an absolute link to SICP page. */
