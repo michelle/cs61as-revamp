@@ -39,7 +39,7 @@
                 <a href="/project/<%-n%>"><li class="<% if (currentLesson.project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Project</li></a>
               <% } %>
           <% } else { %>
-            <div class="note"> 
+            <div class="yellownote"> 
               <div class="padding">
                 Looks like there's no assignments for this lesson.
               </div>
@@ -56,7 +56,7 @@
                 <a href="/extra/<%-n%>/<%-j%>"><li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>"><%-extra.name%></li></a>
               <% } %>
           <% } else { %>
-            <div class="note"> 
+            <div class="yellownote"> 
               <div class="padding">
                 Looks like there's no extras for this lesson.
               </div>

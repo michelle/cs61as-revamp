@@ -349,7 +349,7 @@ a {
   color: #609472;
 }
 
-.errornote, .infonote, .note, .rednote {
+.errornote, .infonote, .note, .yellownote, .rednote {
   background-color: #BEE1CA;
   border: 1px solid #609472;
   color: #333;
@@ -360,6 +360,11 @@ a {
   text-align: center;
   width: 100%;
   margin-bottom: 20px;
+}
+
+.yellownote {
+  background-color: #FCFCD0;
+  border: 1px solid #E5E0B2;
 }
 
 .rednote, .errornote {
