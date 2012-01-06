@@ -141,6 +141,10 @@ body, html {
   width: 700px;
   margin-bottom: 50px;
   text-shadow: 0px 1px 0px #000;
+  font-family: 'Open Sans';
+  letter-spacing: 0.5px;
+  font-size: 16px;
+  font-weight: 300;
 }
 
 #info h1 {
@@ -307,8 +311,8 @@ a {
 }
 
 .thirds {
-   width: 27%;
-   margin: 3%;
+   width: 23%;
+   margin: 1%;
    text-align: center;
    min-height: 50%;
    margin-top: 0px;
@@ -324,11 +328,11 @@ a {
   margin: 0 5px 5px 5px; 
   padding: 5px; 
   font-size: 1.2em; 
-  height: 1.5em; 
+  min-height: 1.5em; 
 }
 
 .nolist li { 
-  height: 1.5em; 
+  min-height: 1.5em; 
   line-height: 1.2em; 
 }
 
@@ -842,7 +846,7 @@ input {
   letter-spacing: 1px;
 }
 
-.resource, .announcement h3 {
+.announcement h3 {
   background-color: rgba(200,215,220,0.5);
   border-bottom: 1px solid rgba(200,215,220,1);
   margin: 0px;
@@ -872,8 +876,7 @@ input {
 }
 
 .resource {
- border: 1px solid rgba(200,215,220,1);
- border-radius: 5px;
- margin: 5px;
+  border: 1px solid rgba(200,215,220,1);
+  background-color: rgba(200,215,220,0.5);
+  color: #4D5A63;
 }
-
