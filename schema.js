@@ -224,6 +224,7 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       },
+      // TODO: account for @cs.berkeley emails, etc.
       match: /^[\.a-z0-9_-]{2,31}@berkeley\.edu$/i
     },
     username: {
