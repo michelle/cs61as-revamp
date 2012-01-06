@@ -621,12 +621,16 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
-  User.find({}, function(err, users) {
+  User.find({ permission: schema.permissions.Grader }, function(err, graders) {
     log(err);
-    res.render('admin/users', {
-      page: 'admin/users/index',
-      currentUser: req.currentUser,
-      users: users
+    User.find({}, function(err, users) {
+      log(err);
+      res.render('admin/users', {
+        page: 'admin/users/index',
+        currentUser: req.currentUser,
+        users: users,
+        graders: graders
+      });
     });
   });
 });
@@ -636,25 +640,37 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
   var user = new User({
     username: req.body.user.username
   });
-  if (req.body.user.email != '') {
-    user.email = req.body.user.email;
-  }
+  user.email = req.body.user.email;
   user.password = req.body.user.password;
   user.permission = getType(req.body.user.type);
-  user.save(function(err) {
-    if (err) {
-      log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
-      if (err.err) {
-        req.flash('error', err.err);
-      }
-      req.flash('error', 'User %s was not added successfully.', user.username);
+
+  User.findOne({
+      username: req.body.user.grader
+    }, function(err, grader) {
+    log(err);
+    if (!err && grader) {
+      req.user.grader = grader;
+      req.user.save(function(err){
+        if (err) {
+          log(err);
+          for (var e in err.errors) {
+            req.flash('error', err.errors[e].message);
+          }
+          if (err.err) {
+            req.flash('error', err.err);
+          }
+          req.flash('error', 'User %s was not saved successfully.', req.user.username);
+        } else {
+          req.flash('info', 'User %s was saved successfully.', req.user.username);
+        }
+        res.redirect('/admin/users');
+      });
     } else {
-      req.flash('info', 'User %s was added successfully.', user.username);
+      log(err);
+      req.flash('error', 'Grader %s does not exist.', req.body.user.grader);
+      req.flash('error', 'User %s was not saved successfully.', req.user.username);
+      res.redirect('/admin/users');
     }
-    res.redirect('/admin/users');
   });
 });
 /** Edit an user. */
@@ -679,14 +695,15 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
 app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
-    req.user.username = req.body.user.username;
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
     }
+    req.user.username = req.body.user.username;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
+
     User.findOne({
         username: req.body.user.grader
       }, function(err, grader) {
@@ -710,12 +727,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
         });
       } else {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
-        if (err.err) {
-          req.flash('error', err.err);
-        }
+        req.flash('error', 'Grader %s does not exist.', req.body.user.grader);
         req.flash('error', 'User %s was not saved successfully.', req.user.username);
         res.redirect('/admin/users');
       }
