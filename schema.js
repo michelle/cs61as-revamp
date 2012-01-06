@@ -181,12 +181,8 @@ function defineModels(mongoose, fn) {
   Lesson.virtual('project').get(function() {
     return this.assignments && this.assignments[1];
   });
-  /** Attach a progress. */
-  Lesson.method('attachProgress', function(get) {
-    this._get = get;
-  });
   Lesson.virtual('isCompleted').get(function() {
-    return this._get[0];
+    return this.homework.isCompleted;
   });
 
   Progress = new Schema({
@@ -257,6 +253,10 @@ function defineModels(mongoose, fn) {
       min: 2,
       max: 5,
       'default': 2
+    },
+    grader: {
+      type: ObjectId,
+      ref: User,
     },
     salt: {
       type: String,

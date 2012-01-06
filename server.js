@@ -314,10 +314,6 @@ function loadProgress(req, res, next) {
         }
       }(i));
     }
-
-    req.currentLesson.attachProgress(function() {
-      return progress.assignments[0];
-    });
     next();
   });
 }
