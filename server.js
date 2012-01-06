@@ -51,6 +51,7 @@ schema.defineModels(mongoose, function() {
 /** Default unauthenticated user. */
 var GUEST = new User({
   username: 'Guest',
+  hashed_password: 'Guest',
   permission: schema.permissions.Guest
 });
 
