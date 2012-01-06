@@ -219,13 +219,11 @@ function defineModels(mongoose, fn) {
   /** A user. */
   User = new Schema({
     email: {
-      // TODO: regex email
       type: String,
       index: {
         unique: true
       },
-      // TODO: account for @cs.berkeley emails, etc.
-      match: /^[\.a-z0-9_-]{2,31}@berkeley\.edu$/i
+      match: /^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$/i
     },
     username: {
       type: String,
