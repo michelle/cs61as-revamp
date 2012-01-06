@@ -6,37 +6,36 @@
   <div id="lefttriangle"></div>
   <div class="clear"></div>
   <div id="homework">
-    <% if (showControls) { %>
     <% if (currentLesson.homework.isCompleted) {%>
-    <div class="note">
-      <div class="padding">
-        You have completed this homework.
+      <div class="note">
+        <div class="padding">
+          You have completed this homework.
+        </div>
       </div>
-    </div>
-    <%} else {%>
-    <div class="rednote">
-      <div class="padding">
-        <form method="post" action="/homework/<%-currentLesson.number%>">
-          I understand that by clicking the button below I acknowledge that my reader will grade my most recently submitted version of this homework.
-          <br>
-          <button class="mark">
-            I am ready to be graded
-          </button>
-        </form>
-      </div>
-    </div>
     <% } %>
-    <% } %>
-
     <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
-    <% if (currentLesson.homework.isCompleted) {%>
-    <hr />
-    <div id="#solution">
-      <h3 class="noselect">Solution</h3>
-      <div class="links">
-        <%-partial('CS61AS/homework/sol' + currentLesson.number + '.ejs')%>
+    <% if (showControls) { %>
+      <% if (!currentLesson.homework.isCompleted) {%>
+      <div class="rednote">
+        <div class="padding">
+          <form method="post" action="/homework/<%-currentLesson.number%>">
+            I understand that by clicking the button below I acknowledge that my reader will grade my most recently submitted version of this homework.
+            <br>
+            <button class="mark">
+              I am ready to be graded
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+      <% } else { %>
+      <hr />
+      <div id="#solution">
+        <h3 class="noselect">Solution</h3>
+        <div class="links">
+          <%-partial('CS61AS/homework/sol' + currentLesson.number + '.ejs')%>
+        </div>
+      </div>
+      <% } %>
     <% } %>
   </div>
   <% } else { %>
