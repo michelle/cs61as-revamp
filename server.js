@@ -417,15 +417,6 @@ app.param('userId', function(req, res, next, userId) {
     next();
   });
 });
-/** Pre condition param noteId into req.note. */
-app.param('noteId', function(req, res, next, noteId) {
-  trace('param noteId');
-  Announcement.findById(noteId, function(err, note) {
-    log(err);
-    req.note = !err && note;
-    next();
-  });
-});
 /** Pre condition param username into req.user. */
 app.param('username', function(req, res, next, username) {
   trace('param username');
@@ -436,6 +427,21 @@ app.param('username', function(req, res, next, username) {
     req.user = !err && user;
     next();
   });
+});
+/** Pre condition param noteId into req.note. */
+app.param('noteId', function(req, res, next, noteId) {
+  trace('param noteId');
+  Announcement.findById(noteId, function(err, note) {
+    log(err);
+    req.note = !err && note;
+    next();
+  });
+});
+/** Pre condition param lessonId into req.lesson. */
+app.param('gradeId', function(req, res, next, gradeId) {
+  trace('param gradeId');
+  req.grade = req.user.grades && req.user.grades.id(gradeId)
+  next();
 });
 /** Pre condition param lessonId into req.lesson. */
 app.param('lessonId', function(req, res, next, lessonId) {
@@ -453,12 +459,6 @@ app.param('lessonId', function(req, res, next, lessonId) {
     next();
   });
 });
-/** Pre condition param lessonId into req.lesson. */
-app.param('gradeId', function(req, res, next, gradeId) {
-  trace('param gradeId');
-  req.grade = req.user.grades && req.user.grades.id(gradeId)
-  next();
-});
 /** Pre condition param videoId into req.video. */
 app.param('videoId', function(req, res, next, videoId) {
   trace('param videoId');
@@ -470,6 +470,60 @@ app.param('readingId', function(req, res, next, readingId) {
   trace('param readingId');
   req.reading = req.currentLesson.readings && req.currentLesson.readings[readingId];
   next();
+});
+/** Pre condition param lesson into req.lesson. */
+app.param('lesson', function(req, res, next, lessonId) {
+  trace('param lesson');
+  Lesson.findById(lessonId, function(err, lesson) {
+    log(err);
+    req.lesson = !err && lesson;
+    next();
+  });
+});
+/** Pre condition param homework into req.homework. */
+app.param('homework', function(req, res, next, homeworkId) {
+  trace('param homework');
+  Homework.findById(homeworkId, function(err, homework) {
+    log(err);
+    req.homework = !err && homework;
+    next();
+  });
+});
+/** Pre condition param project into req.project. */
+app.param('project', function(req, res, next, projectId) {
+  trace('param project');
+  Project.findById(projectId, function(err, project) {
+    log(err);
+    req.project = !err && project;
+    next();
+  });
+});
+/** Pre condition param extra into req.extra. */
+app.param('extra', function(req, res, next, extraId) {
+  trace('param extra');
+  Extra.findById(extraId, function(err, extra) {
+    log(err);
+    req.extra = !err && extra;
+    next();
+  });
+});
+/** Pre condition param video into req.video. */
+app.param('video', function(req, res, next, videoId) {
+  trace('param video');
+  Video.findById(videoId, function(err, video) {
+    log(err);
+    req.video = !err && video;
+    next();
+  });
+});
+/** Pre condition param reading into req.reading. */
+app.param('reading', function(req, res, next, readingId) {
+  trace('param reading');
+  Reading.findById(readingId, function(err, reading) {
+    log(err);
+    req.reading = !err && reading;
+    next();
+  });
 });
 /** Defaults for each type of user. */
 app.get('/default', loadUser, function(req, res) {
@@ -633,11 +687,10 @@ app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAd
 app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/announcements/delete/:noteId');
   if (req.note) {
-      note.remove(function(err){
-        log(err);
-        req.flash('info', 'Post deleted.');
-        res.redirect('/admin/announcements');
-      });
+    note.remove(function(err){
+      log(err);
+      req.flash('info', 'Post deleted.');
+      res.redirect('/admin/announcements');
     });
   } else {
     req.flash('error', 'Malformed noteID.');
@@ -705,8 +758,8 @@ app.post('/admin/lessons/add', loadUser, checkPermit('canAccessAdminPanel'), che
   });
 });
 /** Edit a lesson. */
-app.get('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/lessons/edit/:lessonId');
+app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/lessons/edit/:lesson');
   if (req.currentLesson) {
     Homework.find({}, function(err, homeworks) {
       log(err);
@@ -739,8 +792,8 @@ app.get('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminPa
   }
 });
 /** Save edit a lesson. */
-app.post('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/lessons/edit/:lessonId');
+app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/lessons/edit/:lesson');
   if (req.currentLesson) {
     req.currentLesson.number = req.body.lesson.number;
     req.currentLesson.name = req.body.lesson.name;
@@ -805,8 +858,8 @@ app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an homework. */
-app.get('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/homework/edit/:homeworkId');
+app.get('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/homework/edit/:homework');
   if (req.homework) {
     res.render('admin/homework/edit', {
       page: 'admin/homework/edit',
@@ -819,8 +872,8 @@ app.get('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdmi
   }
 });
 /** Save edit a homework. */
-app.post('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/homework/edit/:homeworkId');
+app.post('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/homework/edit/:homework');
   if (req.homework) {
     req.homework.name = req.body.homework.name;
 
@@ -845,8 +898,8 @@ app.post('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdm
   }
 });
 /** Delete an homework. */
-app.get('/admin/homework/delete/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/homework/delete/:homeworkId');
+app.get('/admin/homework/delete/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/homework/delete/:homework');
   if (req.homework) {
       req.homework.remove(functio(err) {
         log(err);
@@ -894,8 +947,8 @@ app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an project. */
-app.get('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/projects/edit/:projectId');
+app.get('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/projects/edit/:project');
   if (req.project) {
     res.render('admin/projects/edit', {
       page: 'admin/projects/edit',
@@ -908,8 +961,8 @@ app.get('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdmin
   }
 });
 /** Save edit a project. */
-app.post('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/projects/edit/:projectId');
+app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/projects/edit/:project');
   if (req.project) {
     req.project.name = req.body.project.name;
 
@@ -934,8 +987,8 @@ app.post('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdmi
   }
 });
 /** Delete an project. */
-app.get('/admin/projects/delete/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/projects/delete/:projectId');
+app.get('/admin/projects/delete/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/projects/delete/:project');
   if (req.project) {
       req.project.remove(functio(err) {
         log(err);
@@ -983,8 +1036,8 @@ app.post('/admin/extra/add', loadUser, checkPermit('canAccessAdminPanel'), check
   });
 });
 /** Edit an extra. */
-app.get('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/extra/edit/:extraId');
+app.get('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/extra/edit/:extra');
   if (req.extra) {
     res.render('admin/extra/edit', {
       page: 'admin/extra/edit',
@@ -997,8 +1050,8 @@ app.get('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPanel
   }
 });
 /** Save edit a extra. */
-app.post('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/extra/edit/:extraId');
+app.post('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/extra/edit/:extra');
   if (req.extra) {
     req.extra.name = req.body.extra.name;
 
@@ -1023,8 +1076,8 @@ app.post('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPane
   }
 });
 /** Delete an extra. */
-app.get('/admin/extra/delete/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/extra/delete/:extraId');
+app.get('/admin/extra/delete/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/extra/delete/:extra');
   if (req.extra) {
       req.extra.remove(functio(err) {
         log(err);
@@ -1073,8 +1126,8 @@ app.post('/admin/videos/add', loadUser, checkPermit('canAccessAdminPanel'), chec
   });
 });
 /** Edit an video. */
-app.get('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/videos/edit/:videoId');
+app.get('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/videos/edit/:video');
   if (req.video) {
     res.render('admin/videos/edit', {
       page: 'admin/videos/edit',
@@ -1087,8 +1140,8 @@ app.get('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPane
   }
 });
 /** Save edit a video. */
-app.post('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/videos/edit/:videoId');
+app.post('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/videos/edit/:video');
   if (req.video) {
     req.video.name = req.body.video.name;
     req.video.url = req.body.video.url;
@@ -1114,8 +1167,8 @@ app.post('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPan
   }
 });
 /** Delete an video. */
-app.get('/admin/videos/delete/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/videos/delete/:videoId');
+app.get('/admin/videos/delete/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/videos/delete/:video');
   if (req.video) {
       req.video.remove(functio(err) {
         log(err);
@@ -1165,8 +1218,8 @@ app.post('/admin/readings/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an reading. */
-app.get('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('GET /admin/readings/edit/:readingId');
+app.get('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/readings/edit/:reading');
   if (req.reading) {
     res.render('admin/readings/edit', {
       page: 'admin/readings/edit',
@@ -1179,8 +1232,8 @@ app.get('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdmin
   }
 });
 /** Save edit a reading. */
-app.post('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/readings/edit/:readingId');
+app.post('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/readings/edit/:reading');
   if (req.reading) {
     req.reading.name = req.body.reading.name;
     req.reading.location = req.body.reading.location;
@@ -1207,8 +1260,8 @@ app.post('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdmi
   }
 });
 /** Delete an reading. */
-app.get('/admin/readings/delete/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/readings/delete/:readingId');
+app.get('/admin/readings/delete/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/readings/delete/:reading');
   if (req.reading) {
       req.reading.remove(functio(err) {
         log(err);
