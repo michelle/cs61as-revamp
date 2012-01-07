@@ -277,11 +277,6 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    lessons: [{
-      type: ObjectId,
-      ref: 'Lesson',
-      'default': []
-    }],
     project: {
       type: ObjectId,
       ref: 'Project'
@@ -291,13 +286,6 @@ function defineModels(mongoose, fn) {
       min: 0
     }
   });
-  /** isCompleted. */
-  Unit.virtual('isProjectCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
-  });
-
 
   /** A lesson.
    *  one hw, one project, multiple extras, one intro, multiple note, multiple webcasts.  */
@@ -311,6 +299,11 @@ function defineModels(mongoose, fn) {
     name: {
       type: String,
       required: true
+    },
+    unit: {
+      type: ObjectId,
+      required: true,
+      ref: 'Unit'
     },
     homework: {
       type: ObjectId,
@@ -336,6 +329,12 @@ function defineModels(mongoose, fn) {
   /** Only valid after populating progress .*/
   Lesson.virtual('isCompleted').get(function() {
     return this.homework.isCompleted;
+  });
+  /** isCompleted. */
+  Lesson.virtual('isProjectCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
   });
 
   /** An homework assignment.

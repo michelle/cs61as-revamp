@@ -5,13 +5,13 @@
   <div id="lefttriangle"></div>
   <div class="contentpadding">
     <div id="accordion">
-      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %> <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
+      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
+        <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
             <a href="/dashboard/<%-n%>"><strong>View on dashboard.</strong></a>
             <br>
           <% } %>
-          
           <% if (lesson.videos.length > 0) { %>
             <strong>Webcasts</strong>:
               <% for (var j = 0; j < lesson.videos.length; j += 1) { var vid = lesson.videos[j]; %>

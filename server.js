@@ -213,38 +213,14 @@ function loadUserFromCookie(req, res, next) {
   });
 }
 
-/** Set current unit to the one specified by currentUser.currentUnit.
- *  Redirect to /home if currentUser.currentUnit points to an invalid Unit. */
-function loadUnit(req, res, next) {
-  trace('loadUnit');
-  Unit.findOne({
-    number: req.currentUser.currentUnit
-  }).populate('lessons')
-    .populate('project')
-    .run(function(err, unit) {
-    log(err);
-    if (unit) {
-      req.currentUnit = unit;
-      next();
-    } else {
-      req.currentUser.currentUnit = 1;
-      req.currentUser.save(function(err) {
-        log(err);
-        log("WARNING: User " + req.currentUser.username + "'s currentUnit is corrupted: " + req.currentUser.currentLesson);
-        req.flash('error', 'Looks like there is something wrong with your account. If the problem persists, please contact administrators.');
-        res.redirect('/default');
-      });
-    }
-  });
-}
-
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
 function loadLesson(req, res, next) {
   trace('loadLesson');
   Lesson.findOne({
     number: req.currentUser.currentLesson
-  }).populate('homework')
+  }).populate('unit')
+    .populate('homework')
     .populate('project')
     .populate('extra')
     .populate('videos')
@@ -476,19 +452,6 @@ app.param('gradeId', function(req, res, next, gradeId) {
   trace('param gradeId');
   req.grade = req.user.grades && req.user.grades.id(gradeId)
   next();
-});
-/** Pre condition param unitId into req.currentUnit. */
-app.param('unitId', function(req, res, next, unitId) {
-  trace('param unitId');
-  Unit.findOne({
-    number: unitId
-  }).populate('lessons')
-    .populate('project')
-    .run(function(err, unit) {
-    log(err);
-    req.currentunit = !err && unit;
-    next();
-  });
 });
 /** Pre condition param lessonId into req.currentLesson. */
 app.param('lessonId', function(req, res, next, lessonId) {
@@ -1650,61 +1613,47 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
   });
 });
 /** Student dashboard. */
-app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadUnit, loadLesson, loadProgress, function(req, res) {
+app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
   Announcement.find({}, function(err, news) {
     log(err);
-    news.sort(function(b, a) { return a.date - b.date } );
-    res.render('dashboard', {
-      page: 'dashboard',
-      currentUser: req.currentUser,
-      currentLesson: req.currentLesson,
-      currentUnit: req.currentUnit,
-      news: news
+    Project.findById(req.currentLesson.unit.project, function(err, project) {
+      log(err);
+      if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
+        project = undefined;
+      }
+      news.sort(function(b, a) { return a.date - b.date } );
+      res.render('dashboard', {
+        page: 'dashboard',
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        project: project,
+        news: news
+      });
     });
   });
 });
 /** Change dashboard. */
-app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadUnit, loadProgress, function(req, res) {
+app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
   trace('GET /dashboard/:lessonId');
   if (req.currentLesson) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
-        log(err);
-        Announcement.find({}, function(err, news) {
+      log(err);
+      Announcement.find({}, function(err, news) {
+        Project.findById(req.currentLesson.unit.project, function(err, project) {
           log(err);
+          if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
+            project = undefined;
+          }
           news.sort(function(b, a) { return a.date - b.date } );
           res.render('dashboard', {
-          page: 'dashboard',
-          currentUser: req.currentUser,
-          currentLesson: req.currentLesson,
-          currentUnit: req.currentUnit,
-          news: news
-        });
-      });
-    });
-  } else {
-    req.flash('error', 'The lesson you are trying to access does not exist.');
-    res.redirect('/dashboard');
-  }
-});
-/** Change dashboard. */
-app.get('/dashboard/:unitId/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
-  trace('GET /dashboard/:lessonId');
-  if (req.currentUnit && req.currentLesson) {
-    req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.currentUnit = req.currentUnit.number;
-    req.currentUser.save(function(err) {
-        log(err);
-        Announcement.find({}, function(err, news) {
-          log(err);
-          news.sort(function(b, a) { return a.date - b.date } );
-          res.render('dashboard', {
-          page: 'dashboard',
-          currentUser: req.currentUser,
-          currentLesson: req.currentLesson,
-          currentUnit: req.currentUnit,
-          news: news
+            page: 'dashboard',
+            currentUser: req.currentUser,
+            currentLesson: req.currentLesson,
+            project: project,
+            news: news
+          });
         });
       });
     });
@@ -1774,6 +1723,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
   .populate('extra')
   .populate('videos')
   .populate('readings')
+  .sort('number', 1)
   .run(function(err, lessons) {
     log(err);
     res.render('lessons', {
@@ -1784,7 +1734,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
   });
 });
 /** Viewing webcast by its URL. */
-app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadUnit, loadProgress, function(req, res) {
+app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.currentUser.currentLesson = req.currentLesson.number;

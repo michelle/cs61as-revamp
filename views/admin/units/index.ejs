@@ -20,13 +20,6 @@
         <span class="left boxy noselect" required>name</span>
         <input type="text" class="right textboxy" name='unit[name]' required >
         <br>
-        <span class="left boxy noselect">lessons</span>
-        <select class="right selectboxy" name='unit[lessons]' multiple="multiple">
-          <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i] ;%>
-            <option value="<%-lesson.id%>"><%-lesson.name%></option>
-          <% } %>
-        </select>
-        <br/>
         <span class="left boxy noselect">project</span>
         <select class="right selectboxy" name='unit[project]'>
           <option value="undefined">-- No Project --</option>

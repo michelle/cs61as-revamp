@@ -20,6 +20,17 @@
         <span class="left boxy noselect" required>name</span>
         <input type="text" class="right textboxy" name='lesson[name]' value='<%-lesson.name%>' required >
         <br>
+        <span class="left boxy noselect">unit</span>
+        <select class="right selectboxy" name='lesson[unit]' required >
+          <% for (var i = 0; i < units.length; i += 1) { var unit = units[i] ;%>
+            <% if (lesson.unit && lesson.unit.id == unit.id) { %>
+              <option value="<%-unit.id%>" selected="selected"><%-unit.name%></option>
+            <% } else { %>
+              <option value="<%-unit.id%>"><%-unit.name%></option>
+            <% } %>
+          <% } %>
+        </select>
+        <br/>
         <span class="left boxy noselect">homework</span>
         <select class="right selectboxy" name='lesson[homework]' required >
           <% for (var i = 0; i < homeworks.length; i += 1) { var homework = homeworks[i] ;%>
