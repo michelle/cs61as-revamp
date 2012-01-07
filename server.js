@@ -279,17 +279,19 @@ function loadProgress(req, res, next) {
     }, function() {
       return progress.project;
     });
-    req.currentLesson.project.attachProgress(function(value) {
-      if (req.currentUser.canWriteProgress()) {
-        progress.project = value;
-        progress.markModified('project');
-        progress.save(function (err) {
-          log(err);
-        });
-      }
-    }, function() {
-      return progress.project;
-    });
+    if (req.currentLesson.project) {
+      req.currentLesson.project.attachProgress(function(value) {
+        if (req.currentUser.canWriteProgress()) {
+          progress.project = value;
+          progress.markModified('project');
+          progress.save(function (err) {
+            log(err);
+          });
+        }
+      }, function() {
+        return progress.project;
+      });
+    }
     for(var i = 0; i < req.currentLesson.extra.length; i++) {
       req.currentLesson.extra[i].attachProgress( function(id) {
         return function(value) {
