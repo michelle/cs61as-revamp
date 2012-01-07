@@ -25,7 +25,7 @@ var nodemailer = require('nodemailer');
 var db;
 
 /** Configuration. */
-var config = JSON.parse(fs.readFileSync('private/config.conf'));
+//var config = JSON.parse(fs.readFileSync('private/config.conf'));
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -71,7 +71,7 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // setting up SMTP information
-nodemailer.SMTP = config.SMTP;
+//nodemailer.SMTP = config.SMTP;
 
 /** Log OBJ to console bases on the type of OBJ and debug flags.*/
 function log(obj) {
