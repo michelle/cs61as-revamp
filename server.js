@@ -458,7 +458,8 @@ app.param('lessonId', function(req, res, next, lessonId) {
   trace('param lessonId');
   Lesson.findOne({
     number: lessonId
-  }).populate('homework')
+  }).populate('unit')
+    .populate('homework')
     .populate('project')
     .populate('extra')
     .populate('videos')
