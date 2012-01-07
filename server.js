@@ -305,7 +305,7 @@ function loadProgress(req, res, next) {
         return function() {
           return progress.extra[id];
         }
-      }(i));O
+      }(i));
     }
     for(var i = 0; i < req.currentLesson.videos.length; i++) {
       req.currentLesson.videos[i].attachProgress( function(id) {
