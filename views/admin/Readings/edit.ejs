@@ -1,0 +1,30 @@
+<div id="centered">
+  <div class="yellownote">
+    <div class="padding">
+      <strong>Warning: </strong>Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Editing reading with ID: <strong><%-reading.id%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/reading/edit/<%-reading.id%>">
+      <div class="formbox">
+        <h3>Add a new Reading</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='reading[name]' value="<%-reading.name%>" required >
+        <span class="left boxy noselect" required>location</span>
+        <input type="text" class="right textboxy" name='reading[location]' value="<%-reading.location%>" required >
+        <span class="left boxy noselect" required>Is SICP</span>
+        <input type="checkbox" class="right textboxy" name='reading[SICP]' value="<%-reading.SICP%>" required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitExtra">
+        Save
+      </button>
+    </form>
+  </div>
+</div>

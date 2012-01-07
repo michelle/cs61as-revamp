@@ -1,0 +1,41 @@
+<div id="centered">
+  <div class="yellownote">
+    <div class="padding">
+      <strong>Warning: </strong>Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Manage Videos</h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/videos/add">
+      <div class="formbox">
+        <h3>Add a new Webcast</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='video[name]' required >
+        <br/>
+        <span class="left boxy noselect" required>url</span>
+        <input type="text" class="right textboxy" name='video[url]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitVideo">
+        Save
+      </button>
+    </form>
+    <br>
+    <br>
+    <div class="formbox">
+      <h3>Edit a video (<%-videos.length %> total)</h3>
+      <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i];%>
+      <span class="left boxy noselect displaymargin">name: <%-video.name%></span>
+      <span class="right linkboxy displaymargin">
+        <a href="/admin/videos/edit/<%-video.id%>">(edit)</a>
+        <a href="/admin/videos/delete/<%-video.id%>">(delete)</a>
+      </span>
+      <% } %> <div class="clear"></div>
+    </div>
+  </div>
+</div>
