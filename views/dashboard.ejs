@@ -38,21 +38,12 @@
   <div class="thirds left">
     <h1>Practice</h1>
       <ul class="nolist">
-          <% if (currentLesson.assignments.length > 0) { %>
               <% if (currentLesson.homework) { %>
                 <a href="/homework/<%-n%>"><li class="<% if (currentLesson.homework.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Homework</li></a>
               <% } %>
               <% if (currentLesson.project) { %>
                 <a href="/project/<%-n%>"><li class="<% if (currentLesson.project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Project</li></a>
               <% } %>
-          <% } else { %>
-            <div class="yellownote"> 
-              <div class="padding">
-                Looks like there's no assignments for this lesson.
-              </div>
-            </div>
-          <% } %>
-          
     </ul>
   </div>
   <div class="thirds left">
