@@ -15,7 +15,7 @@
   <form method="post" action="/admin/announcements/edit/<%-note.id%>">
   <div class="formbox">
     <span class="left boxy noselect" required>title</span>
-    <input type="text" class="right textboxy" name='note[title]' value=<%-note.title%> required>
+    <input type="text" class="right textboxy" name='note[title]' value='<%-note.title%>' required>
     <br>
     <span class="left bigboxy noselect">body</span>
     <textarea class="right bigtextboxy" name='note[content]' required><%-note.content%></textarea>
