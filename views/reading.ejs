@@ -13,7 +13,7 @@
         </div>
       </div>
     <% } %>
-    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/' + reading.location +'.ejs')%>
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/note' + readingId +'.ejs')%>
     <% if (showControls) { %>
       <% if (!reading.isCompleted) {%>
       <center>
