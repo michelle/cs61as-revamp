@@ -1713,23 +1713,6 @@ app.get('/dashboard/:unitId/:lessonId', loadUser, checkPermit('canAccessDashboar
     res.redirect('/dashboard');
   }
 });
-/** Viewing user profiles. */
-// TODO: determine if user profiles should actually be kept.
-app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo')), function(req, res) {
-  trace('GET /user/:username');
-  if(req.user) {
-    res.render('profile', {
-      page: 'profile',
-      currentUser: req.currentUser,
-      showGrades: req.currentUser.canReadGradeEveryone() || (req.currentUser == req.user && req.currentUser.canReadGrade()),
-      showProgress: req.currentUser.canReadGradeEveryone() || (req.currentUser == req.user && req.currentUser.canReadProgress()),
-      user: req.user
-    });
-  } else {
-    req.flash('error', 'Whoops! User does not exist.');
-    res.redirect('/default');
-  }
-});
 /** Get grades for current user. */
 app.get('/grades', loadUser, checkPermit('canReadGrade'), function(req, res) {
   trace('GET /grades');
