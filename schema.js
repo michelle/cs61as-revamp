@@ -3,12 +3,15 @@ var crypto = require('crypto');
 
 /** Database Models. */
 var User;
+var Grade;
 var LoginToken;
+var Announcement;
+var Lesson;
 var Reading;
 var Video;
-var Assignment;
-var Lesson;
-var Grade;
+var Homework;
+var Project;
+var Extra;
 var Progress;
 
 /** Default permissions set. */
@@ -29,190 +32,7 @@ function randomToken() {
 function defineModels(mongoose, fn) {
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
-
-  /** An announcement. */
-  Announcement = new Schema({
-    title: {
-      type: String,
-      required: true
-    },
-    content: {
-      type: String,
-      required: true
-    },
-    date: {
-      type: Date,
-      default: new Date(),
-      required: true
-    }
-  });
-  Announcement.virtual('created').get(function() {
-    return this.date.getMonth() + '/' + this.date.getDate();
-  });
-  /** A reading.
-   *  location: a relative link to a reading assignment.
-   *  if SICP, an absolute link to SICP page. */
-  // TODO: maybe we don't need SCIP flag.
-  Reading = new Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    location: {
-      type: String,
-      required: true
-    },
-    SICP: {
-      type: Boolean,
-      'default': false
-    }
-  });
-  /** Attach a progress. */
-  Reading.method('attachProgress', function(set, get) {
-    this._set = set;
-    this._get = get;
-  });
-  /** isCompleted. */
-  Reading.virtual('isCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
-  });
   
-  /** A video.
-   *  url: youtube video id. */
-  Video = new Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    url: {
-      type: String,
-      required: true
-    }
-  });
-  /** Attach a progress. */
-  Video.method('attachProgress', function(set, get) {
-    this._set = set;
-    this._get = get;
-  });
-  /** isCompleted. */
-  Video.virtual('isCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
-  });
-
-  /** A grade.
-   *  Only entered grades are stored in the database. */
-  Grade = new Schema({
-    order: {
-      type: Number,
-      min: 0,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    grade: {
-      // TODO: regex for grade, --, number, maybe ABCDF, maybe pass/nopass?
-      type: String,
-      required: true
-    },
-    weight: {
-      type: Number,
-      required: true
-    }
-  });
-
-  /** An assignment.
-   *  Only accessible through Lesson. */
-  Assignment = new Schema({
-    name: {
-      type: String,
-      required: true
-    }
-  });
-  /** Attach a progress. */
-  Assignment.method('attachProgress', function(set, get) {
-    this._set = set;
-    this._get = get;
-  });
-  /** isCompleted. */
-  Assignment.virtual('isCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
-  });
-
-  /** A lesson. */
-  Lesson = new Schema({
-    number: {
-      type: Number,
-      min: 1,
-      required: true,
-      index: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    videos: {
-      type: [Video],
-      'default': []
-    },
-    assignments: {
-      type: [Assignment],
-      'default': []
-    },
-    extra: {
-      type: [Assignment],
-      'default': []
-    },
-    readings: {
-      type: [Reading],
-      'default': []
-    },
-  });
-  Lesson.virtual('homework').get(function() {
-    return this.assignments && this.assignments[0];
-  });
-  Lesson.virtual('project').get(function() {
-    return this.assignments && this.assignments[1];
-  });
-  Lesson.virtual('isCompleted').get(function() {
-    return this.homework.isCompleted;
-  });
-
-  Progress = new Schema({
-    lesson: {
-      type: ObjectId,
-      ref: 'Lesson'
-    },
-    user: {
-      type: ObjectId,
-      ref: 'User'
-    },
-    videos: [{
-      type: Boolean,
-      'default': false
-    }],
-    assignments: [{
-      type: Boolean,
-      'default': false
-    }],
-    extra: [{
-      type: Boolean,
-      'default': false
-    }],
-    readings: [{
-      type: Boolean,
-      'default': false
-    }],
-  });
-  Progress.index({ lesson: 1, user: 1 }, { unique: true });
-
   /** A user. */
   User = new Schema({
     email: {
@@ -262,14 +82,10 @@ function defineModels(mongoose, fn) {
       type: String,
     }
   });
-
   /** Password conversion. */
   User.virtual('password').set(function(password) {
-    this._password = password;
     this.salt = randomToken();
     this.hashed_password = this.encryptPassword(password);
-  }).get(function() {
-    return this._password;
   });
   /** Password authentication. */
   User.method('authenticate', function(plainText) {
@@ -279,6 +95,7 @@ function defineModels(mongoose, fn) {
   User.method('encryptPassword', function(password) {
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
   });
+  User.statics.Permissions = permissions;
   /** Permission helpers. */
   User.method('canAccessAdminPanel', function() {
     return this.permission & (1 << 0);
@@ -343,7 +160,6 @@ function defineModels(mongoose, fn) {
   User.method('canWriteProgress', function() {
     return this.permission & (1 << 20);
   });
-  User.statics.Permissions = permissions;
   User.virtual('isSuperAdmin').get(function() {
     return this.permission == permissions.SuperAdmin;
   });
@@ -358,6 +174,29 @@ function defineModels(mongoose, fn) {
   });
   User.virtual('Guest').get(function() {
     return this.permission == permissions.Guest;
+  });
+
+  /** A grade, sorted by order.
+   *  Only entered grades are stored in the database. */
+  Grade = new Schema({
+    order: {
+      type: Number,
+      min: 0,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    grade: {
+      // TODO: regex for grade, --, number, maybe ABCDF, maybe pass/nopass?
+      type: String,
+      required: true
+    },
+    weight: {
+      type: Number,
+      required: true
+    }
   });
 
   /** Login token for remembering logins. */
@@ -378,7 +217,6 @@ function defineModels(mongoose, fn) {
       type: String,
     }
   });
-
   /** Automatically create the series when this is first created.
    *  Regenerate token every time user visits. */
   LoginToken.pre('save', function(next) {
@@ -388,11 +226,6 @@ function defineModels(mongoose, fn) {
     this.token = randomToken();
     next();
   });
-
-  LoginToken.virtual('id').get(function() {
-    return this._id.toHexString();
-  });
-
   // TODO: encrypt cookie
   LoginToken.virtual('cookieValue').get(function() {
     return JSON.stringify({
@@ -401,6 +234,212 @@ function defineModels(mongoose, fn) {
       series: this.series
     });
   });
+
+  /** An announcement. */
+  Announcement = new Schema({
+    title: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: String,
+      required: true
+    },
+    date: {
+      type: Date,
+      default: new Date(),
+      required: true
+    }
+  });
+  Announcement.virtual('created').get(function() {
+    return this.date.getMonth() + '/' + this.date.getDate();
+  });
+
+  /** A lesson.
+   *  one hw, one project, multiple extras, one intro, multiple note, multiple webcasts.  */
+  Lesson = new Schema({
+    number: {
+      type: Number,
+      min: 1,
+      required: true,
+      index: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    homework: {
+      type: ObjectId,
+      ref: 'Homework'
+    },
+    project: {
+      type: ObjectId,
+      ref: 'Intro'
+    },
+    extra: {
+      type: [Extra],
+      'default': []
+    },
+    videos: {
+      type: [Video],
+      'default': []
+    },
+    readings: {
+      type: [Reading],
+      'default': []
+    }
+  });
+  /** Only valid after populating progress .*/
+  Lesson.virtual('isCompleted').get(function() {
+    return this.homework.isCompleted;
+  });
+
+  /** An homework assignment.
+   *  Only accessible through Lesson. */
+  Homework = new Schema({
+    name: {
+      type: String,
+      required: true
+    }
+  });
+  /** Attach a progress. */
+  Homework.method('attachProgress', function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Homework.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
+  /** An project assignment.
+   *  Only accessible through Lesson. */
+  Project = new Schema({
+    name: {
+      type: String,
+      required: true
+    }
+  });
+  /** Attach a progress. */
+  Project.method('attachProgress', function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Project.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
+  /** An extra for experts assignment.
+   *  Only accessible through Lesson. */
+  Extra = new Schema({
+    name: {
+      type: String,
+      required: true
+    }
+  });
+  /** Attach a progress. */
+  Extra.method('attachProgress', function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Extra.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
+  /** A video.
+   *  url: youtube video id. */
+  Video = new Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    }
+  });
+  /** Attach a progress. */
+  Video.method('attachProgress', function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Video.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
+  /** A reading.
+   *  location: a relative link to a reading assignment.
+   *  if SICP, an absolute link to SICP page. */
+  Reading = new Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    location: {
+      type: String,
+      required: true
+    },
+    SICP: {
+      type: Boolean,
+      'default': false
+    }
+  });
+  /** Attach a progress. */
+  Reading.method('attachProgress', function(set, get) {
+    this._set = set;
+    this._get = get;
+  });
+  /** isCompleted. */
+  Reading.virtual('isCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
+  /** Progress to keep track of what a user has completed .*/
+  Progress = new Schema({
+    lesson: {
+      type: ObjectId,
+      ref: 'Lesson'
+    },
+    user: {
+      type: ObjectId,
+      ref: 'User'
+    },
+    homework: {
+      type: Boolean,
+      'default': false
+    },
+    project: {
+      type: Boolean,
+      'default': false
+    },
+    extra: [{
+      type: Boolean,
+      'default': []
+    }],
+    videos: [{
+      type: Boolean,
+      'default': []
+    }],
+    readings: [{
+      type: Boolean,
+      'default': []
+    }]
+  });
+  Progress.index({ lesson: 1, user: 1 }, { unique: true });
+
   /** Set up models. */
   mongoose.model('User', User);
   mongoose.model('LoginToken', LoginToken);
