@@ -51,8 +51,7 @@ schema.defineModels(mongoose, function() {
 /** Default unauthenticated user. */
 var GUEST = new User({
   username: 'Guest',
-  hashed_password: 'Guest',
-  permission: schema.permissions.Guest
+  permission: User.Permissions.Guest
 });
 
 /** Set up server, session management. */
@@ -104,13 +103,13 @@ function trace(msg) {
 function getType(type) {
   switch(type) {
     case('Grader'):
-      return schema.permissions.Grader;
+      return User.Permissions.Grader;
     case('Student'):
-      return schema.permissions.User;
+      return User.Permissions.User;
     case('Instructor'):
-      return schema.permissions.Instructor;
+      return User.Permissions.Instructor;
     default:
-      return schema.permissions.Guest;
+      return User.Permissions.Guest;
   }
 }
 
@@ -630,7 +629,7 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
-  User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+  User.find({ permission: User.Permissions.Grader }, function(err, graders) {
     log(err);
     User.find({}, function(err, users) {
       log(err);
@@ -686,7 +685,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
 app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
-    User.find({ permission: schema.permissions.Grader }, function(err, graders) {
+    User.find({ permission: User.Permissions.Grader }, function(err, graders) {
       log(err);
         res.render('admin/users/edit', {
         page: 'admin/users/edit',
@@ -749,7 +748,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
 /** Manage grades. */
 app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades');
-  User.find({}, function(err, users) {
+  User.find({ permission: User.Permissions.Student }, function(err, users) {
     log(err);
     res.render('admin/grades/index', {
       page: 'admin/grades/index',
@@ -935,9 +934,19 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
   trace('GET /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      console.log(req.video.isCompleted);
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('video', {
+          page: 'webcast',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          videoId: req.params.videoId,
+          videos: [req.video],
+          showControls: req.currentUser.canWriteProgress()
+        });
+      });
+    } else {
       res.render('video', {
         page: 'webcast',
         currentUser: req.currentUser,
@@ -946,7 +955,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
         videos: [req.video],
         showControls: req.currentUser.canWriteProgress()
       });
-    });
+    }
   } else {
     req.flash('error', 'Whoops! Webcast does not exist.');
     res.redirect('/default');
@@ -969,8 +978,19 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
   // TODO: iframe view for SICP readings.
   if (req.currentLesson && req.reading) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('reading', {
+          page: 'reading',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          reading: req.reading,
+          readingId: req.params.readingId,
+          showControls: req.currentUser.canWriteProgress()
+        });
+      });
+    } else {
       res.render('reading', {
         page: 'reading',
         currentUser: req.currentUser,
@@ -979,7 +999,7 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
         readingId: req.params.readingId,
         showControls: req.currentUser.canWriteProgress()
       });
-    });
+    }
   } else {
     req.flash('error', 'Whoops! This reading does not exist.');
     res.redirect('/default');
@@ -1019,49 +1039,26 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
   trace('GET /homework/:lessonId');
   if (req.currentLesson && req.currentLesson.homework) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('homework', {
+          page: 'homework',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          showControls: req.currentUser.canWriteProgress()
+        });
+      });
+    } else {
       res.render('homework', {
         page: 'homework',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
       });
-    });
+    }
   } else {
     req.flash('error', 'Whoops! Homework for this lesson does not exist.');
-    res.redirect('/default');
-  }
-});
-/** View solution for TYPE at lessonId.
- *  Only displays progress control when the user has permission. */
-app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /solutions/:type/:lessonId');
-  if (['homework', 'extra'].indexOf(req.params.type) === -1) {
-    req.flash('error', "Whoops! The url you just went to does not exist.");
-    res.redirect('/default');
-    return;
-  }
-
-  if (req.currentLesson && req.currentLesson[req.params.type]) {
-    req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
-      if (req.currentLesson[req.params.type].isCompleted) {
-        res.render('solution', {
-          page: 'solution',
-          currentUser: req.currentUser,
-          type: req.params.type,
-          currentLesson: req.currentLesson,
-          showControls: req.currentUser.canWriteProgress()
-        });
-      } else {
-        req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
-        res.redirect('/dashboard');
-      }
-    });
-  } else {
-    req.flash('error', 'Whoops! This solution does not exist.');
     res.redirect('/default');
   }
 });
@@ -1083,6 +1080,48 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
   } else {
     req.flash('error', 'Whoops! Homework does not exist.');
     res.redirect('/dashboard');
+  }
+});
+/** View solution for TYPE at lessonId.
+ *  Only displays progress control when the user has permission. */
+app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /solutions/:type/:lessonId');
+  if (['homework', 'extra'].indexOf(req.params.type) === -1) {
+    req.flash('error', "Whoops! The url you just went to does not exist.");
+    res.redirect('/default');
+    return;
+  }
+
+  if (req.currentLesson && req.currentLesson[req.params.type]) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        if (req.currentLesson[req.params.type].isCompleted) {
+          res.render('solution', {
+            page: 'solution',
+            currentUser: req.currentUser,
+            type: req.params.type,
+            currentLesson: req.currentLesson,
+            showControls: req.currentUser.canWriteProgress()
+          });
+        } else {
+          req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
+          res.redirect('/dashboard');
+        }
+      });
+    } else {
+      res.render('solution', {
+        page: 'solution',
+        currentUser: req.currentUser,
+        type: req.params.type,
+        currentLesson: req.currentLesson,
+        showControls: req.currentUser.canWriteProgress()
+      });
+    }
+  } else {
+    req.flash('error', 'Whoops! This solution does not exist.');
+    res.redirect('/default');
   }
 });
 /** Project.
@@ -1109,15 +1148,24 @@ app.get('/project/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgre
   trace('GET /project/:lessonId');
   if (req.currentLesson && req.currentLesson.project) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    req.currentUser.save(function(err) {
-      log(err);
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('project', {
+          page: 'project',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          showControls: req.currentUser.canWriteProgress()
+        });
+      });
+    } else {
       res.render('project', {
         page: 'project',
         currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
       });
-    });
+    }
   } else {
     req.flash('error', 'Whoops! Project for this lesson does not exist.');
     res.redirect('/default');

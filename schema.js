@@ -343,7 +343,7 @@ function defineModels(mongoose, fn) {
   User.method('canWriteProgress', function() {
     return this.permission & (1 << 20);
   });
-
+  User.statics.Permissions = permissions;
   User.virtual('isSuperAdmin').get(function() {
     return this.permission == permissions.SuperAdmin;
   });
@@ -416,4 +416,3 @@ function defineModels(mongoose, fn) {
 }
 
 exports.defineModels = defineModels;
-exports.permissions = permissions;
