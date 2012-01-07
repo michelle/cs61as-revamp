@@ -1,0 +1,29 @@
+<div id="centered">
+  <div class="otherflag noselect">
+    <h2>Announcements</h2>
+  </div>
+    <div class="triangle"></div>
+    <div class="clear"></div>
+
+  <% if (news.length > 0) { %>
+
+
+  <% for (var i = 0; i < news.length; i += 1) { var article = news[i];%>
+  <div class="announcement">
+    <h3><%-article.title%></h3>
+    <div class="morepadding">
+      <%-article.content%>
+    </div>
+    <h4>Posted: <%-article.date%></h4>
+  </div>
+  <% } %>
+
+  
+  <% } else { %>
+    <div class="rednote">
+      <div class="padding">
+        Looks like there are no announcements.
+      </div>
+    </div>
+  <% } %>
+</div>
