@@ -11,15 +11,15 @@
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-    <form method="post" action="/admin/reading/add">
+    <form method="post" action="/admin/readings/add">
       <div class="formbox">
         <h3>Add a new Reading</h3>
         <span class="left boxy noselect" required>name</span>
         <input type="text" class="right textboxy" name='reading[name]' required >
         <span class="left boxy noselect" required>location</span>
-        <input type="text" class="right textboxy" name='reading[location]' required >
+        <input type="text" class="right textboxy" name='reading[location]' >
         <span class="left boxy noselect" required>Is SICP</span>
-        <input type="checkbox" class="right textboxy" name='reading[SICP]' required >
+        <input type="checkbox" class="right textboxy" name='reading[SICP]' >
         <div class="clear"></div>
       </div>
       <button class="anotherbutton" id="submitReading">
@@ -30,11 +30,11 @@
     <br>
     <div class="formbox">
       <h3>Edit a extra (<%-readings.length %> total)</h3>
-      <% for (var i = 0; i < reading.length; i += 1) { var reading = readings[i];%>
+      <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i];%>
       <span class="left boxy noselect displaymargin">name: <%-reading.name%></span>
       <span class="right linkboxy displaymargin">
-        <a href="/admin/reading/edit/<%-reading.id%>">(edit)</a>
-        <a href="/admin/reading/delete/<%-reading.id%>">(delete)</a>
+        <a href="/admin/readings/edit/<%-reading.id%>">(edit)</a>
+        <a href="/admin/readings/delete/<%-reading.id%>">(delete)</a>
       </span>
       <% } %> <div class="clear"></div>
     </div>

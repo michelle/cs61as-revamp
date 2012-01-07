@@ -1182,8 +1182,8 @@ app.get('/admin/readings', loadUser, checkPermit('canAccessAdminPanel'), checkPe
   trace('GET /admin/readings');
   Reading.find({}, function(err, readings) {
     log(err);
-    res.render('admin/reading', {
-      page: 'admin/reading',
+    res.render('admin/readings', {
+      page: 'admin/readings',
       currentUser: req.currentUser,
       readings: readings
     });
