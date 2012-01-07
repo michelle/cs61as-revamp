@@ -834,27 +834,31 @@ app.get('/admin/units/delete/:unit', loadUser, checkPermit('canAccessAdminPanel'
 /** Lessons panel */
 app.get('/admin/lessons', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons');
-  Lesson.find({}, function(err, lessons) {
+  Unit.find({}, function(err, units) {
     log(err);
-    Homework.find({}, function(err, homeworks) {
+    Lesson.find({}, function(err, lessons) {
       log(err);
-      Project.find({}, function(err, projects) {
+      Homework.find({}, function(err, homeworks) {
         log(err);
-        Extra.find({}, function(err, extras) {
+        Project.find({}, function(err, projects) {
           log(err);
-          Video.find({}, function(err, videos) {
+          Extra.find({}, function(err, extras) {
             log(err);
-            Reading.find({}, function(err, readings) {
+            Video.find({}, function(err, videos) {
               log(err);
-              res.render('admin/lessons', {
-                page: 'admin/lessons/index',
-                currentUser: req.currentUser,
-                lessons: lessons,
-                homeworks: homeworks,
-                projects: projects,
-                extras: extras,
-                videos: videos,
-                readings: readings
+              Reading.find({}, function(err, readings) {
+                log(err);
+                res.render('admin/lessons', {
+                  page: 'admin/lessons/index',
+                  currentUser: req.currentUser,
+                  units: units,
+                  lessons: lessons,
+                  homeworks: homeworks,
+                  projects: projects,
+                  extras: extras,
+                  videos: videos,
+                  readings: readings
+                });
               });
             });
           });
@@ -895,25 +899,29 @@ app.post('/admin/lessons/add', loadUser, checkPermit('canAccessAdminPanel'), che
 app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons/edit/:lesson');
   if (req.lesson) {
-    Homework.find({}, function(err, homeworks) {
+    Unit.find({}, function(err, units) {
       log(err);
-      Project.find({}, function(err, projects) {
+      Homework.find({}, function(err, homeworks) {
         log(err);
-        Extra.find({}, function(err, extras) {
+        Project.find({}, function(err, projects) {
           log(err);
-          Video.find({}, function(err, videos) {
+          Extra.find({}, function(err, extras) {
             log(err);
-            Reading.find({}, function(err, readings) {
+            Video.find({}, function(err, videos) {
               log(err);
-              res.render('admin/lessons/edit', {
-                page: 'admin/lessons/edit',
-                currentUser: req.currentUser,
-                lesson: req.lesson,
-                homeworks: homeworks,
-                projects: projects,
-                extras: extras,
-                videos: videos,
-                readings: readings
+              Reading.find({}, function(err, readings) {
+                log(err);
+                res.render('admin/lessons/edit', {
+                  page: 'admin/lessons/edit',
+                  currentUser: req.currentUser,
+                  units: units,
+                  lesson: req.lesson,
+                  homeworks: homeworks,
+                  projects: projects,
+                  extras: extras,
+                  videos: videos,
+                  readings: readings
+                });
               });
             });
           });
@@ -931,6 +939,7 @@ app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPan
   if (req.lesson) {
     req.lesson.number = req.body.lesson.number;
     req.lesson.name = req.body.lesson.name;
+    req.lesson.unit = req.body.lesson.unit;
     req.lesson.homework = req.body.lesson.homework;
     req.lesson.project = req.body.lesson.project;
     req.lesson.extra = req.body.lesson.extra;

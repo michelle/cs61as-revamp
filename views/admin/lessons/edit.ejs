@@ -23,7 +23,7 @@
         <span class="left boxy noselect">unit</span>
         <select class="right selectboxy" name='lesson[unit]' required >
           <% for (var i = 0; i < units.length; i += 1) { var unit = units[i] ;%>
-            <% if (lesson.unit && lesson.unit.id == unit.id) { %>
+            <% if (lesson.unit && lesson.unit == unit.id) { %>
               <option value="<%-unit.id%>" selected="selected"><%-unit.name%></option>
             <% } else { %>
               <option value="<%-unit.id%>"><%-unit.name%></option>
