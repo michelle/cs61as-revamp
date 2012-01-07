@@ -928,3 +928,7 @@ input {
 #nav li:hover > ul {
   display: block;
 }
+
+textarea {
+  resize: none;
+}
