@@ -1903,6 +1903,7 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
 });
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
+// TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
   if (['homework', 'extra'].indexOf(req.params.type) === -1) {
