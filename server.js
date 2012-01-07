@@ -1066,7 +1066,7 @@ app.post('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'
       } else {
         req.flash('info', 'extra was added successfully.');
       }
-      res.redirect('/admin/extra/edit/' + req.extra.id);
+      res.redirect('/admin/extra');
     });
   } else {
     req.flash('error', 'Malformed extraId.');

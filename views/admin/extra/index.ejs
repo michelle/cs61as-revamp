@@ -26,11 +26,11 @@
     <br>
     <div class="formbox">
       <h3>Edit a extra (<%-extras.length %> total)</h3>
-      <% for (var i = 0; i < extra.length; i += 1) { var extra = extras[i];%>
+      <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i];%>
       <span class="left boxy noselect displaymargin">name: <%-extra.name%></span>
       <span class="right linkboxy displaymargin">
-        <a href="/admin/homework/edit/<%-homework.id%>">(edit)</a>
-        <a href="/admin/homework/delete/<%-homework.id%>">(delete)</a>
+        <a href="/admin/extra/edit/<%-extra.id%>">(edit)</a>
+        <a href="/admin/extra/delete/<%-extra.id%>">(delete)</a>
       </span>
       <% } %> <div class="clear"></div>
     </div>
