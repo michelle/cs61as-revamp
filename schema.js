@@ -279,17 +279,17 @@ function defineModels(mongoose, fn) {
     },
     extra: [{
       type: ObjectId,
-      ref: 'Extra'
+      ref: 'Extra',
       'default': []
     }],
     videos: [{
       type: ObjectId,
-      ref: 'Video'
+      ref: 'Video',
       'default': []
     }],
     readings: [{
       type: ObjectId,
-      ref: 'Reading'
+      ref: 'Reading',
       'default': []
     }],
   });
