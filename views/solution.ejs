@@ -5,6 +5,7 @@
   <div id="lefttriangle"></div>
   <div class="clear"></div>
   <div id="homework">
-    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/hw-solutions.ejs')%>
+    <% var url; if (type === 'homework') { url = 'hw'; } else if (type === 'project') { url = 'proj' } else { url = type } %>
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/' + url + '-solutions.ejs')%>
   </div>
 </div>

@@ -34,7 +34,7 @@
         <span class="left boxy noselect">homework</span>
         <select class="right selectboxy" name='lesson[homework]' required >
           <% for (var i = 0; i < homeworks.length; i += 1) { var homework = homeworks[i] ;%>
-            <% if (lesson.homework && lesson.homework.id == homework.id) { %>
+            <% if (lesson.homework && (lesson.homework.id == homework.id)) { %>
               <option value="<%-homework.id%>" selected="selected"><%-homework.name%></option>
             <% } else { %>
               <option value="<%-homework.id%>"><%-homework.name%></option>

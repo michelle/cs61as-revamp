@@ -962,9 +962,9 @@ app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPan
         if (err.err) {
           req.flash('error', err.err);
         }
-        req.flash('error', 'Lesson was not added successfully.');
+        req.flash('error', 'Lesson was not saved successfully.');
       } else {
-        req.flash('info', 'Lesson was added successfully.');
+        req.flash('info', 'Lesson was saved successfully.');
       }
       res.redirect('/admin/lessons');
     });
@@ -1956,22 +1956,26 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
 // TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.
 app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
-  if (['homework', 'extra'].indexOf(req.params.type) === -1) {
+  var type = req.params.type;
+  var checktype = req.params.type;
+  if (['homework', 'extra', 'lab'].indexOf(type) === -1) {
     req.flash('error', "Whoops! The url you just went to does not exist.");
     res.redirect('/default');
     return;
   }
-
-  if (req.currentLesson && req.currentLesson[req.params.type]) {
+  if (type === 'lab') {
+    checktype = 'homework';
+  }
+  if (req.currentLesson && req.currentLesson[checktype]) {
     req.currentUser.currentLesson = req.currentLesson.number;
     if (req.currentUser.canWriteProgress()) {
       req.currentUser.save(function(err) {
         log(err);
-        if (req.currentLesson[req.params.type].isCompleted) {
+        if (req.currentLesson[checktype].isCompleted) {
           res.render('solution', {
             page: 'solution',
             currentUser: req.currentUser,
-            type: req.params.type,
+            type: type,
             currentLesson: req.currentLesson,
             showControls: req.currentUser.canWriteProgress()
           });

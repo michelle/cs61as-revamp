@@ -498,6 +498,7 @@ a {
 #lesson strong {
 	font-family: 'League Gothic';
 	color: #9aa7b0;
+	font-weight: normal;
 }
 
 #lefttriangle, .triangle {
@@ -988,7 +989,7 @@ textarea {
 }
 
 #selection {
-  margin-top: -60px;
+  margin-top: -50px;
   margin-right: 30px;
 }
 
@@ -1014,6 +1015,31 @@ textarea {
   width: 20px;
   margin: 0 auto;
   margin: 8px;
+}
+
+#introduction {
+  width: 90%;
+  height: 200px;
+  padding: 20px;
+  font-family: 'Open Sans';
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0px;
+  text-align: left;
+  margin: 20px 1% 40px 1%;
+  background-color: #fff;  
+  border: 1px solid rgba(200,215,220,1);
+  background-color: rgba(256,256,256,0.7);
+  color: #4D5A63;
+}
+
+#introduction h2 {
+  margin: 5px 0px;
+}
+
+.intropadding {
+  overflow: auto;
+  height: 100%;
 }
 
 .logtop {

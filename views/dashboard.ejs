@@ -12,6 +12,7 @@ completedness of each section for class="completed" li elements. -->
     <h2><strong>Lesson <%-currentLesson.number%> - </strong> <%-currentLesson.name%></h2>
   </div>
   <div id="lefttriangle"></div>
+  
   <div id="selection" class="right noselect">
     <% if (currentLesson.number > 1) { %> <a href="/dashboard/<%-(currentLesson.number - 1)%>">previous lesson</a> |
     <% } %>
@@ -19,6 +20,14 @@ completedness of each section for class="completed" li elements. -->
     <% } %>
   </div>
   <div class="clear"></div>
+    
+  <div id="introduction">
+    <div class="intropadding">
+    
+      <h2>Introduction</h2>
+      <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/intro.ejs')%>
+    </div>
+  </div>
   <% var n = currentLesson.number; %>
   <div class="thirds left">
     <h1>Learn</h1>
@@ -79,7 +88,11 @@ completedness of each section for class="completed" li elements. -->
       <% if (currentLesson.homework) { %>
       <% if (currentLesson.homework.isCompleted) { %> <a href="/solutions/homework/<%-n%>">
       <li class="resource">
-        HW<%-n%> Solutions
+        HW <%-n%> Solutions
+      </li></a>
+      <a href="/solutions/lab/<%-n%>">
+      <li class="resource">
+        Lab <%-n%> Solutions
       </li></a>
       <% } else { %>
       <li class="bnote">
