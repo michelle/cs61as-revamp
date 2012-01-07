@@ -974,11 +974,11 @@ app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminP
         if (err.err) {
           req.flash('error', err.err);
         }
-        req.flash('error', 'project was not added successfully.');
+        req.flash('error', 'project was not saved successfully.');
       } else {
-        req.flash('info', 'project was added successfully.');
+        req.flash('info', 'project was saved successfully.');
       }
-      res.redirect('/admin/projects/edit/' + req.project.id);
+      res.redirect('/admin/projects');
     });
   } else {
     req.flash('error', 'Malformed projectId.');

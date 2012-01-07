@@ -11,7 +11,7 @@
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-    <form method="post" action="/admin/project/add">
+    <form method="post" action="/admin/projects/add">
       <div class="formbox">
         <h3>Add a new project</h3>
         <span class="left boxy noselect" required>name</span>
@@ -26,7 +26,7 @@
     <br>
     <div class="formbox">
       <h3>Edit a project (<%-projects.length %> total)</h3>
-      <% for (var i = 0; i < project.length; i += 1) { var project = projects[i];%>
+      <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i];%>
       <span class="left boxy noselect displaymargin">name: <%-project.name%></span>
       <span class="right linkboxy displaymargin">
         <a href="/admin/projects/edit/<%-project.id%>">(edit)</a>
