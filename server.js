@@ -901,11 +901,10 @@ app.post('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdmin
 app.get('/admin/homework/delete/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/homework/delete/:homework');
   if (req.homework) {
-      req.homework.remove(functio(err) {
-        log(err);
-        req.flash('info', 'Homework deleted.');
-        res.redirect('/admin/homework');
-      });
+    req.homework.remove(function(err) {
+      log(err);
+      req.flash('info', 'Homework deleted.');
+      res.redirect('/admin/homework');
     });
   } else {
     req.flash('error', 'Malformed homeworkId.');
@@ -990,11 +989,10 @@ app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminP
 app.get('/admin/projects/delete/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/projects/delete/:project');
   if (req.project) {
-      req.project.remove(functio(err) {
-        log(err);
-        req.flash('info', 'Project deleted.');
-        res.redirect('/admin/projects');
-      });
+    req.project.remove(function(err) {
+      log(err);
+      req.flash('info', 'Project deleted.');
+      res.redirect('/admin/projects');
     });
   } else {
     req.flash('error', 'Malformed projectId.');
@@ -1079,11 +1077,10 @@ app.post('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'
 app.get('/admin/extra/delete/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/extra/delete/:extra');
   if (req.extra) {
-      req.extra.remove(functio(err) {
-        log(err);
-        req.flash('info', 'Extra deleted.');
-        res.redirect('/admin/extra');
-      });
+    req.extra.remove(function(err) {
+      log(err);
+      req.flash('info', 'Extra deleted.');
+      res.redirect('/admin/extra');
     });
   } else {
     req.flash('error', 'Malformed extraId.');
@@ -1170,11 +1167,10 @@ app.post('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel
 app.get('/admin/videos/delete/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/videos/delete/:video');
   if (req.video) {
-      req.video.remove(functio(err) {
-        log(err);
-        req.flash('info', 'video deleted.');
-        res.redirect('/admin/videos');
-      });
+    req.video.remove(function(err) {
+      log(err);
+      req.flash('info', 'video deleted.');
+      res.redirect('/admin/videos');
     });
   } else {
     req.flash('error', 'Malformed videoId.');
@@ -1263,11 +1259,10 @@ app.post('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminP
 app.get('/admin/readings/delete/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/readings/delete/:reading');
   if (req.reading) {
-      req.reading.remove(functio(err) {
-        log(err);
-        req.flash('info', 'reading deleted.');
-        res.redirect('/admin/readings');
-      });
+    req.reading.remove(function(err) {
+      log(err);
+      req.flash('info', 'reading deleted.');
+      res.redirect('/admin/readings');
     });
   } else {
     req.flash('error', 'Malformed readingId.');
