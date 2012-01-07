@@ -6,7 +6,7 @@
       <ul id="topfloater" class="right">
         <% if (!currentUser.canAccessDashboard()) { %>
           <form method="post" action="/login">
-            <div class="left small logtop">username
+            <div class="left small logtop" id="signal">username
             <input type="text" class="field" name='user[username]'% /></div>
             <div class="left small logtop">password
             <input type="password" class="field" name='user[password]'% /></div>
