@@ -1,0 +1,54 @@
+<div id="centered">
+  <div class="yellownote">
+    <div class="padding">
+      <strong>Warning: </strong>Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Editing unit with ID: <strong><%-unit.id%></strong></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/unit/edit/<%-unit.id%>">
+      <div class="formbox">
+        <h3>Add a new unit</h3>
+        <span class="left boxy noselect" required>number</span>
+        <input type="number" class="right textboxy" name='unit[number]' required >
+        <br>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='unit[name]' required >
+        <br>
+        <span class="left boxy noselect">lessons</span>
+        <select class="right selectboxy" name='unit[lessons]' multiple="multiple">
+          <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i] ;%>
+            <% if (unit.lessons && unit.lessons.indexOf(lesson.id) != -1) { %>
+              <option value="<%-lesson.id%>" selected="selected"><%-lesson.name%></option>
+            <% } else { %>
+              <option value="<%-lesson.id%>"><%-lesson.name%></option>
+            <% } %>
+          <% } %>
+        </select>
+        <br/>
+        <span class="left boxy noselect">project</span>
+        <select class="right selectboxy" name='unit[project]'>
+          <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
+            <% if (unit.project && unit.project.id == project.id) { %>
+              <option value="<%-project.id%>" selected="selected"><%-project.name%></option>
+            <% } else { %>
+              <option value="<%-project.id%>"><%-project.name%></option>
+            <% } %>
+          <% } %>
+        </select>
+        <br>
+        <span class="left boxy noselect" required>project lesson number</span>
+        <input type="number" class="right textboxy" name='unit[projectLessonNumber]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitUnit">
+        Save
+      </button>
+    </form>
+  </div>
+</div>

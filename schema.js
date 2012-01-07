@@ -270,15 +270,19 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    project: {
-      type: ObjectId,
-      ref: 'Project'
-    },
     lessons: [{
       type: ObjectId,
       ref: 'Lesson',
       'default': []
-    }]
+    }],
+    project: {
+      type: ObjectId,
+      ref: 'Project'
+    },
+    projectLessonNumber: {
+      type: Number,
+      min: 0
+    }
   });
 
   /** A lesson.
