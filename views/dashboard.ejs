@@ -8,7 +8,14 @@
     <h2><strong>Lesson <%-currentLesson.number%> - </strong> <%-currentLesson.name%></h2>
   </div>
   <div id="lefttriangle"></div>
-  
+  <div id="selection" class="right noselect">
+    <% if (currentLesson.number > 1) { %>
+      <a href="/dashboard<%-(currentLesson.number - 1)%>">previous lesson</a> | 
+    <% } %>
+    <% if (currentLesson.number < 15) { %>
+      <a href="/dashboard<%-(currentLesson.number + 1)%>">next lesson</a>
+    <% } %>
+  </div>
   <div class="clear"></div>
   <% var n = currentLesson.number; %>
   <div class="thirds left">

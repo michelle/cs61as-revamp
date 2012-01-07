@@ -848,6 +848,29 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
     });
   });
 });
+/** Change dashboard. */
+app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
+  trace('GET /dashboard/:lessonId');
+  if (req.currentLesson) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+        log(err);
+        Announcement.find({}, function(err, news) {
+          log(err);
+          news.sort(function(b, a) { return a.date - b.date } );
+          res.render('dashboard', {
+          page: 'dashboard',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          news: news
+        });
+      });
+    });
+  } else {
+    req.flash('error', 'The lesson you are trying to access does not exist.');
+    res.redirect('/dashboard');
+  }
+});
 /** Viewing user profiles. */
 // TODO: determine if user profiles should actually be kept.
 app.get('/user/:username', loadUser, checkPermit('canReadUserInfoEveryone', sameUser('canReadUserInfo')), function(req, res) {

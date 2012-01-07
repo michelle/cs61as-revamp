@@ -20,7 +20,7 @@ FlashMessage.prototype = {
       case 'info':
         return 'comment';
       case 'error':
-        return 'x-alt';
+        return 'denied';
     }
   },
 
