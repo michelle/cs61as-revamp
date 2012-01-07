@@ -826,12 +826,12 @@ app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPan
 /** Homework panel */
 app.get('/admin/homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/homework');
-  Homework.find({}, function(err, homework) {
+  Homework.find({}, function(err, homeworks) {
     log(err);
     res.render('admin/homework', {
       page: 'admin/homework',
       currentUser: req.currentUser,
-      homework: homework
+      homeworks: homeworks
     });
   });
 });
@@ -854,7 +854,7 @@ app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), ch
     } else {
       req.flash('info', 'Homework was added successfully.');
     }
-    res.redirect('/admin/lessons');
+    res.redirect('/admin/homework');
   });
 });
 /** Edit an homework. */

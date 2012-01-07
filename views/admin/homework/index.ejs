@@ -26,7 +26,7 @@
     <br>
     <div class="formbox">
       <h3>Edit a homework (<%-homeworks.length %> total)</h3>
-      <% for (var i = 0; i < homework.length; i += 1) { var homework = homeworks[i];%>
+      <% for (var i = 0; i < homeworks.length; i += 1) { var homework = homeworks[i];%>
       <span class="left boxy noselect displaymargin">name: <%-homework.name%></span>
       <span class="right linkboxy displaymargin">
         <a href="/admin/homework/edit/<%-homework.id%>">(edit)</a>
