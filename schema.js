@@ -442,14 +442,16 @@ function defineModels(mongoose, fn) {
 
   /** Set up models. */
   mongoose.model('User', User);
+  mongoose.model('Grade', Grade);
   mongoose.model('LoginToken', LoginToken);
+  mongoose.model('Announcement', Announcement);
   mongoose.model('Lesson', Lesson);
-  mongoose.model('Assignment', Assignment);
   mongoose.model('Reading', Reading);
   mongoose.model('Video', Video);
-  mongoose.model('Grade', Grade);
+  mongoose.model('Homework', Homework);
+  mongoose.model('Project', Project);
+  mongoose.model('Extra', Extra);
   mongoose.model('Progress', Progress);
-  mongoose.model('Announcement', Announcement);
 
   fn();
 }
