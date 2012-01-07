@@ -1,0 +1,34 @@
+<div id="nocenter">
+  <% if (extra) { %>
+  <div id="lesson">
+    <h2><%-extra.name%></h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <div class="clear"></div>
+  <div id="homework">
+    <% if (extra.isCompleted) {%>
+      <div class="note">
+        <div class="padding">
+          You have completed this extra.
+        </div>
+      </div>
+    <% } %>
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/extra' + extraId +'.ejs')%>
+    <% if (showControls) { %>
+      <% if (!extra.isCompleted) {%>
+      <center>
+        <form method="post" action="/extra/<%-currentLesson.number%>/<%-extraId%>">
+          <button class="mark">
+            Mark as complete
+          </button>
+        </form>
+      </center>
+      <% } %>
+    <% } %>
+  </div>
+  <% } else { %>
+  <p>
+    This reading does not exist.
+  </p>
+  <%}%>
+</div>
