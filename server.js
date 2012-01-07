@@ -37,14 +37,16 @@ app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
 /** Database models. */
 schema.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
-  app.Video = Video = mongoose.model('Video');
-  app.Reading = Reading = mongoose.model('Reading');
-  app.Assignment = Assignment = mongoose.model('Assignment');
-  app.Lesson = Lesson = mongoose.model('Lesson');
-  app.LoginToken = LoginToken = mongoose.model('LoginToken');
   app.Grade = Grade = mongoose.model('Grade');
-  app.Progress = Progress = mongoose.model('Progress');
+  app.LoginToken = LoginToken = mongoose.model('LoginToken');
   app.Announcement = Announcement = mongoose.model('Announcement');
+  app.Lesson = Lesson = mongoose.model('Lesson');
+  app.Reading = Reading = mongoose.model('Reading');
+  app.Video = Video = mongoose.model('Video');
+  app.Homework = Homework = mongoose.model('Homework');
+  app.Project = Project = mongoose.model('Project');
+  app.Extra = Extra = mongoose.model('Extra');
+  app.Progress = Progress = mongoose.model('Progress');
   db = mongoose.connect(app.set('db-uri'));
 });
 
