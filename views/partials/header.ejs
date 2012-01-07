@@ -6,10 +6,12 @@
       <ul id="topfloater" class="right">
         <% if (!currentUser.canAccessDashboard()) { %>
           <form method="post" action="/login">
-            <span class="left small">username</span>
-            <input type="text" class="left" name='user[username]'% />
-            <span class="left small">password</span>
-            <input type="password" class="left" name='user[password]'% />
+            <div class="left small logtop">username
+            <input type="text" class="field" name='user[username]'% /></div>
+            <div class="left small logtop">password
+            <input type="password" class="field" name='user[password]'% /></div>
+            <div class="left small logtop">remember me
+            <input type="checkbox" id="othercheckbox" name="user[rememberme]"/></div>
             <button class="left" id="submitlogin">
               Login
             </button>

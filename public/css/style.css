@@ -843,7 +843,7 @@ input {
   height: 50px;
 }
 
-#topbar input, #topbar button {
+#topbar input.field, #topbar button {
   border: 0px;
   line-height: 20px;
   height: 20px;
@@ -1007,4 +1007,17 @@ textarea {
   box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
   -webkit-box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
   -moz-box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
+}
+
+#othercheckbox {
+  width: 20px;
+  margin: 0 auto;
+  margin: 8px;
+}
+
+.logtop {
+  line-height: 14px;
+  width: 110px;
+  text-align: center;
+  margin: -5px 10px 0px 10px;
 }
