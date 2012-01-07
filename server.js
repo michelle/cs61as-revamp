@@ -481,7 +481,7 @@ app.param('readingId', function(req, res, next, readingId) {
 /** Pre condition param unit into req.unit. */
 app.param('unit', function(req, res, next, unitId) {
   trace('param unit');
-  unit.findById(unitId, function(err, unit) {
+  Unit.findById(unitId, function(err, unit) {
     log(err);
     req.unit = !err && unit;
     next();
@@ -740,9 +740,12 @@ app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), check
     number: req.body.unit.number,
     name: req.body.unit.name,
     lessons: req.body.unit.lessons,
-    project: req.body.unit.project,
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
+  if (req.body.unit.project != "undefined") {
+    unit.project = req.body.unit.project;
+  }
+
   unit.save(function(err) {
     if (err) {
       log(err);

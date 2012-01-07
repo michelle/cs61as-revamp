@@ -13,12 +13,12 @@
   <div class="contentpadding">
     <form method="post" action="/admin/unit/edit/<%-unit.id%>">
       <div class="formbox">
-        <h3>Add a new unit</h3>
+        <h3>Edit a  unit</h3>
         <span class="left boxy noselect" required>number</span>
-        <input type="number" class="right textboxy" name='unit[number]' required >
+        <input type="number" class="right textboxy" name='unit[number]' value="<%-unit.number%>" required >
         <br>
         <span class="left boxy noselect" required>name</span>
-        <input type="text" class="right textboxy" name='unit[name]' required >
+        <input type="text" class="right textboxy" name='unit[name]' value="<%-unit.name%>" required >
         <br>
         <span class="left boxy noselect">lessons</span>
         <select class="right selectboxy" name='unit[lessons]' multiple="multiple">
@@ -33,6 +33,7 @@
         <br/>
         <span class="left boxy noselect">project</span>
         <select class="right selectboxy" name='unit[project]'>
+          <option value="undefined">-- No Project --</option>
           <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
             <% if (unit.project && unit.project.id == project.id) { %>
               <option value="<%-project.id%>" selected="selected"><%-project.name%></option>
@@ -43,7 +44,7 @@
         </select>
         <br>
         <span class="left boxy noselect" required>project lesson number</span>
-        <input type="number" class="right textboxy" name='unit[projectLessonNumber]' required >
+        <input type="number" class="right textboxy" name='unit[projectLessonNumber]' value="<%-unit.projectLessonNumber%>" required >
         <div class="clear"></div>
       </div>
       <button class="anotherbutton" id="submitUnit">
