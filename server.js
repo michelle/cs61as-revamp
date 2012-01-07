@@ -33,7 +33,7 @@ app.helpers(require('./dh.js').helpers);
 app.dynamicHelpers(require('./dh.js').dynamicHelpers);
 
 /** Student database URI. */
-app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10000/cs61as_lessons');
+app.set('db-uri', 'mongodb://admin:scheme@staff.mongohq.com:10082/cs61as');
 
 /** Database models. */
 schema.defineModels(mongoose, function() {
