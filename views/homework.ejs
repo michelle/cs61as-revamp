@@ -13,7 +13,14 @@
         </div>
       </div>
     <% } %>
-    <%-partial('CS61AS/homework/hw' + currentLesson.number + '.ejs')%>
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/lab.ejs')%>
+    <div class="note">
+      <div class="padding">
+        You should complete at least to this part.
+      </div>
+    </div>
+    <hr />
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/hw.ejs')%>
     <br><br>
     <% if (showControls) { %>
       <% if (!currentLesson.homework.isCompleted) {%>
@@ -32,9 +39,13 @@
       <hr />
       <br>
       <div id="solution">
-        <h3 class="noselect">View Solutions</h3>
+        <h3 class="noselect">View Lab Solutions</h3>
         <div class="wrapper">
-          <%-partial('CS61AS/homework/sol' + currentLesson.number + '.ejs')%>
+          <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/lab-solutions.ejs')%>
+        </div>
+        <h3 class="noselect">View Homework Solutions</h3>
+        <div class="wrapper">
+          <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/hw-solutions.ejs')%>
         </div>
       </div>
       <% } %>
