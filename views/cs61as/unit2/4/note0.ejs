@@ -1,0 +1,422 @@
+<!-- Lecture Notes 4: Data Abstraction and Sequences -->
+
+<p>
+<b>Reading:</b>
+Abelson & Sussman, Sections <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-14.html#%_sec_2.1" target="_blank">2.1</a>
+and <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-15.html#%_sec_2.2">2.2.1</a>
+<p>
+
+<p><b>&bull; Big ideas: data abstraction, abstraction barrier.</b>
+
+<p>
+If we are dealing with some particular type of data, we want to talk about
+it in terms of its <i>meaning</i>, not in terms of how it happens to be
+represented in the computer.
+
+<p>
+Example:  Here is a function that computes the total point score of a hand
+of playing cards.  (This simplified function ignores the problem of cards
+whose rank-name isn't a number.)
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.1/total.scm
+(define (total hand)
+  (if (empty? hand)
+      0
+      (+ (butlast (last hand))
+         (total (butlast hand)) )))
+
+&#62; (total '(3h 10c 4d))
+17
+</pre></tt>
+
+<p>
+This function calls <tt>butlast</tt> in two places.  What do those two
+invocations mean?  Compare it with a modified version:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.1/total.scm
+(define (total hand)
+  (if (empty? hand)
+      0
+      (+ (rank (one-card hand))
+         (total (remaining-cards hand)) )))
+
+(define rank butlast)
+(define suit last)
+
+(define one-card last)
+(define remaining-cards butlast)
+</pre></tt>
+
+<p>
+This is more work to type in, but the result is much more readable.
+If for some reason we wanted to modify the program to add up the cards left
+to right instead of right to left, we'd have trouble editing the original
+version because we wouldn't know which <tt>butlast</tt> to change.  In the new
+version it's easy to keep track of which function does what.
+
+<p>
+The auxiliary functions like <tt>rank</tt> are called <i>selectors </i> because
+they select one component of a multi-part datum.
+
+<p>
+
+<p>
+Actually we're <i>violating </i> the data abstraction when we type in a
+hand of cards as <tt>'(3h&nbsp;10c&nbsp;4d)</tt> because that assumes we know how the
+cards are represented&mdash;namely, as words combining the rank number with a
+one-letter suit.  If we want to be thorough about hiding the representation,
+we need <i>constructor </i> functions as well as the selectors:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.1/total.scm
+(define (make-card rank suit)
+  (word rank (first suit)) )
+
+(define make-hand se)
+
+&#62; (total (make-hand (make-card 3 'heart)
+                    (make-card 10 'club)
+                    (make-card 4 'diamond) ))
+17
+</pre></tt>
+
+<p>
+Once we're using data abstraction we can change the implementation of the
+data type without affecting the programs that <i>use </i> that data type.
+This means we can change how we represent a card, for example, without
+rewriting <tt>total</tt>:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.1/total.scm
+(define (make-card rank suit)
+  (cond ((equal? suit 'heart) rank)
+        ((equal? suit 'spade) (+ rank 13))
+        ((equal? suit 'diamond) (+ rank 26))
+        ((equal? suit 'club) (+ rank 39))
+        (else (error &#223;ay what?")) ))
+
+(define (rank card)
+  (remainder card 13))
+
+(define (suit card)
+  (nth (quotient card 13) '(heart spade diamond club)))
+</pre></tt>
+
+<p>
+We have changed the internal <i>representation </i> so that a card is now
+just a number between 1 and 52 (why?&nbsp;maybe we're programming in FORTRAN) but
+we haven't changed the <i>behavior </i> of the program at all.  We still
+call <tt>total</tt> the same way.
+
+<p> Data abstraction is a really good idea because it helps keep you from
+getting confused when you're dealing with lots of data types, but don't get
+religious about it.  For example, we have invented the <i>sentence </i> data
+type for this course.  We have provided symmetric selectors <tt>first</tt> and
+<tt>last</tt>, and symmetric selectors <tt>butfirst</tt> and <tt>butlast</tt>.
+You can write programs using sentences without knowing how they're
+implemented.  But it turns out that because of the way they <i>are </i>
+implemented, <tt> first</tt> and <tt>butfirst</tt> take &Theta;(1) time, while
+<tt>last</tt> and <tt> butlast</tt> take &Theta;(N) time.  If you know that,
+your programs will be faster.
+
+<p><b>&bull; Pairs.</b>
+
+<p>
+To represent data types that have component parts (like the rank and suit of
+a card), you have to have some way to <i>aggregate </i> information.  Many
+languages have the idea of an <i>array </i> that groups some number of
+elements.  In Lisp the most basic aggregation unit is the <i>pair</i>&mdash;two
+things combined to form a bigger thing.  If you want more than two parts you
+can hook a bunch of pairs together; we'll discuss this more below.
+
+<p>
+The constructor for pairs is CONS; the selectors are CAR and CDR.
+
+<p>
+
+<p>
+The book uses pairs to represent many different abstract data types:
+rational numbers (numerator and denominator), complex numbers (real and
+imaginary parts), points (x and y coordinates), intervals (low and high
+bounds), and line segments (two endpoints).  Notice that in the case of
+line segments we think of the representation as <i>one pair </i> containing
+two points, not as three pairs containing four numbers.  (That's what it
+means to respect a data abstraction.)
+
+<p>
+<center><img width=100% src="static/course_material/55/56/5-1.jpg"></center>
+
+<p>
+Note:  What's the difference between these two:
+
+<p>
+<tt>  <pre>(define (make-rat num den) (cons num den))
+(define make-rat cons)
+</pre></tt>
+
+<p>
+They are both equally good ways to implement a constructor for an abstract
+data type.  The second way has a slight speed advantage (one fewer function
+call) but the first way has a debugging advantage because you can trace <tt>
+make-rat</tt> without tracing all invocations of <tt>cons</tt>.
+
+<p>
+<b>&bull; Data aggregation doesn't have to be primitive.</b>
+
+<p>
+In most languages the data aggregation mechanism (the array or whatever)
+seems to be a necessary part of the core language, not something you could
+implement as a user of the language.  But if we have first-class functions
+we can use a function to represent a pair:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.1/cons.scm
+(define (cons x y)
+  (lambda (which)
+    (cond ((equal? which 'car) x)
+          ((equal? which 'cdr) y)
+          (else (error "Bad message to CONS" message)) )))
+
+(define (car pair)
+  (pair 'car))
+
+(define (cdr pair)
+  (pair 'cdr))
+</pre></tt>
+
+<p>
+This is like the version in the book except that they use 0 and 1 as the
+<i>messages </i> because they haven't introduced quoted words yet.  This
+version makes it a little clearer what the argument named <tt>which</tt> means.
+
+<p>
+The point is that we can satisfy ourselves that this version of <tt>cons</tt>,
+<tt>car</tt>, and <tt>cdr</tt> works in the sense that if we construct a pair with
+this <tt>cons</tt> we can extract its two components with this <tt>car</tt> and
+<tt>cdr</tt>.  If that's true, we don't need to have pairs built into the
+language!  All we need is <tt>lambda</tt> and we can implement the rest
+ourselves.  (It isn't really done this way, in real life, for efficiency
+reasons, but it's neat that it could be.)
+
+<p>
+
+<p><b>&bull; Big idea: abstract data type <i>sequence</i> (or <i>list</i>).</b>
+
+<p>
+We want to represent an ordered sequence of things.  (They can be any
+kind of things.)  We <i>implement </i> sequences using pairs, with each
+<tt>car</tt> pointing to an element and each <tt>cdr</tt> pointing to the next
+pair.
+
+<p>
+<center><img width=75% src="static/course_material/55/56/5-2.jpg"></center>
+
+<p>
+What should the constructors and selectors be?  The most obvious thing
+is to have a constructor <tt>list</tt> that takes any number of arguments and
+returns a list of those arguments, and a selector <tt>nth</tt> that takes a
+number and a list as arguments, returning the nth element of the list.
+
+<p>
+Scheme does provide those, but it often turns out to be more useful to
+select from a list differently, with a selector for the first element and a
+selector for all the rest of the elements (i.e., a smaller list).  This
+helps us write recursive functions such as the mapping and filtering ones we
+saw for sentences earlier.
+
+<p>
+Since we are implementing lists using pairs, we ought to have
+specially-named constructors and selectors for lists, just like the ones for
+rational numbers:
+
+<p>
+<tt>  <pre>(define adjoin cons)
+(define first car)
+(define rest cdr)
+</pre></tt>
+
+<p>
+Many Lisp systems do in fact provide <tt>first</tt> and <tt>rest</tt> as synonyms
+for <tt>car</tt> and <tt>cdr</tt>, but the fact is that this particular data
+abstraction is commonly violated; we just use the names <tt>car</tt>, <tt>
+cdr</tt>, and <tt>cons</tt> to talk about lists.
+
+<p>
+This abstract data type has a special status in the Scheme interpreter
+itself, because lists are read and printed using a special notation.
+If Scheme knew only about pairs, and not about lists, then when we
+construct the list <tt>(1&nbsp;2&nbsp;3)</tt> it would print as <tt>(1&nbsp;.&nbsp;(2&nbsp;.(3&nbsp;.&nbsp;())))</tt>
+instead.
+
+<p><b>&bull; List constructors.</b>
+
+<p>
+Sentences have a very simple structure, so there's just one constructor for
+them.  Lists are more complicated, and have three constructors:
+
+<p>
+<tt>List</tt> is the simplest to understand.  It takes any number of arguments,
+each of which can be anything, and returns a list containing those arguments
+as its elements:
+
+<p>
+<tt>  <pre>&#62; (list '(a list) 'word 87 #t)
+((a list) word 87 #t)
+</pre></tt>
+
+<p>
+This seems very straightforward, but in practice it's not the most useful
+constructor, because it can be used only when you know exactly how many
+elements you want in the list.  Most list programming deals with arbitrary
+sequences, which could be of any length.  <tt>List</tt> is useful when you use
+a fixed-length list to represent an abstract data type, such as a point in
+three-dimensional space:
+
+<p>
+<tt>  <pre>(define (point x y z)
+  (list x y z))
+</pre></tt>
+
+<p>
+<tt>Cons</tt> adds one new element at the front of an existing list:
+
+<p>
+<tt>  <pre>&#62; (cons '(new element) '(the old list))
+((new element) the old list)
+</pre></tt>
+
+<p>
+(Of course, <tt>cons</tt> really just takes two arguments and makes a pair
+containing them, but if you're using that pair as the head of a list, then
+the effect of <tt>cons</tt> in terms of the list abstraction is to add one
+new element.)  This may seem too specific and arbitrary to be useful, but
+in fact <tt>cons</tt> is the most commonly used list constructor, because adding
+one new element is exactly what you want to do in a recursive transformation
+of a list:
+
+<p>
+<tt>  <pre>(define (map fn seq)
+  (if (null? seq)
+      '()
+      (CONS (fn (car seq))
+	    (map fn (cdr seq)))))
+</pre></tt>
+
+<p>
+<tt>Append</tt> is used to combine two or more lists in a way that "flattens"
+some of the structure of the result: It returns a list whose elements are
+<i>the elements of </i> the arguments, which must be lists:
+
+<p>
+<tt>  <pre>&#62; (append '(one list) '(and another list))
+(one list and another list)
+</pre></tt>
+
+<p>
+It's most useful when combining results from multiple recursive calls, each
+of which returns a subset of the overall answer; you want to take the union
+of those sets, and that's what <tt>append</tt> does.
+
+<p><b>&bull; Lists vs.&nbsp;sentences.</b>
+
+<p>
+We started out the semester using an abstract data type called <i>
+sentence </i> that looks a lot like a list.  What's the difference, and why
+did we do it that way?
+
+<p>
+Our goal was to allow you to create aggregates of words without having to
+think about the structure of their internal representation (i.e., about
+pairs).  We do this by deciding that the elements of a sentence must be
+words (not sublists), and enforcing that by giving you the constructor
+<tt>sentence</tt> that creates only sentences.
+
+<p>
+Example:  One of the homework problems this week asks you to reverse a
+list.  You'll see that this is a little tricky using <tt>cons</tt>, <tt>car</tt>,
+and <tt>cdr</tt> as the problem asks, but it's easy for sentences:
+
+<p>
+<tt>  <pre>(define (reverse sent)
+  (if (empty? sent)
+      '()
+      (se (reverse (bf sent)) (first sent)) ))
+</pre></tt>
+
+<p>
+
+<p>
+To give you a better idea about what a sentence is, here's a version
+of the constructor function:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/2.2/sentence.scm
+(define (se a b)
+  (cond ((word? a) (se (list a) b))
+        ((word? b) (se a (list b)))
+        (else (append a b)) ))
+
+(define (word? x)
+  (or (symbol? x) (number? x)) )
+</pre></tt>
+
+<p>
+<tt>Se</tt> is a lot like <tt>append</tt>, except that the latter behaves oddly
+if given words as arguments.  <tt>Se</tt> can accept words or sentences as
+arguments.
+
+<p><b>&bull; Box and pointer diagrams.</b>
+
+<p>
+Here are a few details that people sometimes get wrong about them:
+
+<p>
+1.  An arrow can't point to half of a pair.  If an arrowhead touches a pair,
+it's pointing to the entire pair, and it doesn't matter exactly where the
+arrowhead touches the rectangle.  If you see something like
+
+<p>
+<tt>  <pre>(define x (car y))
+</pre></tt>
+
+<p>
+where <tt>y</tt> is a pair, the arrow for <tt>x</tt> should point to <i>the
+thing that the </i> <tt>car</tt> <i>of </i> <tt>y</tt> <i>points to</i>, not to the
+left half of the <tt>y</tt> rectangle.
+
+<p>
+<center><img width=25% src="static/course_material/55/56/5-3.jpg"></center>
+
+<p>
+2.  The direction of arrows (up, down, left, right) is irrelevant.  You can
+draw them however you want to make the arrangement of pairs neat.  That's
+why it's crucial not to forget the arrowheads!
+
+<p>
+3.  There must be a top-level arrow to show where the structure you're
+representing begins.
+
+<p>
+How do you draw a diagram for a complicated list?  Take this example:
+
+<p>
+<tt>  <pre>((a b) c (d (e f)))
+</pre></tt>
+
+<p>
+You begin by asking yourself how many elements the list has.  In this
+case it has three elements: first <tt>(a&nbsp;b)</tt>, then <tt>c</tt>, then the rest.
+Therefore you should draw a three-pair <i>backbone </i>: three pairs with
+the <tt>cdr</tt> of one pointing to the next one.  (The final <tt>cdr</tt> is
+null.)
+
+<p>
+<center><img width=75% src="static/course_material/55/56/5-4.jpg"></center>
+
+<p>
+Only after you've drawn the backbone should you worry about making the <tt>
+car</tt>s of your three pairs point to the three elements of the top-level list.
+
+<p></p>

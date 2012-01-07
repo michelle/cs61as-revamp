@@ -1,0 +1,74 @@
+<!-- Lab 6: Generic Operators -->
+
+<p>
+1.  Load the <tt>Scheme-1</tt> interpreter from the file
+
+<p>
+<tt>  <pre>&#126;cs61as/lib/scheme1.scm
+</pre></tt>
+
+<p>
+To start the interpreter, type <tt>(scheme-1)</tt>.  Familiarize
+yourself with it by evaluating some expressions.  Remember: you have
+all the Scheme primitives for arithmetic and list manipulation; you
+have <tt>lambda</tt> but not higher-order functions; you don't have <tt>define</tt>.
+To stop the <tt>scheme-1</tt> interpreter and return to <tt>STk</tt>, just
+evaluate an illegal expression, such as <tt>()</tt>.
+
+<p>
+1a.  Trace in detail how a simple procedure call such as
+
+<p>
+<tt>  <pre>((lambda (x) (+ x 3)) 5)
+</pre></tt>
+
+<p>
+is handled in <tt>scheme-1</tt>.
+
+<p>
+1b.  Try inventing
+higher-order procedures; since you don't have <tt>define</tt>
+you'll have to use the Y-combinator trick, like this:
+
+<p>
+<tt>  <pre>Scheme-1: ((lambda (f n)        ; this lambda is defining MAP
+	     ((lambda (map) (map map f n))
+	      (lambda (map f n)
+		(if (null? n)
+		    '()
+		    (cons (f (car n)) (map map f (cdr n))) )) ))
+	     first              ; here are the arguments to MAP
+	     '(the rain in spain))
+(t r i s)
+</pre></tt>
+
+<p>
+1c.  Since all the Scheme primitives are automatically available
+in <tt>scheme-1</tt>, you might think you could use <tt>STk</tt>'s
+primitive <tt>map</tt> function.  Try these examples:
+
+<p>
+<tt>  <pre>Scheme-1: (map first '(the rain in spain))
+Scheme-1: (map (lambda (x) (first x)) '(the rain in spain))
+</pre></tt>
+
+<p>
+Explain the results.
+
+<p>
+1d.  Modify the interpreter to add the <tt>and</tt> special form.  Test
+your work.  Be sure that as soon as a false value is computed, your
+<tt>and</tt> returns <tt>#f</tt> without evaluating any further arguments.
+
+<p>
+<br /><br />For the rest of the lab, start by reading <i>SICP</i> section
+<a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-16.html#%_sec_2.3.3">2.3.3</a>
+(pages 151&ndash;161).
+
+<p>
+2.  <i>SICP</i> ex. 2.62.
+
+<p>
+3.  The file <tt>&#126;cs61as/lib/bst.scm</tt> contains the binary
+search tree procedures from pages 156-157 of <i>SICP</i>.  Using
+<tt>adjoin-set</tt>, construct the trees shown on page 156.</p>

@@ -1,0 +1,217 @@
+<!-- Lab 13: Analyzing Evaluator, MapReduce -->
+
+<p>
+For this lab, we'll be using <tt>MapReduce</tt>, a programming paradigm developed
+by Google that uses higher-order functions to allow a programmer to process
+large amount of data in parallel on many computers.  <tt>Hadoop</tt> is an open
+source implementation of the <tt>mapreduce</tt> design.
+
+<p>
+Any computation in <tt>mapreduce</tt> consists primarily of two functions: the
+<i>mapper </i> and the <i>reducer</i>.  (Note: The Google <tt>mapreduce</tt> paper
+in the course reader says "the <tt>map</tt> function" to mean the function that
+the user writes, the one that's applied to each datum; this usage is confusing
+since everyone else uses "<tt>map</tt>" to mean the higher-order function that
+controls the invocation of the user's function, so we're calling the latter
+the <i>mapper </i>:
+
+<p>
+<tt>  <pre>(map mapper data)
+</pre></tt>
+
+<p>
+Similarly, we'll use <tt>reduce</tt> to refer to the higher-order function, and
+<tt>reducer</tt> to mean the user's accumulation function.)
+
+<p>
+The mapper function takes a <tt>(input-key . input-value)</tt> pair
+as its argument
+and returns a list of <tt>(finalkey&nbsp;.&nbsp;intermediatevalue)</tt> pairs.
+(It returns a list of pairs, not a single pair, both to allow more than
+one intermediate value per input value (e.g., separating a line into words)
+and to allow for the possibility of returning an empty stream, meaning no
+intermediate values at all, so that the mapper can also effectively <tt>
+filter</tt> the input data.)
+
+<p>
+The reducer function is applied to each group of
+<tt>intermediate-value</tt>s with the same <tt>final-key</tt>s, and
+it returns the final accumulated value.  (The reducer takes two
+values as arguments:&nbsp;one new value and one partially accumulated value,
+just like the two-argument function used with <tt>accumulate</tt>.)
+Since there are
+many groups, the outputs of the reducer function are appended together to form
+the final output stream.
+
+<p>
+We've developed a system that allows you to run <tt>mapreduce</tt> computations
+on a computer cluster from within STk. Our version of <tt>mapreduce</tt> in
+Scheme uses slightly simpler semantics than the original <tt>MapReduce</tt>.
+
+<p>
+The syntax for performing a <tt>mapreduce</tt> computation in STk is as follows:
+
+<p>
+<tt>  <pre>(mapreduce &lt;mapper&#62; &lt;reducer&#62; &lt;base-case&#62; &lt;input&#62;)
+</pre></tt>
+
+<p>
+<i>Mapper</i> is a one-argument procedure that specifies the function that <tt>
+map</tt> applies.
+
+<p>
+<i>Reducer</i> is a procedure specifying the reduction function.
+<i>Base-case</i> is the base case for the
+reduction function. It is similar to the base case argument in
+Scheme's <tt>accumulate</tt>.
+
+<p>
+<i>Input</i> specifies the input data to the MapReduce computation.  This
+argument may be a string, the name of a <i>distributed file directory </i>
+stored on all the machines in the parallel cluster, e.g., <tt>"/gutenberg"</tt>
+for the Project Gutenberg collection of public domain books.  Alternatively,
+it may be a stream (not the name of a stream!)&nbsp;that was produced by an
+earlier invocation of <tt>mapreduce</tt>.
+
+<p>
+If you forget to save the output of mapreduce, you can always run <tt>
+(get-last-mapreduce-output)</tt>, which returns the last stream <tt>mapreduce</tt>
+returned.
+
+<p>
+<br /><br />For example, suppose we want to count the number of lines in the collected
+works of Shakespeare. Our input would be a set of key-value pairs with the name
+of a play as the key and a line of text as the value. The input is
+provided in a distributed file directory named <tt>"/gutenberg/shakespeare"</tt>.
+
+<p>
+We could solve this problem with <tt>mapreduce</tt> as follows:
+
+<p>
+<tt>  <pre>(mapreduce (lambda (input-key-value-pair)
+	     (list (make-kv-pair 'line 1)))   ; mapper
+	   +                                  ; reducer
+	   0                                  ; base case
+	   "/gutenberg/shakespeare")          ; data
+</pre></tt>
+
+<p>
+Since we're trying to get a total count for all the works of Shakespeare,
+not a separate count for each play, we give every intermediate pair the
+same key.  We used the word <tt>line</tt>, but anything would have worked.
+The value is <tt>1</tt> because each line counts as one line!
+
+<p>
+What we want the reducer to do is add up all the <tt>1</tt>s from all the files.
+So we don't need a complicated reducer; we just use <tt>+</tt>.
+
+<p>
+In this case, there's only one instance of <tt>reduce</tt> adding up all the
+values, but in more general cases there'll be one per key, and so what
+<tt>mapreduce</tt> returns is not a single reduced value, but a stream of
+key-value pairs.  In this case it'll be a stream of length 1:
+
+<p>
+<tt>  <pre>((line . <i>number </i>))
+</pre></tt>
+
+<p>
+To get just the number, we'd say <tt>(kv-value&nbsp;(stream-car&nbsp;(mapreduce&nbsp;...)))</tt>.
+
+<p>
+Exercises:
+
+<p>
+1.  The example above is inefficient because the map phase happens in
+parallel, but the reduce phase happens on a single machine, since all the keys
+are the same, and each group of same-key pairs go to a single <tt>reduce</tt>
+instance.  Fix this example so that the plays are line-counted in parallel,
+but we still get a single total line count at the end.  (Hint: Do something
+to the value that <tt>mapreduce</tt> returns.)
+
+<p>
+2(a). One common MapReduce application is a distributed word count.
+Given a large body of text, such as Project Gutenberg, we want to find out
+which words are the most common.
+
+<p>
+Write a <tt>mapreduce</tt> program that returns each word in a body of text
+paired with the number of times it is used. Remember, the argument to your
+mapper function is a pair whose key is the document or book name and whose
+value is a single line of text from a single book. For example,
+
+<p>
+<tt>  <pre>&#62; (define gutenberg-wordcounts (mapreduce ...))
+&#62; (ss gutenberg-wordcounts 3)
+((the . 300) (was . 249) (thee . 132) ... ) ; These aren't the actual numbers.
+</pre></tt>
+
+<p>
+2(b). Using the output of the program you wrote in part (a), return the most
+commonly used word.
+
+<p>
+2(c). Using the output of the program you wrote in part (a), generate a stream
+of all words used only once.
+
+<p>
+3(a). Pattern matching is important in many areas of computer science. In this
+problem, we'll use <tt>mapreduce</tt> to find lines that match a pattern. Assume
+you're given the function <tt>match?</tt> that takes two arguments, a pattern
+and a sentence, and returns <tt>#t</tt> if the sentence
+contains a match for the pattern, or false otherwise. For example:
+
+<p>
+<tt>  <pre>&#62; (match? '(* hard * night *) '(a hard days night))
+#t
+&#62; (match? '(* hard night *) '(a hard days night))
+#f
+&#62; (match? '(* night *) '(knight rider))
+#f
+&#62; (match? '(* walrus) '(I am the walrus))
+#t
+</pre></tt>
+
+<p>
+Write a procedure that takes a pattern and a directory name as arguments, and
+returns a stream of lines (with their keys attached) that match the pattern.
+
+<p>
+3(b). Try your pattern recognition program on the Project Gutenberg text with
+patterns to find some of these phrases originally attributed to Shakespeare:
+
+<p>
+pomp and circumstance
+
+<p>
+foregone conclusion 
+
+<p>
+full circle 
+
+<p>
+the makings of 
+
+<p>
+method in the madness 
+
+<p>
+neither rhyme nor reason 
+
+<p>
+one fell swoop 
+
+<p>
+seen better days 
+
+<p>
+it smells to heaven 
+
+<p>
+a sorry sight 
+
+<p>
+a spotless reputation 
+
+<p>
+strange bedfellows</p>

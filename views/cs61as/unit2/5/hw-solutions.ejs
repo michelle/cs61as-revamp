@@ -1,0 +1,755 @@
+CS 61A                        Homework 5 solutions
+
+
+HOMEWORK:
+
+2.24.  <pre>(list 1 (list 2 (list 3 4)))</pre>
+
+The printed result is <pre>(1 (2 (3 4)))</pre>.
+
+The box and pointer diagram (in which XX represents a pair, and
+X/ represents a pair whose cdr is the empty list):
+
+--->XX--->X/
+    |     |
+    |     |
+    V     V
+    1     XX--->X/
+          |     |
+          |     |
+          V     V
+          2     XX--->X/
+                |     |
+                |     |
+                V     V
+                3     4
+
+
+[NOTE:  The use of XX to represent pairs, as above, is a less-readable
+form of box-and-pointer diagram, leaving out the boxes, because there's
+no "box" character in the ASCII character set.  This is okay for
+diagrams done on a computer, but when you are asked to *draw* a diagram,
+on a midterm exam for example, you should use actual boxes, as in the
+text and the reader.]
+
+
+The tree diagram:
+
+                      *
+                     / \
+                    /   \
+                   1     *
+                        / \
+                       /   \
+                      2     *
+                           / \
+                          /   \
+                         3     4
+
+
+
+2.26.  Finger exercises.  Given
+<pre>
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+
+> (append x y)
+(1 2 3 4 5 6)
+
+> (cons x y)
+((1 2 3) 4 5 6)     ;; Equivalent to ((1 2 3) . (4 5 6)) but that's not how
+                    ;; it prints!
+
+> (list x y)
+((1 2 3) (4 5 6))
+</pre>
+2.29  Mobiles.
+
+Many people find this exercise very difficult.  As you'll see, the solutions
+are quite small and elegant when you approach the problem properly.  The key
+is to believe in data abstraction; in this problem some procedures take a
+MOBILE as an argument, while others take a BRANCH as an argument.  Even though
+both mobiles and branches are represented "below the line" as two-element
+lists, you won't get confused if you use the selectors consistently instead
+of trying to have one procedure that works for both data types.
+
+(a) Selectors.  They give us the constructor
+<pre>
+(define (make-mobile left right)
+  (list left right))
+</pre>
+The corresponding selectors have to extract the left and right components
+from the constructed list:
+<pre>
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (cadr mobile))
+</pre>
+Note that the second element of a list is its CADR, not its CDR!
+Similarly, the other selectors are
+<pre>
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (cadr branch))
+</pre>
+(b) Total weight:  The total weight is the sum of the weights of the
+two branches.  The weight of a branch may be given explicitly, as a
+number, or may be the total-weight of a smaller mobile.
+<pre>
+(define (total-weight mobile)
+  (+ (branch-weight (left-branch mobile))
+     (branch-weight (right-branch mobile)) ))
+
+(define (branch-weight branch)
+  (let ((struct (branch-structure branch)))
+    (if (number? struct)
+        struct
+        (total-weight struct) )))
+</pre>
+The LET isn't entirely necessary, of course; we could just say
+(branch-structure branch) three times inside the IF.
+
+
+(c)  Predicate for balance.  It looks like we're going to need a function
+to compute the torque of a branch:
+<pre>
+(define (torque branch)
+  (* (branch-length branch)
+     (branch-weight branch) ))
+</pre>
+Here we have used the BRANCH-WEIGHT procedure from part (b) above.  Now,
+they say a mobile is balanced if two conditions are met:  The torques of
+its branches must be equal, and its submobiles must be balanced.  (If a
+branch contains a weight, rather than a submobile, we don't have to check
+if it's balanced.  This is the base case of the recursion.)
+<pre>
+(define (balanced? mobile)
+  (and (= (torque (left-branch mobile))
+          (torque (right-branch mobile)) )
+       (balanced-branch? (left-branch mobile))
+       (balanced-branch? (right-branch mobile)) ))
+
+(define (balanced-branch? branch)
+  (let ((struct (branch-structure branch)))
+    (if (number? struct)
+        #t
+        (balanced? struct) )))
+</pre>
+If you find yourself wondering why we aren't checking the sub-sub-mobiles,
+the ones two levels down from the one we were asked about originally, then
+you're missing the central point of this exercise:  We are doing a tree
+recursion, and these procedures will check the balance of all the smaller
+mobiles no matter how far down in the tree structure.
+
+
+(d)  Changing representation.  We change the two constructors to use
+CONS instead of LIST.  The only other required change is in two of
+the selectors:
+<pre>
+(define (right-branch mobile)
+  (cdr mobile))
+
+(define (branch-structure branch)
+  (cdr branch))
+</pre>
+We're now using CDR instead of CADR because the second component of each
+of these data types is stored in the cdr of a pair, rather than in the
+second element of a list.  Nothing else changes!  The procedures we wrote
+in parts (b) and (c) don't include any invocations of CDR or CADR or
+anything like that; we respected the abstraction barrier, and so nothing
+has to change "above the line."
+
+
+2.30  square-tree (deep-square)
+
+The non-MAP way:
+<pre>
+(define (square-tree tree)
+  (cond ((null? tree) '())
+        ((number? tree) (* tree tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+</pre>
+The MAP way:
+<pre>
+(define (square-tree tree)
+  (if (number? tree)
+      (* tree tree)
+      (map square-tree tree)))
+</pre>
+I'm not saying more about this because we talked about these programs in
+lecture.  See the lecture notes!  But NOTE that what the book calls a "tree"
+in this section is what I've called a "deep list," reserving the name "tree"
+for an abstract data type.
+
+
+2.31  tree-map (deep-map)
+
+This, too, can be done both ways:
+<pre>
+(define (tree-map fn tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (fn tree))
+        (else (cons (tree-map fn (car tree))
+                    (tree-map fn (cdr tree))))))
+
+(define (tree-map fn tree)
+  (if (not (pair? tree))
+      (fn tree)
+      (map (lambda (subtree) (tree-map fn subtree)) tree)))
+</pre>
+In both cases I've replaced NUMBER? with (NOT (PAIR? ...)) so that
+the leaves of the tree can be symbols as well as numbers.  (Obviously
+if the underlying function is squaring, then only numbers are
+appropriate.)
+
+
+2.32  subsets
+<pre>
+(define (subsets s)
+  (if (null? s)
+      (list nil)
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (LAMBDA (SET) (CONS (CAR S) SET)) rest)))))
+</pre>
+Explanation:  The subsets of a set can be divided into two categories:
+those that include the first element and those that don't.  Each of the
+former (including the first element) consists of one of the latter
+(without the first element) with the first element added.  For example,
+the subsets of (1 2 3) are
+
+not including 1:        ()        (2)        (3)        (2 3)
+including 1:                (1)        (1 2)        (1 3)        (1 2 3)
+
+But the "not including 1" ones are exactly the subsets of (2 3),
+which is the cdr of the original set.  So the LET uses a recursive
+call to find those subsets, and we append to them the result of
+sticking 1 (the car of the original set) in front of each.
+
+Note:  It's really important to put the recursive call in a LET
+argument rather than use two recursive calls, as in
+<pre>
+        (append (subsets (cdr s))
+                (map (lambda (set) (cons (car s) set))
+                     (subsets (cdr s))))
+</pre>
+because that would take Theta(3^n) time, whereas the original version
+takes Theta(2^n) time.  Both are slow, but that's a big difference.
+
+
+2.36  accumulate-n
+<pre>
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      nil
+      (cons
+       (accumulate op init (MAP CAR SEQS))
+       (accumulate-n op init (MAP CDR SEQS)))))
+</pre>
+2.37  matrices
+<pre>
+(define (matrix-*-vector m v)
+  (map (LAMBDA (ROW) (DOT-PRODUCT ROW V)) m))
+
+(define (transpose mat)
+  (accumulate-n CONS NIL mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (LAMBDA (ROW) (MATRIX-*-VECTOR COLS ROW)) m)))
+</pre>
+Take a minute and try to appreciate the aesthetic beauty in these vector
+and matrix programs.  In a conventional approach, matrix multiplication
+would involve three nested loops with index variables.  These procedures
+seem closer to the mathematical idea that a matrix is a first-class
+thing in itself, not just an array of numbers.
+
+
+2.38  fold-right vs. fold-left
+<pre>
+> (fold-right / 1 (list 1 2 3))
+1.5
+</pre>
+This is 1/(2/3).
+<pre>
+> (fold-left / 1 (list 1 2 3))
+166.666666666667e-3
+</pre>
+This is (1/2)/3, or 1/6.
+<pre>
+> (fold-right list nil (list 1 2 3))
+(1 (2 (3 ())))
+</pre>
+This is (list 1 (list 2 (list 3 nil))).
+<pre>
+> (fold-left list nil (list 1 2 3))
+(((() 1) 2) 3)
+</pre>
+This is <pre>(list (list (list nil 1) 2) 3)</pre>.
+
+In each example, notice that the values 1, 2, and 3 occur in left-to-right
+order whether we use fold-left or fold-right.  What changes is the grouping:
+
+fold-right:        f(1, f(2, f(3, initial)))
+
+fold-left:        f(f(f(initial, 1), 2), 3)
+
+So the kind of function that will give the same answer with fold-right and
+fold-left is an ASSOCIATIVE operator, i.e., one for which
+
+        (a op b) op c = a op (b op c)
+
+By the way, the library function REDUCE is an implementation of fold-left.
+
+
+2.54  Equal?    
+<pre>
+(define (equal? a b)
+  (cond ((and (symbol? a) (symbol? b)) (eq? a b))
+        ((or (symbol? a) (symbol? b)) #f)
+        ((and (number? a) (number? b)) (= a b))       ;; not required but
+        ((or (number? a) (number? b)) #f)             ;; suggested in footnote
+        ((and (null? a) (null? b)) #t)
+        ((or (null? a) (null? b)) #f)
+        ((equal? (car a) (car b)) (equal? (cdr a) (cdr b)))
+        (else #f)))
+</pre>
+Note: I think this is the cleanest way to write it--the way that's easiest
+to read.  It's possible to bum a few procedure calls here and there.  For
+example, the first two cond clauses could be
+<pre>
+        ((symbol? a) (eq? a b))
+        ((symbol? b) #f)
+</pre>
+on the theory that eq? always returns #f if one argument is a symbol
+and the other isn't.  Similarly, one could write
+<pre>
+        ((null? a) (null? b))
+        ((null? b) #f)
+</pre>
+but I'm not sure the saving is worth the potential confusion.
+
+
+Extend calc.scm:
+
+There are two parts to this problem.  The part that's probably obvious is
+that the new operators have to be added to the calculator's repertoire.
+Where does it know about specific operators?  In CALC-APPLY.  Here's that
+part of the solution:
+<pre>
+(define (calc-apply fn args)
+  (cond ((eq? fn '+) ...)
+        ...
+        ((EQ? FN 'FIRST) (FIRST (CAR ARGS)))
+        ((MEMBER FN '(BF BUTFIRST)) (BF (CAR ARGS)))
+        ((EQ? FN 'LAST) (LAST (CAR ARGS)))
+        ((MEMBER FN '(BL BUTLAST)) (BL (CAR ARGS)))
+        ((EQ? FN 'WORD) (ACCUMULATE WORD "" ARGS))
+        (else (error "Calc: bad operator:" fn))))
+</pre>
+The other part of the problem is syntactic; we have to make words be treated
+as self-evaluating data, the way numbers already are.  For this, we change
+the NUMBER? test in CALC-EVAL to a WORD? test:
+<pre>
+(define (calc-eval exp)
+  (cond ((WORD? exp) exp)
+        ((list? exp) (calc-apply (car exp) (map calc-eval (cdr exp))))
+        (else (error "Calc: bad expression:" exp))))
+</pre>
+That's it!
+
+
+Extra for experts:
+------------------
+
+Huffman coding exercises:
+
+None of this is particularly hard; it was assigned to illustrate an
+interesting application of trees to a real-world problem (compression).
+
+2.67
+
+Here's what SAMPLE-TREE looks like:
+<pre>
+((leaf a 4) 
+ ((leaf b 2) ((leaf d 1) (leaf c 1) (d c) 2) (b d c) 4)
+ (a b d c)
+ 8)
+</pre>
+The corresponding codes are
+        A 0
+        B 10
+        D 110
+        C 111
+
+So the sample message (0 1 1 0 0 1 0 1 0 1 1 1 0) is grouped as
+
+        0 110 0 10 10 111 0
+
+which is decoded as (a d a b b c a).
+
+
+2.68
+
+Since every node of the tree knows all the symbols in all its children,
+we don't have to do a complete tree search; we can look only in the branch
+that contains the symbol we want.  (This is why the tree was designed with
+a SYMBOLS field.)
+<pre>
+(define (encode-symbol symbol tree)
+  (if (leaf? tree)
+      (if (equal? symbol (symbol-leaf tree))
+          '()
+          (error "Symbol not in tree:" symbol))
+      (if (member symbol (symbols (left-branch tree)))
+          (cons 0 (encode-symbol symbol (left-branch tree)))
+          (cons 1 (encode-symbol symbol (right-branch tree))))))
+</pre>
+2.69
+
+We are given a list of leaves in increasing order of weight.  Each leaf
+is a tree, so this can also be thought of as a list of trees.  We'll
+maintain a list of trees in order of weight, but including some non-leaf
+trees, until there's only one tree in the list.
+<pre>
+(define (successive-merge set)
+  (if (null? (cdr set))                ;set is of length 1
+      (car set)                        ;so return the one tree.
+      (successive-merge
+       (adjoin-set                                ;else make a new set
+        (make-code-tree (car set) (cadr set))        ;making two smallest into one
+        (cddr set)))))                                ;leaving out the individuals
+</pre>
+2.70
+<pre>
+STk> (define job-tree
+        (generate-huffman-tree '((a 2) (boom 1) (get 2) (job 2)
+                                 (na 16) (sha 3) (yip 9) (wah 1))))
+okay
+STk> job-tree
+((leaf na 16)
+ ((leaf yip 9)
+  (((leaf a 2)
+    ((leaf wah 1) (leaf boom 1) (wah boom) 2)
+    (a wah boom) 4)
+   ((leaf sha 3) ((leaf job 2) (leaf get 2) (job get) 4) (sha job get) 7)
+   (a wah boom sha job get) 11)
+  (yip a wah boom sha job get) 20)
+ (na yip a wah boom sha job get) 36)
+</pre>
+The corresponding encoding is
+
+        NA  0                JOB  11110
+        YIP 10                GET  11111
+        A   1100        WAH  11010
+        SHA 1110        BOOM 11011
+<pre>
+STk> (encode '(get a job
+               sha na na na na na na na na
+               get a job
+               sha na na na na na na na na
+               wah yip yip yip yip yip yip yip yip yip
+               sha boom)
+             job-tree)
+(1 1 1 1 1 1 1 0 0 1 1 1 1 0
+ 1 1 1 0 0 0 0 0 0 0 0 0
+ 1 1 1 1 1 1 1 0 0 1 1 1 1 0
+ 1 1 1 0 0 0 0 0 0 0 0 0
+ 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
+ 1 1 1 0 1 1 0 1 1)
+</pre>
+There are 84 bits in this encoding.  
+
+A fixed-length encoding would use three bits for each of the eight symbols.
+For example:
+
+        NA  000                JOB  100
+        YIP 001                GET  101
+        A   010                WAH  110
+        SHA 011                BOOM 111
+
+With this encoding, the 36 words of the song would take 36*3 = 108 bits.
+We saved 24 bits, which is 22% of the fixed-length size.  This is a decent
+but not amazing compression ratio, considering that the example was chosen
+to work well with Huffman compression.
+
+(Bear in mind, though, that in practice we'd have to include some
+representation of the coding tree when we send the message to someone, to
+allow the receiver to decode it!  That's why compression in general isn't
+worth it for short messages; there's generally some overhead space required
+that's negligible for long messages but important for short ones.)
+
+For this example, even the three-bit fixed-length encoding is pretty good.
+The song lyric is 125 characters (including spaces and newlines), ordinarily
+represented in the ASCII code using one eight-bit byte per character, for
+a total of 125*8 = 1000 bits.  GZIP, the general-purpose compression
+program from the Free Software Foundation, compresses this to 62 bytes,
+or 496 bits (50% compression).  The three-bit and Huffman encodings both do
+much better than this, although of course they wouldn't work at all for
+data containing anything other than those eight words.
+
+
+2.71
+
+If the weights are powers of two, then at each step of the SUCCESSIVE-MERGE
+all of the symbols merged so far will weigh less than the next unmerged
+symbol.  That is, given ((A 1) (B 2) (C 4) (D 8) (E 16)) we get
+
+        ((A 1) (B 2) (C 4) (D 8) (E 16))
+        ((AB 3) (C 4) (D 8) (E 16))
+        ((ABC 7) (D 8) (E 16))
+        ((ABCD 15) (E 16))
+
+(leaving out the details of the non-leaf trees to show the big picture).
+Therefore, the tree will look like the very imbalanced one in figure 2.17
+on page 158:
+
+                        (ABCDE) 31
+                        /         \
+                       /          \
+                   (ABCD) 15     E 16
+                  /       \
+                 /           \
+             (ABC) 7       D 8
+             /      \
+            /             \
+        (AB) 3            C 4
+        /     \
+       /       \
+      A 1      B 2
+
+The encodings are
+
+        A 0000        B 0001        C 001        D 01        E 1
+
+In general, for N symbols, the most frequent takes 1 bit, and the least
+frequent takes N-1 bits.
+
+But don't think that this is a failure of the algorithm, in the way that
+the unbalanced binary search tree of figure 2.17 is a worst case!  If the
+frequencies of use of the symbols really are a sequence of powers of two,
+then this encoding will be efficient, since more than half of the symbols
+in the text to be encoded are represented with one bit.  Altogether
+there will be 2^(N-1) one-bit codes, 2^(N-2) two-bit codes, etc., in
+this message of length (2^N)-1 symbols.  This requires [2^(N+1)]-(N+2) bits
+altogether.  A fixed-length encoding would take (lg N)*[(2^N)-1] bits.
+The exact formulas are complicated, so here are simple approximations:
+        fixed-length:  2^N * (lg N)
+        Huffman:       2^N * 2
+On average, each symbol requires (just under) two bits with Huffman coding,
+regardless of the value of N.  With fixed-length encoding, the number of
+bits grows as N grows.  And of course the (lg N) has to be rounded up to
+the next higher integer, so for N=5, we need three bits per symbol for
+fixed-length vs. two per symbol for Huffman.
+
+(The notation "lg n" means the logarithm to the base 2.)
+
+
+2.72
+
+Since only one branch is followed at each step of the encoding, the
+number of steps is at worst the depth of the tree.  And the time per
+step, as the exercise points out, is determined by the call to MEMBER
+to check whether the symbol is in the left branch.  If there are N
+symbols, it's easy to see that the worst case is N^2 time, supposing
+the tree is very unbalanced [in 2.71 I said that an unbalanced tree isn't
+a problem, but that's in determining the size of the encoded message, not
+the time required for the encoding] so its depth is N, and we have to
+check at most N symbols at each level.
+
+In reality, though, it's never that bad.  The whole idea of Huffman coding
+is that the most often used symbols are near the top of the tree.  For the
+power-of-two weights of exercise 2.71, the average number of steps to
+encode each symbol is 2, so the time is 2N rather than N^2.  (The worst-case
+time is for the least frequently used symbol, which still takes N^2 time,
+but that symbol only occurs once in the entire message!)  We could make
+a small additional optimization by rewriting ENCODE-SYMBOL to make sure
+that at each branch node in the tree it creates, the left branch has fewer
+symbols than the right branch.
+
+
+Programming by example:
+
+Of course many approaches are possible; here's mine:
+
+(define (regroup pattern)
+
+  ;; my feeble attempt at data abstraction:
+  ;; regroup0 returns two values in a pair
+
+  (define reg-result cons)
+  (define reg-function car)
+  (define reg-minsize cdr)
+
+  ;; Assorted trivial utility routines
+
+  (define (firstn num ls)
+    (if (= num 0)
+        '()
+        (cons (car ls) (firstn (- num 1) (cdr ls))) ))
+
+  (define (too-short? num ls)
+    (cond ((= num 0) #f)
+          ((null? ls) #t)
+          (else (too-short? (- num 1) (cdr ls))) ))
+
+  (define (safe-bfn num ls)
+    (cond ((null? ls) '())
+          ((= num 0) ls)
+          (else (safe-bfn (- num 1) (cdr ls))) ))
+
+  (define (firstnum pattern)
+    (if (symbol? pattern)
+        pattern
+        (firstnum (car pattern)) ))
+
+  (define (and-all preds)
+    (cond ((null? preds) #t)
+          ((car preds) (and-all (cdr preds)))
+          (else #f) ))
+
+  ;; Okay, here's the real thing:
+
+  ;; There are three kinds of patterns: 1, (1 2), and (1 2 ...).
+  ;; Regroup0 picks one of three subprocedures for them.
+  ;; In each case, the return value is a pair (function . min-size)
+  ;; where "function" is the function that implements the pattern
+  ;; and "min-size" is the minimum length of a list that can be
+  ;; given as argument to that function.
+
+  (define (regroup0 pattern)
+    (cond ((number? pattern) (select pattern))
+          ((eq? (last pattern) '...) (infinite (bl pattern)))
+          (else (finite pattern)) ))
+
+
+  ;; If the pattern is a number, the function just selects the NTH element
+  ;; of its argument.  The min-size is N.
+
+  (define (select num)
+      (reg-result
+       (cond ((= num 1) car)        ; slight optimization
+             ((= num 2) cadr)
+             (else (lambda (ls) (list-ref ls (- num 1)))) )
+       num))
+
+  ;; If the pattern is a list of patterns without ..., the function
+  ;; concatenates into a list the results of calling the functions
+  ;; that we recursively derive from the subpatterns.  The min-size
+  ;; is the largest min-size required for any subpattern.
+
+  (define (finite pattern)
+    (let ((subgroups (map regroup0 pattern)))
+      (reg-result
+       (lambda (ls) (map (lambda (subg) ((reg-function subg) ls)) subgroups))
+       (apply max (map reg-minsize subgroups)) ) ))
+
+  ;; Now for the fun part.  If the pattern is a list ending with ... then
+  ;; we have to build a map-like recursive function that sticks the result
+  ;; of computing a subfunction on the front of a recursive call for some
+  ;; tail portion of the argument list.  There are a few complications:
+
+  ;; The pattern is allowed to give any number of examples of its subpattern.
+  ;; For instance, ((1 2) ...), ((1 2) (3 4) ...), and ((1 2) (3 4) (5 6) ...)
+  ;; all specify the same function.  But ((1 2) (3 4 5) ...) is different from
+  ;; those.  So we must find the smallest leading sublist of the pattern such
+  ;; that the rest of the pattern consists of equivalent-but-shifted copies,
+  ;; where "shifted" means that each number of the copy differs from the
+  ;; corresponding number of the original by the same amount.  (3 4) is a
+  ;; shifted copy of (1 2) but (3 5) isn't.  Once we've found the smallest
+  ;; appropriate leading sublist, the rest of the pattern is unused, except
+  ;; as explained in the following paragraph.
+
+  ;; Once we have the pattern for the repeated subfunction, we need to know
+  ;; how many elements of the argument to chop off for the recursive call.
+  ;; If the pattern contains only one example of the subfunction, the "cutsize"
+  ;; is taken to be the same as the min-size for the subfunction.  For example,
+  ;; in the pattern ((1 2) ...) the cutsize is 2 because 2 is the highest
+  ;; number used.  But if there are two or more examples, the cutsize is the
+  ;; amount of shift between examples (which must be constant if there are
+  ;; more than two examples), so in ((1 2) (3 4) ...) the cutsize is 2 but in
+  ;; ((1 2) (2 3) ...) it's 1.  In ((1 2) (2 3) (5 6) ...) the shift isn't
+  ;; constant, so this is taken as one example of a long subpattern rather
+  ;; than as three examples of a short one.
+
+  ;; Finally, if the subpattern is a single number or list, as in (1 3 ...)
+  ;; (that's two examples of a one-number pattern) or ((1 2) ...), then we
+  ;; can cons the result of the subfunction onto the recursive call.  But if
+  ;; the subpattern has more than one element, as in (1 2 4 ...) or
+  ;; ((1 2) (3 4 5) ...), then we must append the result of the subfunction
+  ;; onto the recursive call.
+
+  ;; INFINITE does all of this.  FINDSIZE returns a pair containing two
+  ;; values: the number of elements in the smallest-appropriate-leading-sublist
+  ;; and, if more than one example is given, the shift between them, i.e., the
+  ;; cutsize.  (If only one example is given, #T is returned
+  ;; in the pair instead of the cutsize.)  PARALLEL? checks to see if a
+  ;; candidate smallest-appropriate-leading-sublist is really appropriate,
+  ;; i.e., the rest of the pattern consists of equivalent-but-shifted copies.
+  ;; The return value from PARALLEL? is the amount of shift (the cutsize).  
+
+  (define (infinite pattern)
+
+    (define (findsize size len)
+
+      (define (parallel? subpat rest)
+        (let ((cutsize (- (firstnum rest)
+                          (firstnum subpat) )))
+
+          (define (par1 togo rest delta)
+
+            (define (par2 this that)
+              (cond ((and (eq? this '...) (eq? that '...)) #t)
+                    ((or (eq? this '...) (eq? that '...)) #f)
+                    ((and (number? this) (number? that))
+                     (= delta (- that this)))
+                    ((or (number? this) (number? that)) #f)
+                    ((not (= (length this) (length that))) #f)
+                    (else (and-all (map par2 this that))) ))
+
+            (cond ((null? rest) cutsize)
+                  ((null? togo) (par1 subpat rest (+ delta cutsize)))
+                  ((not (par2 (car togo) (car rest))) #f)
+                  (else (par1 (cdr togo) (cdr rest) delta)) ))
+
+          (par1 subpat rest cutsize) ))
+
+      ;; This is the body of findsize.
+      (cond ((= size len) (cons size #t))
+            ((not (= (remainder len size) 0))
+             (findsize (+ size 1) len))
+            (else (let ((par (parallel? (firstn size pattern)
+                                        (safe-bfn size pattern) )))
+                    (if par
+                        (cons size par)
+                        (findsize (+ size 1) len) ))) ))
+
+    ;; This is the body of infinite.
+    (let* ((len (length pattern))
+           (fs-val (findsize 1 len))
+           (patsize (car fs-val))
+           (cutsize (cdr fs-val)))
+
+      (define (make-recursion subpat combiner)
+        (let ((subgroup (regroup0 subpat)))
+          (letrec
+            ((f (lambda (ls)
+                  (if (too-short? (reg-minsize subgroup) ls)
+                      '()
+                      (combiner ((reg-function subgroup) ls)
+                                (f (safe-bfn
+                                    (if (number? cutsize)
+                                        cutsize
+                                        (reg-minsize subgroup))
+                                    ls)) )) )))
+            (reg-result f (reg-minsize subgroup)) )))
+
+      (if (= patsize 1)
+          (make-recursion (car pattern) cons)
+          (make-recursion (firstn patsize pattern) append) ) ))
+
+  (reg-function (regroup0 pattern)) )

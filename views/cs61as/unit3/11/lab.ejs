@@ -1,0 +1,67 @@
+<!-- Lab 11: Streams -->
+
+<p>
+1.  What is the type of the value of <tt>(delay (+ 1 27))?</tt> 
+What is the type of the value of <tt>(force (delay (+ 1 27)))?</tt> 
+
+<p>
+2.  Evaluation of the expression
+
+<p>
+<tt>  <pre>(stream-cdr (stream-cdr (cons-stream 1 '(2 3))))
+</pre></tt>
+
+<p>
+ produces an error.  Why?
+
+<p>
+3.  Consider the following two procedures.
+
+<p>
+<tt>  <pre>(define (enumerate-interval low high)
+  (if (&#62; low high)
+    '()
+    (cons low (enumerate-interval (+ low 1) high)) ) )
+
+(define (stream-enumerate-interval low high)
+  (if (&#62; low high)
+    the-empty-stream
+    (cons-stream low (stream-enumerate-interval (+ low 1) high)) ) )
+</pre></tt>
+
+<p>
+What's the difference between the following two expressions?
+
+<p>
+<tt>  <pre>(delay (enumerate-interval 1 3))
+(stream-enumerate-interval&nbsp;1&nbsp;3)
+</pre></tt>
+
+<p>
+4.  An unsolved problem in number theory concerns the following algorithm
+for creating a sequence of positive integers <i>s</i><sub><small>1</small></sub>, <i>s</i><sub><small>2</small></sub>, ...
+
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Choose <i>s</i><sub><small>1</small></sub> to be some positive integer.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For n &gt; 1,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if <i>s</i><sub><small>n</small></sub> is odd, then <i>s</i><sub><small>n+1</small></sub> is 3<i>s</i><sub><small>n</small></sub>+1;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if <i>s</i><sub><small>n</small></sub> is even, then <i>s</i><sub><small>n+1</small></sub> is <i>s</i><sub><small>n</small></sub>/2.
+
+<p>
+No matter what starting value is chosen, the sequence always
+seems to end with the values 1, 4, 2, 1, 4, 2, 1, ...
+However, it is not known if this is always the case.
+
+<p>
+4a.  Write a procedure <tt>num-seq</tt> that, given a positive integer <tt>n</tt>
+as argument, returns the stream of values produced for <tt>n</tt>
+by the algorithm just given.  For example, <tt>(num-seq 7)</tt> should return
+the stream representing the sequence 
+7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1, 4, 2, 1, ...
+
+<p>
+4b.  Write a procedure <tt>seq-length</tt> that, given a stream produced
+by <tt>num-seq</tt>, returns the number of values that occur in the sequence
+up to and including the first 1.
+For example, <tt>(seq-length (num-seq 7))</tt> should return 17.
+You should assume that there is a 1 somewhere in the sequence.</p>

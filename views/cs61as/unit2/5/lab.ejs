@@ -1,0 +1,42 @@
+<!-- Lab 5: Hierarchical Data -->
+
+<p>
+1.  <i>SICP</i> ex.&nbsp;2.25 and 2.53; these should be quick and easy.
+
+<p>
+2.  <i>SICP</i> ex.&nbsp;2.55; <b>explain your answer to your TA.</b>
+
+<p>
+3.  <i>SICP</i> ex.&nbsp;2.27.  This is the central exciting adventure
+of today's lab!  Think hard about it.
+
+<p>
+4.  Each person individually make up a procedure named <tt>mystery</tt>
+that, given two lists as arguments, returns the result of applying
+<i>exactly two</i> of <tt>cons</tt>, <tt>append</tt>, or <tt>list</tt> to
+<tt>mystery</tt>'s arguments, using no quoted values or other
+procedure calls.  Here are some examples of what is and is not
+fair game:
+
+<p>
+<tt>  <pre>okay                               not okay
+
+(define (mystery L1 L2)            (define (mystery L1 L2)
+  (cons L1 (append L2 L1)))          (cons L1 (cons L2 (cons L1 L2))))
+
+(define (mystery L1 L2)            (define (mystery L1 L2)
+  (list L1 (list L1 L1)))            (cons L1 L2))
+
+(define (mystery L1 L2)            (define (mystery L1 L2)
+  (append (cons L2 L2) L1))          (append L1 (cons L1 '(A B C))))
+</pre></tt>
+
+<p>
+Type your <tt>mystery</tt> definition into a file, and have one of
+your partners load it into Scheme and try to guess what it is by
+trying it out with various arguments.
+
+<p>
+After everyone has tried someone else's procedure, decide with your
+partners which procedure was hardest to guess and why, and what
+test cases were most and least helpful in revealing the definitions.</p>

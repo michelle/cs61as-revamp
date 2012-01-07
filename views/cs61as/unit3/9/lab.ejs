@@ -1,0 +1,51 @@
+<!-- Lab 9: Mutable data -->
+
+<p>
+1.  Exercise 3.12 of Abelson and Sussman.
+
+<p>
+2.  Suppose that the following definitions have been provided.
+
+<p>
+<tt>  <pre>(define x (cons 1 3))
+(define y 2)
+</pre></tt>
+
+<p>
+A CS 61A student, intending to change the value of <tt>x</tt> to a pair
+with <tt>car</tt> equal to 1 and <tt>cdr</tt> equal to 2,
+types the expression <tt>(set!&nbsp;(cdr x) y)</tt>
+instead of <tt>(set-cdr!&nbsp;x y)</tt>
+and gets an error.  Explain why.
+
+<p>
+3a.  Provide the arguments for
+the two <tt>set-cdr!</tt>&nbsp;operations
+in the blanks below to produce
+the indicated effect on <tt>list1</tt> and <tt>list2.</tt>
+Do not create any new pairs; just rearrange the pointers
+to the existing ones.
+
+<p>
+<tt>  <pre>&#62; (define list1 (list (list 'a) 'b))
+list1
+&#62; (define list2 (list (list 'x) 'y))
+list2
+&#62; (set-cdr! <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> )
+okay
+&#62; (set-cdr! <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> )
+okay
+&#62; list1
+((a x b) b)
+&#62; list2
+((x b) y)
+</pre></tt>
+
+<p>
+3b. After filling in the blanks in the code above and producing
+the specified effect on <tt>list1</tt> and <tt>list2</tt>,
+draw a box-and-pointer diagram that explains the effect of evaluating
+the expression <tt>(set-car!&nbsp;(cdr list1) (cadr list2))</tt> .
+
+<p>
+4.  Exercises 3.13 and 3.14 in Abelson and Sussman.</p>

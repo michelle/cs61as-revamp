@@ -1,0 +1,174 @@
+<!-- Lab 8: Assignment, state and environments -->
+
+<p>
+1.  Given below is a simplified version of the <tt>make-account</tt> procedure
+on page 223 of Abelson and Sussman.
+
+<p>
+<tt>  <pre>(define (make-account balance)
+  (define (withdraw amount)
+    (set! balance (- balance amount)) balance)
+  (define (deposit amount)
+    (set! balance (+ balance amount)) balance)
+  (define (dispatch msg)
+    (cond
+      ((eq? msg 'withdraw) withdraw)
+      ((eq? msg 'deposit) deposit) ) )
+  dispatch)
+</pre></tt>
+
+<p>
+Fill in the blank in the following code so that the result works
+exactly the same as the <tt>make-account</tt> procedure above, that is,
+responds to the same messages and produces the same return values.
+The differences between the two procedures are that the inside
+of <tt>make-account</tt> above is enclosed in the <tt>let</tt> below,
+and the names of the parameter to <tt>make-account</tt> are different.
+
+<p>
+<tt>  <pre>(define (make-account init-amount)
+  (let ( <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> )
+    (define (withdraw amount)
+      (set! balance (- balance amount)) balance)
+    (define (deposit amount)
+      (set! balance (+ balance amount)) balance)
+    (define (dispatch msg)
+      (cond
+        ((eq? msg 'withdraw) withdraw)
+        ((eq? msg 'deposit) deposit) ) )
+    dispatch) )
+</pre></tt>
+
+<p>
+2.  Modify either version of <tt>make-account</tt> so that, given the message
+<tt>balance</tt>, it returns the current account balance, and given the message
+<tt>init-balance</tt>, it returns the amount with which the account
+was initially created.  For example:
+
+<p>
+<tt>  <pre>&#62; (define acc (make-account 100))
+acc
+&#62; (acc 'balance)
+100
+</pre></tt>
+
+<p>
+
+3.  Modify <tt>make-account</tt> so that, given the message <tt>transactions</tt>,
+it returns a list of all transactions made since the account was opened.
+For example:
+
+<p>
+<tt>  <pre>&#62; (define acc (make-account 100))
+acc
+&#62; ((acc 'withdraw) 50)
+50
+&#62; ((acc 'deposit) 10)
+60
+&#62; (acc 'transactions)
+((withdraw 50) (deposit 10))
+</pre></tt>
+
+<p>
+4.  Given this definition:
+
+<p>
+<tt>  <pre>(define (plus1 var)
+  (set! var (+ var 1))
+  var)
+</pre></tt>
+
+<p>
+Show the result of computing
+
+<p>
+<tt>  <pre>(plus1 5)
+</pre></tt>
+
+<p>
+ using the substitution model.  That is, show the expression
+that results from substituting <tt>5</tt> for <tt>var</tt> in the body of
+<tt>plus1</tt>, and then compute the value of the resulting expression.
+What is the actual result from Scheme?
+
+<br/><br/>
+<p>
+This lab activity consists of example programs for you to run in Scheme.
+Predict the result before you try each example.  If you don't understand
+what Scheme actually does, ask for help!  Don't waste your time by just
+typing this in without paying attention to the results.
+
+
+<p>
+<tt>  <pre>(define (make-adder n)                       ((lambda (x)
+  (lambda (x) (+ x n)))                         (let ((a 3))
+                                                  (+ x a)))
+(make-adder 3)                                5)
+
+((make-adder 3) 5)                           (define k
+                                               (let ((a 3))
+(define (f x) (make-adder 3))                    (lambda (x) (+ x a))))
+
+(f 5)                                        (k 5)
+
+(define g (make-adder 3))                    (define m
+                                               (lambda (x)
+(g 5)                                            (let ((a 3))
+                                                   (+ x a))))
+(define (make-funny-adder n)       
+  (lambda (x)                                (m 5)
+    (if (equal? x 'new)            
+        (set! n (+ n 1))                     (define p
+        (+ x n))))                             (let ((a 3))
+                                                 (lambda (x)
+(define h (make-funny-adder 3))                    (if (equal? x 'new)
+                                                       (set! a (+ a 1))
+(define j (make-funny-adder 7))                        (+ x a)))))
+
+(h 5)                                        (p 5)
+
+(h 5)                                        (p 5)
+
+(h 'new)                                     (p 'new)
+
+(h 5)                                        (p 5)
+
+(j 5)                                        (define r
+                                               (lambda (x)
+(let ((a 3))                                     (let ((a 3))
+  (+ 5 a))                                         (if (equal? x 'new)
+                                                       (set! a (+ a 1))
+(let ((a 3))                                           (+ x a)))))
+  (lambda (x) (+ x a)))            
+                                             (r 5)
+((let ((a 3))                      
+   (lambda (x) (+ x a)))                     (r 5)
+ 5)                                
+                                             (r 'new)
+
+                                             (r 5)                
+
+(define s                                    (define (ask obj msg . args)
+  (let ((a 3))                                 (apply (obj msg) args))
+    (lambda (msg)                            
+      (cond ((equal? msg 'new)               (ask s 'add 5)
+             (lambda ()                      
+               (set! a (+ a 1))))            (ask s 'new)
+            ((equal? msg 'add)               
+             (lambda (x) (+ x a)))           (ask s 'add 5)
+            (else (error "huh?"))))))        
+                                             (define x 5)
+(s 'add)                                     
+                                             (let ((x 10)
+(s 'add 5)                                         (f (lambda (y) (+ x y))))
+                                               (f 7))
+((s 'add) 5)                                 
+                                             (define x 5)
+(s 'new)                                     
+
+((s 'add) 5)                                 
+
+((s 'new))                                   
+
+((s 'add) 5)
+</pre></tt></p>

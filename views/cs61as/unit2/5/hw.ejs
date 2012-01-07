@@ -1,0 +1,71 @@
+<!-- Homework 5: Hierarchical Data -->
+
+<p>
+<b>Reading:</b>
+Abelson &amp; Sussman, Section 2.2.2-2.2.3, 2.3.1, 2.3.3
+<p>
+
+<p>
+<b>Homework:</b>
+<p>
+<font face="symbol"></font
+> Abelson &amp; Sussman, exercises 2.24, 2.26, 2.29, 2.30, 2.31, 2.32, 2.36, 2.37, 2.38,
+2.54.
+<p>
+  Some of these exercises are
+harder than they look; don't give up in frustration if your early
+attempts fail.
+
+<p>
+<font face="symbol"></font
+> Extend the calculator program from lecture to include words as data,
+providing the operations <tt>first</tt>, <tt>butfirst</tt>, <tt>last</tt>, <tt>
+butlast</tt>, and <tt>word</tt>.  Unlike Scheme, <b>your calculator should treat
+words as self-evaluating expressions</b> except when seen as the operator of a
+compound expression.  That is, it should work like these examples:
+
+<p>
+<tt>  <pre>calc: foo
+foo
+calc: (first foo)
+f
+calc: (first (butfirst hello))
+e
+</pre></tt>
+
+<p>
+The program is in <tt>&#126;cs61as/lib/calc.scm</tt>
+
+<p>
+<b>Note: Programming project 2 starts after this lesson.  It consists of
+all the exercises in Section 2.2.4 of the text.</b>  You can't actually
+draw anything until you finish the project!  To begin, copy the file
+<tt>&#126;cs61as/lib/picture.scm</tt> to your directory.  To draw pictures,
+once you've completed the exercises:
+
+<p>
+<tt>  <pre>&#62; (cs)
+&#62; (ht)
+&#62; (===your-painter=== full-frame)
+</pre></tt>
+
+<p>
+For example:
+
+<p>
+<tt>  <pre>&#62; (wave full-frame)
+&#62; ((square-limit wave 3) full-frame)
+</pre></tt>
+
+<p>
+
+<p>
+
+<br /><hr />
+Unix feature of the week: <tt>head</tt>, <tt>tail</tt>, <tt>more</tt>, <tt>cat</tt>
+<p>
+Emacs feature of the week: <tt>M-x search-forward-regexp</tt>, <tt>M-x query-replace-regexp</tt>
+<p>
+
+<p></p>
+
