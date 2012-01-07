@@ -886,11 +886,11 @@ app.post('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdmin
         if (err.err) {
           req.flash('error', err.err);
         }
-        req.flash('error', 'Homework was not added successfully.');
+        req.flash('error', 'Homework was not saved successfully.');
       } else {
-        req.flash('info', 'Homework was added successfully.');
+        req.flash('info', 'Homework was saved successfully.');
       }
-      res.redirect('/admin/homework/edit/' + req.homework.id);
+      res.redirect('/admin/homework');
     });
   } else {
     req.flash('error', 'Malformed homeworkId.');
