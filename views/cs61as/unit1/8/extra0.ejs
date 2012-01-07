@@ -1,0 +1,32 @@
+<!-- Extra for experts 8: Assignment, state and environments -->
+
+<p>
+The purpose of the environment model is to represent the scope of
+variables; when you see an <tt>x</tt> in a program, which variable <tt>x</tt>
+does it mean?
+
+<p>
+Another way to solve this problem would be to <i>rename</i> all the
+local variables so that there are never two variables with the same name.
+Write a procedure <tt>unique-rename</tt> that takes a (quoted) lambda expression
+as its argument, and returns an equivalent lambda expression with the
+variables renamed to be unique:
+
+<p>
+<tt>  <pre>&#62; (unique-rename '(lambda (x) (lambda (y) (x (lambda (x) (y x))))))
+(lambda (g1) (lambda (g2) (g1 (lambda (g3) (g2 g3)))))
+</pre></tt>
+
+<p>
+Note that the original expression had two variables named <tt>x</tt>, and
+in the returned expression it's clear from the names which is which.
+You'll need a modified counter object to generate the unique names.
+
+<p>
+You may assume that there are no <tt>quote</tt>, <tt>let</tt>, or <tt>define</tt>
+expressions, so that every symbol is a variable reference, and variables are
+created only by <tt>lambda</tt>.
+
+<p>
+Describe how you'd use <tt>unique-rename</tt> to allow the evaluation of
+Scheme programs with only a single (global) frame.

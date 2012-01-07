@@ -1,0 +1,45 @@
+<P>There are two ideas about how to solve programming problems.<sup>*</sup>
+One idea is that programmers work mostly by recognizing categories of problems
+that come up repeatedly and remembering the solution that worked last time;
+therefore, programming students should learn a lot of program
+<EM>patterns,</EM> or <EM>templates,</EM> and fill in the blanks for each
+specific problem.  Another idea is that there are a few powerful principles in
+programming, and that if a learner understands the principles, they can be
+applied to <EM>any</EM> problem, even one that doesn't fit a familiar pattern.
+
+<p><small><small><sup>*</sup> That's because there are two kinds of people:
+those who think there are two kinds of people, and those who
+don't.</small></small>
+ 
+<P>Research suggests that an expert programmer, like an expert at any skill,
+<EM>does</EM> work mainly by recognizing patterns.  Nevertheless, we lean
+toward the powerful-principle idea.  The expert's memory is not full of
+arbitrary patterns; it's full of <EM>meaningful</EM> patterns, because the
+expert has gone through the process of struggling to reason out how each
+procedure works and how to write new procedures.
+ 
+<P>Still, we think it's worth pointing out a few patterns that are so common
+that you'll have seen several examples of each before you finish this course.
+Once you learn these patterns, you can write similar procedures almost
+automatically.  But there's an irony in learning patterns:  In Scheme, once
+you've identified a pattern, you can write a general-purpose procedure that
+handles all such cases without writing individual procedures for each
+situation.  Then you don't have to use the pattern any more!  Soon you'll
+learn about several general pattern-handling procedures, called
+<EM>higher-order</EM> procedures.  In this chapter we'll consider the patterns
+corresponding to those higher-order procedures, and we'll use the names of
+those procedures to name the patterns.
+ 
+<P>What's the point of learning patterns if you can use higher-order procedures
+instead?  There are at least two points.  The first, as you'll see very
+soon, is that some problems <EM>almost</EM> follow one of the patterns; in
+that case, you can't use the corresponding higher-order procedure, which
+works only for problems that <EM>exactly</EM> follow the pattern.  But you
+can use your understanding of the pattern to help with these related
+problems.  The second point is that later in the course we'll show how the
+higher-order functions are themselves implemented using these recursive
+patterns.
+ 
+<P>This chapter isn't an official list of all important patterns; as you gain
+programming experience, you'll certainly add more patterns to your repertoire.
+ 

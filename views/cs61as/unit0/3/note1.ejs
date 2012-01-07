@@ -1,0 +1,63 @@
+<P>By now you're very familiar with the idea of implementing a function by
+composing other functions.  In effect we are breaking down a large problem
+into smaller parts.  The idea of recursion&mdash;as usual, it sounds simpler
+than it actually is&mdash;is that one of the smaller parts can be the <EM>same</EM> function we are trying to implement.
+ 
+<P>At clothes stores they have arrangements with three mirrors hinged together.
+If you keep the side mirrors pointing outward, and you're standing in the
+right position, what you see is just three separate images of yourself, one
+face-on and two with profile views.  But if you turn the mirrors in toward
+each other, all of a sudden you see what looks like infinitely many
+images of yourself.  That's because each mirror reflects a scene that
+includes an image of the mirror itself.  This <EM>self-reference</EM> gives
+rise to the multiple images.
+ 
+<P>Recursion is the idea of self-reference applied to computer programs.
+Here's an example:
+ 
+<P><P>&quot;I'm thinking of a number between 1 and 20.&quot;
+ 
+<P>(Her number is between 1 and 20.  I'll guess the halfway point.)  &quot;10.&quot;
+ 
+<P>&quot;Too low.&quot;
+ 
+<P>(Hmm, her number is between 11 and 20.  I'll guess the halfway point.)  &quot;15.&quot;
+ 
+<P>&quot;Too high.&quot;
+ 
+<P>(That means her number is between 11 and 14.  I'll guess the halfway
+point.)  &quot;12.&quot;
+ 
+<P>&quot;Got it!&quot;
+ 
+<P> 
+<P> 
+We can write a procedure to do this:
+ 
+<P><PRE>(define (game low high)
+  (let ((guess (average low high)))
+    (cond ((too-low? guess) (game (+ guess 1) high))
+      ((too-high? guess) (game low (- guess 1)))
+      (else '(I win!)))))
+</PRE> 
+ 
+<P>This isn't a complete program because we haven't written <CODE>too-low?</CODE> and <CODE>too-high?</CODE>.  But it illustrates the idea of a problem
+that contains a version of itself as a subproblem:  We're asked to find a
+secret number within a given range.  We make a guess, and if it's not the
+answer, we use that guess to create another problem in which the same
+secret number is known to be within a smaller range.  The self-reference
+of the problem description is expressed in Scheme by a procedure that
+invokes itself as a subprocedure.
+ 
+<P>Actually, this isn't the first time we've seen self-reference in this book.
+We defined &quot;expression&quot; in Chapter 3 self-referentially:  An
+expression is either atomic or composed of smaller expressions.
+ 
+<P>The idea of self-reference also comes up in some paradoxes:  Is the sentence
+&quot;This sentence is false&quot; true or false?  (If it's true, then it must also
+be false, since it says so; if it's false, then it must also be true, since
+that's the opposite of what it says.)  This idea also appears in the
+self-referential shapes called <EM>fractals</EM> that are used to produce
+realistic-looking waves, clouds, mountains, and coastlines in
+computer-generated graphics.
+ 

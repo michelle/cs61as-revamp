@@ -1,0 +1,27 @@
+<!-- Extra for experts 10: Client/server paradigm, concurrency -->
+
+<p>
+Using the Instant Message program as a starting point, write a mail
+server and client.  The mail server should maintain a database of messages
+for all users.  (This can just be a list; don't worry about efficient lookup.)
+The client should be able to do the following:
+
+<p>
+<tt>  <pre>(mail username message)
+(get-mail)
+</pre></tt>
+
+<p>
+<tt>Get-mail</tt> should return a list of messages, which should be deleted
+from the server.
+
+<p>
+If you want, you can improve this in several ways:  Make deletion from the
+server be explicitly requested by the client, invent a subject header (another
+argument to <tt>mail</tt>) and have the client show just headers in <tt>
+get-mail</tt> and provide another command to read the text of a specific message,
+and so on.
+
+<p>
+<font face="symbol"></font
+> Read Section 3.3.5 and do exercises 3.33-3.37.

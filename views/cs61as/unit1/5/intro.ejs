@@ -1,0 +1,54 @@
+<!-- Introduction 5: Hierarchical Data -->
+
+<p> 
+As we have seen, pairs provide a primitive "glue" that we can use to
+construct compound data objects.
+Figure&nbsp;2.2 shows a standard way to
+visualize a pair&mdash;in this case, the pair formed by <tt>(cons 1 2)</tt>.
+In this representation, which is called <em>box-and-pointer
+notation</em>, each object is shown as a <em>pointer</em> to a box.  The box
+for a primitive object contains a representation of the object.  For
+example, the box for a number contains a numeral.  The box for a pair
+is actually a double box, the left part containing (a pointer to) the
+<tt>car</tt> of the pair and the right part containing the <tt>cdr</tt>.<p> 
+ 
+ 
+We have already seen that <tt>cons</tt> can be used to combine not
+only numbers but pairs as well.  (You made use of this fact, or
+should have, in doing exercises&nbsp;2.2
+and&nbsp;2.3.)  As a consequence, pairs provide a universal
+building block from which we can construct all sorts of data
+structures.  Figure&nbsp;2.3 shows two ways
+to use pairs to combine the numbers 1, 2, 3, and 4.<p> 
+ 
+<a name="%_fig_2.2"></a><p><div align=left><table width=100%><tr><td><img
+src="static/course_material/61/ch2-Z-G-11.gif" border="0"> </td></tr><caption
+align=bottom><div align=left><b>Figure 2.2:</b>&nbsp;&nbsp;Box-and-pointer
+representation of <tt>(cons 1 2)</tt>.</div></caption><tr><td>
+ 
+</td></tr></table></div><p><p> 
+ 
+<a name="%_fig_2.3"></a><p><div align=left><table width=100%><tr><td><img
+src="static/course_material/61/ch2-Z-G-12.gif" border="0"> </td></tr><caption
+align=bottom><div align=left><b>Figure 2.3:</b>&nbsp;&nbsp;Two ways to combine
+1, 2, 3, and 4 using pairs.</div></caption><tr><td>
+ 
+</td></tr></table></div><p><p> 
+ 
+The ability to create pairs whose elements are pairs is the essence of
+list structure's importance as a representational tool.  We refer to
+this ability as the <a name="%_idx_1532"></a><a name="%_idx_1534"></a><em>closure property</em> of <tt>cons</tt>.  In general,
+an operation for combining data objects satisfies the closure property
+if the results of combining things with that operation can themselves
+be combined using the same operation. 
+Closure is the key to power in
+any means of combination because it permits us to create <a name="%_idx_1538"></a><a name="%_idx_1540"></a><em>hierarchical</em> structures&mdash;structures made up of parts, which
+themselves are made up of parts, and so on.<p> 
+ 
+From the outset of chapter&nbsp;1, we've made essential use of closure in
+dealing with procedures, because all but the very simplest programs
+rely on the fact that the elements of a combination can themselves be
+combinations.  In this section, we take up the consequences of closure
+for compound data.  We describe some conventional techniques for using
+pairs to represent sequences and trees, and we exhibit a graphics
+language that illustrates closure in a vivid way.<p></p>

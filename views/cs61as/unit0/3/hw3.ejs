@@ -1,0 +1,265 @@
+<P><B>11.1</B>&nbsp;&nbsp;Write <CODE>downup4</CODE> using only the word and sentence primitive procedures.
+ 
+ 
+<P> 
+<B>11.2</B>&nbsp;&nbsp;
+When you teach a class, people will get distracted if you say &quot;um&quot; too many
+times.  Write a <CODE><A NAME="g12"></A>count-ums</CODE> that counts the number of times &quot;um&quot;
+appears in a sentence:
+<A NAME="countumsrec"></A> 
+ 
+<P><PRE>&gt; (count-ums
+   '(today um we are going to um talk about the combining um method))
+3
+</PRE> 
+ 
+<P>Here are some special-case <CODE>count-ums</CODE> 
+procedures for sentences of particular lengths:
+ 
+<P><PRE>(define (count-ums0 sent)
+  0)
+ 
+(define (count-ums1 sent)
+  (if (equal? 'um (first sent))
+      1
+      0))
+ 
+(define (count-ums2 sent)
+  (if (equal? 'um (first sent))
+      (+ 1 (count-ums1 (bf sent)))
+      (count-ums1 (bf sent))))
+ 
+(define (count-ums3 sent)
+  (if (equal? 'um (first sent))
+      (+ 1 (count-ums2 (bf sent)))
+      (count-ums2 (bf sent))))
+</PRE> 
+ 
+<P>Write <CODE>count-ums</CODE> recursively.
+ 
+<P> 
+<B>11.5</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g14"></A>initials</CODE> that takes a sentence as its
+argument and returns a sentence of the first letters in each of the
+sentence's words:
+ 
+<P><PRE>&gt; (initials '(if i needed someone))
+(I I N S)
+</PRE> 
+ 
+<P> 
+<B>11.6</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g15"></A>countdown</CODE> that works like this:
+ 
+<P><PRE>&gt; (countdown 10)
+(10 9 8 7 6 5 4 3 2 1 BLASTOFF!)
+ 
+&gt; (countdown 3)
+(3 2 1 BLASTOFF!)
+</PRE> 
+
+<P> 
+<B>11.7</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g16"></A>copies</CODE> that takes a number and a word as
+arguments and returns a sentence containing that many copies of the given
+word:
+<A NAME="copies"></A> 
+ 
+<P><PRE>&gt; (copies 8 'spam)
+(SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM)
+</PRE> 
+ 
+
+ 
+<P> 
+<B>12.6</B>&nbsp;&nbsp;
+Write a GPA procedure.  It should take a sentence of grades as its argument
+and return the corresponding grade point average:
+<A NAME="gparec"></A> 
+ 
+<P><PRE>&gt; (<A NAME="g8"></A>gpa '(A A+ B+ B))
+3.67
+</PRE> 
+ 
+<P>Hint: write a helper procedure <CODE><A NAME="g9"></A>base-grade</CODE> that takes
+a grade as argument and returns 0, 1, 2, 3, or 4, and another helper
+procedure <CODE>grade-modifier</CODE> that returns &minus;.33, 0, or .33, depending on
+whether the grade has a minus, a plus, or neither.
+
+<P> 
+<B>12.8</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g11"></A>numbers</CODE> that takes a sentence as its argument
+and returns another sentence containing only the numbers in the argument:
+ 
+<P><PRE>&gt; (numbers '(76 trombones and 110 cornets))
+(76 110)
+</PRE> 
+
+<P> 
+<B>12.10</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g13"></A>remove</CODE> that takes a word and a sentence as
+arguments and returns the same sentence, but with all copies of the given
+word removed:
+ 
+<P><PRE>&gt; (remove 'the '(the song love of the loved by the beatles))
+(SONG LOVE OF LOVED BY BEATLES)
+</PRE> 
+ 
+<P> 
+<B>12.11</B>&nbsp;&nbsp;Write the procedure <CODE>count</CODE>, which returns the number of words in a
+sentence or the number of letters in a word.
+ 
+ 
+<P> 
+<B>12.12</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g14"></A>arabic</CODE> which converts Roman numerals into
+Arabic numerals:
+ 
+<P><PRE>&gt; (arabic 'MCMLXXI)
+1971
+ 
+&gt; (arabic 'MLXVI)
+1066
+</PRE> 
+ 
+<P>You will probably find the <CODE>roman-value</CODE> procedure from Chapter
+6 helpful.  Don't forget that a letter can <EM>reduce</EM> the overall
+value if the letter that comes after it has a larger value, such as the <CODE>C</CODE> in <CODE>MCM</CODE>.
+ 
+ 
+<P> 
+<B>12.13</B>&nbsp;&nbsp;Write a new version of the <CODE><A NAME="g15"></A>describe-time</CODE> procedure from Exercise
+.  Instead of returning a decimal number, it should behave like
+this:
+ 
+<P><PRE>&gt; (describe-time 22222)
+(6 HOURS 10 MINUTES 22 SECONDS)
+ 
+&gt; (describe-time 4967189641)
+(1 CENTURIES 57 YEARS 20 WEEKS 6 DAYS 8 HOURS 54 MINUTES 1 SECONDS)
+</PRE> 
+ 
+<P>Can you make the program smart about saying <CODE>1 CENTURY</CODE> instead of
+<CODE>1 CENTURIES</CODE>
+
+<P><B>13.5</B>&nbsp;&nbsp;It may seem strange that there is one little person per <EM>invocation</EM> 
+of a procedure, instead of just one little person per procedure.  For
+certain problems, the person-per-procedure model would work fine.
+ 
+<P>Consider, for example, this invocation of <CODE>pigl</CODE>:
+ 
+<P><PRE>&gt; (pigl 'prawn)
+AWNPRAY
+</PRE> 
+ 
+<P>Suppose there were only one <CODE>pigl</CODE> specialist in the computer,
+named Patricia.  Alonzo hires Patricia and gives her the argument <CODE>prawn</CODE>.  She sees that it doesn't begin with a vowel, so she moves the first
+letter to the end, gets <CODE>rawnp</CODE>, and tries to <CODE>pigl</CODE> that.  Again, it
+doesn't begin with a vowel, so she moves another letter to the end and gets
+<CODE>awnpr</CODE>.  That <EM>does</EM> begin with a vowel, so she adds an <CODE>ay</CODE>,
+returning <CODE>awnpray</CODE> to Alonzo.
+ 
+<P>Nevertheless, this revised little-people model doesn't always work.  Show
+how it fails to explain what happens in the evaluation of
+ 
+<P><PRE>(downup 'smile)
+</PRE> 
+ 
+ 
+<P> 
+<B>13.6</B>&nbsp;&nbsp;As part of computing <CODE>(factorial 6)</CODE>, Scheme computes <CODE>(factorial 2)</CODE> and gets the answer <CODE>2</CODE>.  After Scheme gets that answer,
+how does it know what to do next?  
+ 
+ <P><B>14.1</B>&nbsp;&nbsp;<PRE>&gt; (<A NAME="g25"></A>remove-once 'morning '(good morning good morning))
+(GOOD GOOD MORNING)
+</PRE> 
+ 
+<P>(It's okay if your solution removes the other <CODE>MORNING</CODE> 
+instead, as long as it removes only one of them.)
+<A NAME="remonce"></A> 
+
+<P> 
+<B>14.3</B>&nbsp;&nbsp;<PRE>&gt; (<A NAME="g27"></A>remdup '(ob la di ob la da))              ;; remove duplicates
+(OB LA DI DA)
+</PRE> 
+ 
+<P><A NAME="remdup"></A> 
+(It's okay if your procedure returns <CODE>(DI OB LA DA)</CODE> instead,
+as long as it removes all but one instance of each duplicated word.)
+ 
+ 
+
+<P> 
+<B>14.6</B>&nbsp;&nbsp;Write <CODE>member?</CODE>.
+ 
+ 
+<P> 
+<B>14.7</B>&nbsp;&nbsp;Write <CODE>differences</CODE>, which takes a sentence of numbers as its argument
+and returns a sentence containing the differences between adjacent elements.
+(The length of the returned sentence is one less than that of the argument.)
+ 
+<P><PRE>&gt; (<A NAME="g30"></A>differences '(4 23 9 87 6 12))
+(19 -14 78 -81 6)
+</PRE> 
+ 
+<P> 
+<B>14.8</B>&nbsp;&nbsp;Write <CODE>expand</CODE>, which takes a sentence as its argument.  It returns
+a sentence similar to the argument, except that if a number appears in
+the argument, then the return value contains that many copies of the
+following word:
+ 
+<P><PRE>&gt; (expand '(4 calling birds 3 french hens))
+(CALLING CALLING CALLING CALLING BIRDS FRENCH FRENCH FRENCH HENS)
+ 
+&gt; (expand '(the 7 samurai))
+(THE SAMURAI SAMURAI SAMURAI SAMURAI SAMURAI SAMURAI SAMURAI)
+</PRE> 
+ 
+<P> 
+<B>14.9</B>&nbsp;&nbsp;Write a procedure called <CODE><A NAME="g31"></A>location</CODE> that takes two arguments, a
+word and a sentence.  It should return a number indicating where in the
+sentence that word can be found.  If the word isn't in the sentence, return
+<CODE>#f</CODE>.  If the word appears more than once, return the location of the
+first appearance.
+ 
+<P><PRE>&gt; (location 'me '(you never give me your money))
+4
+</PRE> 
+
+<P> 
+<B>14.14</B>&nbsp;&nbsp;Write a predicate <CODE>same-shape?</CODE> that takes two sentences as arguments.
+It should return <CODE>#t</CODE> if two conditions are met:  The two sentences must
+have the same number of words, and each word of the first sentence must have
+the same number of letters as the word in the corresponding position in the
+second sentence.
+ 
+<P><PRE>&gt; (same-shape? '(the fool on the hill) '(you like me too much))
+#T
+ 
+&gt; (same-shape? '(the fool on the hill) '(and your bird can sing))
+#F
+</PRE> 
+ 
+ 
+<P> 
+<P> 
+<B>14.15</B>&nbsp;&nbsp;<A NAME="mergeex"></A> 
+Write <CODE><A NAME="g35"></A>merge</CODE>, a procedure that takes two sentences of numbers as
+arguments.  Each sentence must consist of numbers in increasing order.  <CODE>Merge</CODE> should return a single sentence containing all of the numbers, in
+order.  (We'll use this in the next chapter as part of a sorting algorithm.)
+ 
+<P><PRE>&gt; (merge '(4 7 18 40 99) '(3 6 9 12 24 36 50))
+(3 4 6 7 9 12 18 24 36 40 50 99)
+</PRE> 
+ 
+<P> 
+<B>14.16</B>&nbsp;&nbsp;Write a procedure <CODE><A NAME="g36"></A>syllables</CODE> that takes a word as its argument
+and returns the number of syllables in the word, counted according to the
+following rule: the number of syllables is the number of vowels, except that
+a group of consecutive vowels counts as one.  For example, in the word
+&quot;soaring,&quot; the group &quot;oa&quot; represents one syllable and the vowel &quot;i&quot;
+represents a second one.
+ 
+<P>Be sure to choose test cases that expose likely failures of your procedure.
+For example, what if the word ends with a vowel?  What if it ends with two
+vowels in a row?  What if it has more than two consecutive vowels?
+ 
+<P>(Of course this rule isn't good enough.  It doesn't deal with things like
+silent &quot;e&quot;s that don't create a syllable (&quot;like&quot;), consecutive vowels
+that don't form a diphthong (&quot;cooperate&quot;), letters like &quot;y&quot; that are
+vowels only sometimes, etc.  If you get bored, see whether you can teach the
+program to recognize some of these special cases.)  

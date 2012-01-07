@@ -1,0 +1,23 @@
+<!-- Extra for experts 9: Mutable data, vectors -->
+
+<p>
+1. Abelson and Sussman, exercises 3.19 and 3.23.
+
+<p>
+Exercise 3.19 is incredibly hard
+but if you get it, you'll feel great about yourself.  You'll need to
+look at some of the other exercises you skipped in this section.
+
+<p>
+Exercise 3.23 isn't quite so hard,
+but be careful about the O(1)-i.e.&nbsp;<i>constant</i>-time requirement.
+
+<p>
+2.  Write the procedure <tt>cxr-name</tt>.  Its argument will be a function
+made by composing <tt>car</tt>s and <tt>cdr</tt>s.  It should return the
+appropriate name for that function:
+
+<p>
+<tt>  <pre>&#62; (cxr-name (lambda (x) (cadr (cddar (cadar x)))))
+CADDDAADAR
+</pre></tt>

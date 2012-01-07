@@ -1,0 +1,56 @@
+<!-- Lab 10: Client/server paradigm -->
+
+<p>
+1.  For this lab you'll need three people, each on a separate workstation.
+
+<p>
+One person should choose to be the server, and should do this:
+
+<p>
+<tt>  <pre>&#62; (load "&#126;cs61as/lib/im-server.scm")
+&#62; (im-server-start)
+</pre></tt>
+
+<p>
+Make a note of the IP address and port number that this prints!
+
+<p>
+The other people will be clients.  They should do this:
+
+<p>
+<tt>  <pre>&#62; (load "&#126;cs61as/lib/im-client.scm")
+&#62; (im-enroll "123.45.67.89" 6543)    ; use actual numbers from server!
+</pre></tt>
+
+<p> but using the server's IP address instead of <tt>123.45.67.89</tt> and the
+server's port number instead of <tt>6543</tt>.  (Note that the IP address must
+be enclosed in quotation marks.)
+
+<p>
+The clients can then send each other messages:
+
+<p><pre>&gt; (im 'cs61as-xy "Hi there, how are you?")
+</pre></tt>
+
+<p>
+The messages can't include more than one line.
+
+<p>
+A client can leave the IM system by running
+
+<p>
+<tt>  <pre>&#62; (im-exit)
+</pre></tt>
+
+<p>
+The server can quit (which disconnects all the clients) with
+
+<p>
+<tt>  <pre>&#62; (im-server-close)
+</pre></tt>
+
+<p>
+
+<p>
+2.  Start on the homework, since it'll be easier to
+test your work with several people.</p>

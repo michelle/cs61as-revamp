@@ -1,0 +1,380 @@
+<!-- Lecture Notes 14: Logic programming -->
+
+<p>
+<b>Reading:</b>
+Abelson &amp; Sussman, Sections
+<a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-29.html">4.4.1&ndash;4.4.3</a>
+<p>
+This week's big idea is <i>logic programming</i> or <i>declarative
+programming</i>.
+
+<p>
+It's the biggest step we've taken away from expressing a computation in
+hardware terms.  When we discovered streams, we saw how to express an
+algorithm in a way that's independent of the <i>order</i> of evaluation.
+Now we are going to describe a computation in a way that has no (visible)
+algorithm at all!
+
+<p>
+We are using a logic programming language that A&amp;S implemented in Scheme.
+Because of that, the notation is Scheme-like, i.e., full of lists.  Standard
+logic languages like Prolog have somewhat different notations, but the idea
+is the same.
+
+<p>
+All we do is assert facts:
+
+<p>
+<tt>  <pre>&#62; (load "&#126;cs61as/lib/query.scm")
+&#62; (query)
+
+;;; Query input:
+(assert! (Brian likes potstickers))
+</pre></tt>
+
+<p>
+and ask questions about the facts:
+
+<p>
+<tt>  <pre>;;; Query input:
+(?who likes potstickers)
+
+;;; Query results:
+(BRIAN LIKES POTSTICKERS)
+</pre></tt>
+
+<p>
+Although the assertions and the queries take the form of lists, and so they
+look a little like Scheme programs, they're not!  There is no application of
+function to argument here; an assertion is just data.
+
+<p>
+This is true even though, for various reasons, it's traditional to put the
+verb (the <i>relation</i>) first:
+
+<p>
+<tt>  <pre>(assert! (likes Brian potstickers))
+</pre></tt>
+
+<p>
+We'll use that convention hereafter, but that makes it even easier to fall
+into the trap of thinking there is a <i>function</i> called <tt>likes</tt>.
+
+<p> <b>&bull; Rules.</b> As long as we just tell the system isolated facts, we
+can't get extraordinarily interesting replies.  But we can also tell it
+<i>rules</i> that allow it to infer one fact from another.  For example, if
+we have a lot of facts like
+
+<p>
+<tt>  <pre>(mother Eve Cain)
+</pre></tt>
+
+<p>
+then we can establish a rule about grandmotherhood:
+
+<p>
+<tt>  <pre>(assert! (rule (grandmother ?elder ?younger)
+               (and (mother ?elder ?mom)
+                    (mother ?mom ?younger) )))
+</pre></tt>
+
+<p>
+The rule says that the first part (the conclusion) is true <i>if</i> we can
+find values for the variables such that the second part (the condition) is
+true.
+
+<p>
+Again, resist the temptation to try to do composition of functions!
+
+<p>
+<tt>  <pre>(assert! (rule (grandmother ?elder ?younger)         ;; WRONG!!!!
+               (mother ?elder (mother ?younger)) ))
+</pre></tt>
+
+<p>
+<tt>Mother</tt> isn't a function, and you can't ask for the mother of someone
+as this incorrect example tries to do.  Instead, as in the correct version
+above, you have to establish a variable (<tt>?mom</tt>) that has a value that
+satisfies the two motherhood relationships we need.
+
+<p>
+In this language the words <tt>assert!</tt>, <tt>rule</tt>, <tt>and</tt>, <tt>or</tt>,
+and <tt>not</tt> have special meanings.  Everything else is just a word that
+can be part of assertions or rules.
+
+<p>
+Once we have the idea of rules, we can do real magic:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/4.4/logic-utility.scm
+(assert! (rule (append (?u . ?v) ?y (?u . ?z))
+               (append ?v ?y ?z)))
+
+(assert! (rule (append () ?y ?y)))
+</pre></tt>
+
+<p>
+(The actual online file uses a Scheme procedure <tt>aa</tt> to add the
+assertion.  It's just like saying <tt>assert!</tt>&nbsp;to the query system, but
+you say it to Scheme instead.  This lets you <tt>load</tt> the file.  Don't get
+confused about this small detail&mdash;just ignore it.)
+
+<p>
+<tt>  <pre>;;; Query input:
+(append (a b) (c d e) ?what)
+
+;;; Query results:
+(APPEND (A B) (C D E) (A B C D E))
+</pre></tt>
+
+<p>
+So far this is just like what we could do in Scheme.
+
+<p>
+<tt>  <pre>;;; Query input:
+(append ?what (d e) (a b c d e))
+
+;;; Query results:
+(APPEND (A B C) (D E) (A B C D E))
+
+;;; Query input:
+(append (a) ?what (a b c d e))
+
+;;; Query results:
+(APPEND (A) (B C D E) (A B C D E))
+</pre></tt>
+
+<p>
+The new thing in logic programming is that we can run a "function"
+backwards!  We can tell it the answer and get back the question.  But the
+real magic is...
+
+<p>
+<tt>  <pre>;;; Query input:
+(append ?this ?that (a b c d e))
+
+;;; Query results:
+(APPEND () (A B C D E) (A B C D E))
+(APPEND (A) (B C D E) (A B C D E))
+(APPEND (A B) (C D E) (A B C D E))
+(APPEND (A B C) (D E) (A B C D E))
+(APPEND (A B C D) (E) (A B C D E))
+(APPEND (A B C D E) () (A B C D E))
+</pre></tt>
+
+<p>
+We can use logic programming to compute multiple answers to the same
+question!  Somehow it found all the possible combinations of values that
+would make our query true.
+
+<p>
+
+<p>
+How does the <tt>append</tt> program work?  Compare it to the Scheme <tt>
+append</tt>:
+
+<p>
+<tt>  <pre>(define (append a b)
+  (if (null? a)
+      b
+      (cons (car a) (append (cdr a) b)) ))
+</pre></tt>
+
+<p>
+Like the Scheme program, the logic program has two cases:  There is a base
+case in which the first argument is empty.  In that case the combined list
+is the same as the second appended list.  And there is a recursive case in
+which we divide the first appended list into its <tt>car</tt> and its <tt>
+cdr</tt>. We reduce the given problem into a problem about appending <tt>
+(cdr&nbsp;a)</tt> to <tt>b</tt>.  The logic program is different in form, but it says
+the same thing.  (Just as, in the grandmother example, we had to give the
+mother a name instead of using a function call, here we have to give <tt>
+(car&nbsp;a)</tt> a name&mdash;we call it <tt>?u</tt>.)
+
+<p>
+Unfortunately, this "working backwards" magic doesn't always work.
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/4.4/reverse.scm
+(assert! (rule (reverse (?a . ?x) ?y)
+               (and (reverse ?x ?z)
+                    (append ?z (?a) ?y) )))
+
+(assert! (reverse () ()))
+</pre></tt>
+
+<p>
+This works for <tt>(reverse (a b c) ?what)</tt> but not the other way around;
+it gets into an infinite loop.  We can also write a version that works <i>
+only</i> backwards:
+
+<p>
+<tt>  <pre>;;;;;                        In file cs61as/lectures/4.4/reverse.scm
+(assert! (rule (backward (?a . ?x) ?y)
+               (and (append ?z (?a) ?y)
+                    (backward ?x ?z) )))
+
+(assert! (backward () ()))
+</pre></tt>
+
+<p>
+But it's much harder to write one that works both ways.  Even as we speak, logic
+programming fans are trying to push the limits of the idea, but right now,
+you still have to understand something about the below-the-line algorithm to
+be confident that your logic program won't loop.
+
+<p>
+<b>&bull; Below-the-line implementation.</b>
+
+<p>
+Think about <tt>eval</tt> in the MC evaluator.  It takes two arguments, an
+expression and an environment, and it returns the value of the expression.
+
+<p>
+In logic programming, there's no such thing as "the value of the
+expression." What we're given is a query, and there may or may not be some
+number of variable bindings that make the query true.  The query evaluator
+<tt>qeval</tt> is analogous to <tt>eval</tt> in that it takes two arguments,
+something to evaluate and a context in which to work.  But the thing to
+evaluate is a query, not an expression; the context isn't just one
+environment but a whole collection of environments&mdash;one for each set of
+variable values that satisfy some previous query.  And the result returned
+by <tt>qeval</tt> isn't a value.  It's a new collection of environments!  It's
+as if <tt>eval</tt> returned an environment instead of a value.
+
+<p><center><img width=100% src="static/course_material/121/122/15-1.jpg"></center>
+
+<p>
+The "collection" of environments we're talking about here is represented
+as a stream.  That's because there might be infinitely many of them!  We use
+the stream idea to reorder the computation; what really happens is that we
+take one potential set of satisfying values and work it all the way through;
+then we try another potential set of values.  But the program looks as if we
+compute all the satisfying values at once for each stage of a query.
+
+<p>
+Just as every top-level Scheme expression is evaluated in the global
+environment, every top-level query is evaluated in a stream containing a
+single empty environment.  (No variables have been assigned values yet.)
+
+<p>
+If we have a query like <tt>(and&nbsp;p&nbsp;q)</tt>, what happens is that we recursively
+use <tt>qeval</tt> to evaluate <tt>p</tt> in the empty-environment stream.  The
+result is a stream of variable bindings that satisfy <tt>p</tt>.  Then we use
+<tt>qeval</tt> to evaluate <tt>q</tt> in that result stream!  The final result is a
+stream of bindings that satisfy <tt>p</tt> and <tt>q</tt> simultaneously.
+
+<p>
+If the query is <tt>(or&nbsp;p&nbsp;q)</tt> then we use <tt>qeval</tt> to evaluate each of the
+pieces independently, starting in both cases with the empty-environment
+stream.  Then we <i>merge</i> the two result streams to get a stream of
+bindings that satisfy either <tt>p</tt> or <tt>q</tt>.
+
+<p>
+<center><img width=100% src="static/course_material/121/122/15-2.jpg"></center>
+
+<p>
+If the query is <tt>(not&nbsp;q)</tt>, we can't make sense of that unless we already
+have a stream of environments to work with.  That's why we can only use <tt>
+not</tt> in a context such as <tt>(and&nbsp;p&nbsp;(not&nbsp;q))</tt>.  We take the stream of
+environments that we already have, and we <tt>stream-filter</tt> that stream, using as
+the test predicate the function
+
+<p>
+<tt>  <pre>(lambda (env) (stream-null? (qeval q env)))
+</pre></tt>
+
+<p>
+That is, we keep only those environments for which we <i>can't</i> satisfy
+<tt>q</tt>.
+
+<p>
+<center><img width=100% src="static/course_material/121/122/15-3.jpg"></center>
+
+<p>
+That explains how <tt>qeval</tt> reduces compound queries to simple ones. How
+do we evaluate a simple query?  The first step is to <i>pattern match</i>
+the query against every assertion in the data base.  Pattern matching is
+just like the recursive <tt>equal?</tt>&nbsp;function, except that a variable in
+the pattern (the query) matches anything in the assertion.  (But if the same
+variable appears more than once, it must match the same thing each time.
+That's why we need to keep an environment of matches so far.)
+
+<p>
+The next step is to match the query against the <i>conclusions</i> of
+rules. This is tricky because now there can be variables in both things
+being matched.  Instead of the simple pattern matching we have to use a more
+complicated version called <i>unification</i>.  (See the details in the text.)
+If we find a match, then we take the condition part of the rule (the body)
+and use that as a new query, to be satisfied within the environment(s) that
+<tt>qeval</tt> gave us when we matched the conclusion.  In other words, first
+we look at the conclusion to see whether this rule can possibly be relevant
+to our query; if so, we see if the conditions of the rule are true.
+
+<p>
+
+<p>
+Here's an example, partly traced:
+
+<p>
+<tt>  <pre>;;; Query input:
+(append ?a ?b (aa bb))
+
+(unify-match (append ?a ?b (aa bb))         ; MATCH ORIGINAL QUERY
+             (append () ?1y ?1y)            ; AGAINST BASE CASE RULE
+             ())                            ; WITH NO CONSTRAINTS
+
+RETURNS: ((?1y . (aa bb)) (?b . ?1y) (?a . ()))
+PRINTS:  (append () (aa bb) (aa bb))
+</pre></tt>
+
+<p>
+Since the base-case rule has no body, once we've matched it, we can
+print a successful result.  (Before printing, we have to look up variables
+in the environment so what we print is variable-free.)
+
+<p>
+Now we unify the original query against the conclusion of the other rule:
+
+<p>
+<tt>  <pre>(unify-match (append ?a ?b (aa bb))                ; MATCH ORIGINAL QUERY
+             (append (?2u . ?2v) ?2y (?2u . ?2z))  ; AGAINST RECURSIVE RULE
+             ())                                   ; WITH NO CONSTRAINTS
+
+RETURNS: ((?2z . (bb)) (?2u . aa) (?b . ?2y) (?a . (?2u . ?2v)))
+         [call it F1]
+</pre></tt>
+
+<p>
+This was successful, but we're not ready to print anything yet, because we
+now have to take the body of that rule as a new query.  Note the indenting
+to indicate that this call to <tt>unify-match</tt> is within the pending rule.
+
+<p>
+<tt>  <pre>    (unify-match (append ?2v ?2y ?2z)   ; MATCH BODY OF RECURSIVE RULE
+                 (append () ?3y ?3y)    ; AGAINST BASE CASE RULE
+                 F1)                    ; WITH CONSTRAINTS FROM F1
+
+    RETURNS: ((?3y . (bb)) (?2y . ?3y) (?2v . ()) [plus F1])
+    PRINTS:  (append (aa) (bb) (aa bb))
+
+    (unify-match (append ?2v ?2y ?2z)                  ; MATCH SAME BODY
+                 (append (?4u . ?4v) ?4y (?4u . ?4z))  ; AGAINST RECURSIVE RULE
+                 F1)                                   ; WITH F1 CONSTRAINTS
+
+    RETURNS: ((?4z . ()) (?4u . bb) (?2y . ?4y) (?2v . (?4u . ?4v))
+              [plus F1])  [call it F2]
+
+        (unify-match (append ?4v ?4y ?4z)   ; MATCH BODY FROM NEWFOUND MATCH
+                     (append () ?5y ?5y)    ; AGAINST BASE CASE RULE
+                     F2)                    ; WITH NEWFOUND CONSTRAINTS
+
+        RETURNS: ((?5y . ()) (?4y . ?5y) (?4v . ()) [plus F2])
+        PRINTS:  (append (aa bb) () (aa bb))
+
+        (unify-match (append ?4v ?4y ?4z)                  ; MATCH SAME BODY
+                     (append (?6u . ?6v) ?6y (?6u . ?6z))  ; AGAINST RECUR RULE
+                     F2)                                   ; SAME CONSTRAINTS
+
+        RETURNS: ()                                        ; BUT THIS FAILS
+</pre></tt>

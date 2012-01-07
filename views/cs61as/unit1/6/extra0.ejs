@@ -1,0 +1,76 @@
+<!-- Extra for experts 6: Generic operators -->
+
+<p>
+Another approach to the problem of type-handling is <i>type inference</i>.
+If, for instance, a procedure includes the expression <tt>(+ n k)</tt>,
+one can infer that <tt>n</tt> and <tt>k</tt> have numeric values.
+Similarly, the expression <tt>(f a b)</tt> indicates that the value of <tt>f</tt>
+is a procedure.
+
+<p>
+Write a procedure called <tt>inferred-types</tt> that, given a definition of a
+Scheme procedure as argument, returns a list of information about the
+parameters of the procedure.  The information list should contain one
+element per parameter; each element should be a two-element list whose first
+element is the parameter name and whose second element is a word indicating
+the type inferred for the parameter.  Possible types are listed on the next
+page.
+
+<p>
+<dl compact="compact">
+ <dt>
+<tt>?</tt></dt>
+<dd>
+ (the type can't be inferred)
+</dd>
+ <dt>
+<tt>procedure</tt></dt>
+<dd> (the parameter appeared as the first word in an
+unquoted expression or as the first argument of <tt>map</tt> or <tt>every</tt>)
+</dd>
+ <dt>
+<tt>number</tt></dt>
+<dd> (the parameter appeared as an argument of <tt>+</tt>, <tt>-</tt>,
+<tt>max</tt>, or <tt>min</tt>)
+</dd>
+ <dt>
+<tt>list</tt></dt>
+<dd> (the parameter appeared as an argument of <tt>append</tt>
+or as the second argument of <tt>map</tt> or <tt>member</tt>)
+</dd>
+ <dt>
+<tt>sentence-or-word</tt></dt>
+<dd> (the parameter appeared as an argument of <tt>first,</tt>
+<tt>butfirst,</tt> <tt>sentence,</tt> or <tt>member?</tt>, or
+as the second argument of <tt>every</tt>)
+</dd>
+ <dt>
+<tt>x</tt></dt>
+<dd> (conflicting types were inferred)
+</dd></dl><p>You should assume for this problem that the body of the procedure to
+be examined does not contain any occurrences of <tt>if</tt> or <tt>cond</tt>,
+although it may contain arbitrarily nested and quoted expressions.
+(A more ambitious inference procedure both would examine a more comprehensive
+set of procedures and could infer conditions like "nonempty list".)
+
+<p>
+Here's an example of what your inference procedure should return.
+
+<p>
+<tt>  <pre>(inferred-types
+  '(define (foo a b c d e f)
+    (f (append (a b) c '(b c)) (+ 5 d) (sentence (first e) f)) ) )
+</pre></tt>
+
+<p>
+should return
+
+<p>
+<tt>  <pre>((a procedure) (b ?) (c list) (d number)
+ (e sentence-or-word) (f x))
+</pre></tt>
+
+<p>
+If you're <i>really </i> ambitious, you could maintain a database of
+inferred argument types and use it when a procedure you've seen is
+invoked by another procedure you're examining!

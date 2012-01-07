@@ -1,0 +1,49 @@
+<!-- Homework 4: Data Abstraction and Sequences -->
+
+<p>
+<b>Reading:</b>
+<a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-14.html#%_sec_2.1" target="_blank">Abelson & Sussman, Sections 2.1 and 2.2.1</a>
+<p>
+<b>Homework:</b>
+<p>
+Abelson &amp; Sussman, exercises 2.7, 2.8, 2.10, 2.12, 2.17, 2.20, 2.22, 2.23
+<p>
+(Note:  "Spans zero" means that one bound is &le; zero and the other
+is &ge; zero!)
+
+<p>
+<font face="symbol"></font
+> Write a procedure <tt>substitute</tt> that takes three arguments:&nbsp;a
+list, an <i>old</i> word, and a <i>new</i> word.  It should return
+a copy of the list, but with every occurrence of the old word
+replaced by the new word, even in sublists.  For example:
+
+<p>
+<tt>  <pre>&#62; (substitute '((lead guitar) (bass guitar) (rhythm guitar) drums)
+	      'guitar 'axe)
+((lead axe) (bass axe) (rhythm axe) drums)
+</pre></tt>
+
+<p>
+<font face="symbol"></font
+> Now write <tt>substitute2</tt> that takes a list, a <i>list</i> of
+old words, and a <i>list</i> of new words; the last two lists should be
+the same length.  It should return a copy of the first argument, but with
+each word that occurs in the second argument replaced by the
+corresponding word of the third argument:
+
+<p>
+<tt>  <pre>&#62; (substitute2 '((4 calling birds) (3 french hens) (2 turtle doves))
+               '(1 2 3 4) '(one two three four))
+((four calling birds) (three french hens) (two turtle doves))
+</pre></tt>
+
+<p>
+
+<br /><hr />
+Unix feature of the week: <tt>rm</tt>, <tt>mv</tt>, <tt>cp</tt>, <tt>rmdir</tt>, <tt>ln -s</tt>
+<p>
+Emacs feature of the week: <tt>M-%</tt> (find and replace text)
+<p>
+
+<p></p>
