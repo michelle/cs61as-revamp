@@ -179,6 +179,7 @@ body, html {
   text-shadow: 0px 1px 0px #000;
   font-family: 'Open Sans';
   letter-spacing: 0.5px;
+  text-align: center;
   font-size: 16px;
   font-weight: 300;
 }
@@ -988,4 +989,22 @@ textarea {
 #selection {
   margin-top: -60px;
   margin-right: 30px;
+}
+
+#homecenter {
+  margin: 0 auto;
+  width: 620px;
+}
+
+#book {
+  padding-top: 70px;
+  padding-bottom: 40px;
+}
+
+#book img {
+  height: 400px;
+  border: 5px solid #fff;
+  box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
+  -webkit-box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
+  -moz-box-shadow: 0px 0px 10px rgba(200,215,220,0.9);
 }

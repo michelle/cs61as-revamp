@@ -1,13 +1,17 @@
 <div id="splash">
-  <div id="homeflash">
-    <%-flashMessages%>
-  </div>
-  <div id="title" class="noselect">
-    CS61AS
-  </div>
-  <div id="loginform">
-    <div id="loginalign">
-      <form method="post" action="/login">
+
+  <div id="homecenter">
+  <div class="right">
+    <div id="homeflash">
+      <%-flashMessages%>
+    </div>
+
+    <div id="title" class="noselect">
+      CS61AS
+    </div>
+    <div id="loginform">
+      <div id="loginalign">
+        <form method="post" action="/login">
         <span class="left noselect">username</span>
         <input type="text" class="right" name='user[username]'% />
         <br>
@@ -18,10 +22,16 @@
         <button class="mybutton left noselect" id="submitlogin">
           Go!
         </button>
-      </form>
-      <a class="mybutton right noselect" id="guest" href="/lessons">Guest</a>
-      <div class="clear"></div>
+        </form>
+        <a class="mybutton right noselect" id="guest" href="/lessons">Guest</a>
+        <div class="clear"></div>
+      </div>
     </div>
+  </div>
+  <div id="book" class="noselect left">
+    <img src="/images/sicp.jpg">
+  </div>
+  <div class="clear"></div>
   </div>
  
 </div>
