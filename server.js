@@ -3,6 +3,7 @@ var DEBUG_ERR = true;
 var DEBUG_TRACE = true;
 var DEBUG_USER = false;
 var DEBUG_WARNING = true;
+var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
 var SEND_GRADER_NOTIFICATION = false;
@@ -85,6 +86,9 @@ function log(obj) {
     } else if (obj instanceof Error) {
       if (DEBUG_ERR) {
         console.log(obj);
+        if (FORCE_CRASH_ON_ERR) {
+          app.exit();
+        }
       }
     } else {
       if (DEBUG_WARNING) {
@@ -760,7 +764,7 @@ app.post('/admin/lessons/add', loadUser, checkPermit('canAccessAdminPanel'), che
 /** Edit a lesson. */
 app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons/edit/:lesson');
-  if (req.currentLesson) {
+  if (req.lesson) {
     Homework.find({}, function(err, homeworks) {
       log(err);
       Project.find({}, function(err, projects) {
@@ -774,7 +778,7 @@ app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPane
               res.render('admin/lessons/edit', {
                 page: 'admin/lessons/edit',
                 currentUser: req.currentUser,
-                lesson: req.currentLesson,
+                lesson: req.lesson,
                 homeworks: homeworks,
                 projects: projects,
                 extras: extras,
@@ -794,16 +798,16 @@ app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPane
 /** Save edit a lesson. */
 app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/edit/:lesson');
-  if (req.currentLesson) {
-    req.currentLesson.number = req.body.lesson.number;
-    req.currentLesson.name = req.body.lesson.name;
-    req.currentLesson.homework = req.body.lesson.homework;
-    req.currentLesson.project = req.body.lesson.project;
-    req.currentLesson.extra = req.body.lesson.extra;
-    req.currentLesson.videos = req.body.lesson.videos;
-    req.currentLesson.readings = req.body.lesson.readings;
+  if (req.lesson) {
+    req.lesson.number = req.body.lesson.number;
+    req.lesson.name = req.body.lesson.name;
+    req.lesson.homework = req.body.lesson.homework;
+    req.lesson.project = req.body.lesson.project;
+    req.lesson.extra = req.body.lesson.extra;
+    req.lesson.videos = req.body.lesson.videos;
+    req.lesson.readings = req.body.lesson.readings;
 
-    req.currentLesson.save(function(err){
+    req.lesson.save(function(err){
       if (err) {
         log(err);
         for (var e in err.errors) {
@@ -816,7 +820,7 @@ app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPan
       } else {
         req.flash('info', 'Lesson was added successfully.');
       }
-      res.redirect('/admin/lessons/edit' + req.currentLesson.id);
+      res.redirect('/admin/lessons');
     });
   } else {
     req.flash('error', 'Malformed lessonId.');

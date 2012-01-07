@@ -11,7 +11,7 @@
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-    <form method="post" action="/admin/lessons/edit/<%-lesson.number%>">
+    <form method="post" action="/admin/lessons/edit/<%-lesson.id%>">
       <div class="formbox">
         <h3>Add a new Lesson</h3>
         <span class="left boxy noselect" required>number</span>
@@ -45,7 +45,7 @@
         <span class="left boxy noselect">extra</span>
         <select class="right selectboxy" name='lesson[extra]' multiple="multiple">
           <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i] ;%>
-            <% if (lesson.extra && lesson.extra.id == extra.id) { %>
+            <% if (lesson.extra && lesson.extra.indexOf(extra.id) != -1) { %>
               <option value="<%-extra.id%>" selected="selected"><%-extra.name%></option>
             <% } else { %>
               <option value="<%-extra.id%>"><%-extra.name%></option>
@@ -56,7 +56,7 @@
         <span class="left boxy noselect">videos</span>
         <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
-            <% if (lesson.video && lesson.video.id == video.id) { %>
+            <% if (lesson.videos && lesson.videos.indexOf(video.id) != -1) { %>
               <option value="<%-video.id%>" selected="selected"><%-video.name%></option>
             <% } else { %>
               <option value="<%-video.id%>"><%-video.name%></option>
@@ -67,7 +67,7 @@
         <span class="left boxy noselect">readings</span>
         <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
-            <% if (lesson.reading && lesson.reading.id == reading.id) { %>
+            <% if (lesson.readings && lesson.readings.indexOf(reading.id) != -1) { %>
               <option value="<%-reading.id%>" selected="selected"><%-reading.name%></option>
             <% } else { %>
               <option value="<%-reading.id%>"><%-reading.name%></option>

@@ -42,14 +42,14 @@
         </select>
         <br>
         <span class="left boxy noselect">videos</span>
-        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+        <select class="right selectboxy" name='lesson[videos]' multiple="multiple">
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
             <option value="<%-video.id%>"><%-video.name%></option>
           <% } %>
         </select>
         <br>
         <span class="left boxy noselect">readings</span>
-        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+        <select class="right selectboxy" name='lesson[readings]' multiple="multiple">
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
             <option value="<%-reading.id%>"><%-reading.name%></option>
           <% } %>
@@ -67,8 +67,8 @@
       <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i];%>
       <span class="left boxy noselect displaymargin">name: <%-lesson.name%></span>
       <span class="right linkboxy displaymargin">
-        <a href="/admin/lessons/edit/<%-lesson.number%>">(edit)</a>
-        <a href="/admin/lessons/delete/<%-lesson.number%>">(delete)</a>
+        <a href="/admin/lessons/edit/<%-lesson.id%>">(edit)</a>
+        <a href="/admin/lessons/delete/<%-lesson.id%>">(delete)</a>
       </span>
       <% } %> <div class="clear"></div>
     </div>
