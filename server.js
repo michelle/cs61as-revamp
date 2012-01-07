@@ -41,6 +41,7 @@ schema.defineModels(mongoose, function() {
   app.Grade = Grade = mongoose.model('Grade');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
   app.Announcement = Announcement = mongoose.model('Announcement');
+  app.Unit = Unit = mongoose.model('Unit');
   app.Lesson = Lesson = mongoose.model('Lesson');
   app.Reading = Reading = mongoose.model('Reading');
   app.Video = Video = mongoose.model('Video');

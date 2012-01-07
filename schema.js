@@ -6,6 +6,7 @@ var User;
 var Grade;
 var LoginToken;
 var Announcement;
+var Unit;
 var Lesson;
 var Reading;
 var Video;
@@ -255,6 +256,31 @@ function defineModels(mongoose, fn) {
     return this.date.getMonth() + '/' + this.date.getDate();
   });
 
+  /** A Unit.
+   *  A Unit contains multiple lessons, and one project.
+   *  Project will appear on dashboard when a user comes pass a lessons threshold.  */
+  Unit = new Schema({
+    number: {
+      type: Number,
+      min: 0,
+      required: true,
+      index: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    project: {
+      type: ObjectId,
+      ref: 'Project'
+    },
+    lessons: [{
+      type: ObjectId,
+      ref: 'Lesson',
+      'default': []
+    }]
+  });
+
   /** A lesson.
    *  one hw, one project, multiple extras, one intro, multiple note, multiple webcasts.  */
   Lesson = new Schema({
@@ -449,6 +475,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Grade', Grade);
   mongoose.model('LoginToken', LoginToken);
   mongoose.model('Announcement', Announcement);
+  mongoose.model('Unit', Unit);
   mongoose.model('Lesson', Lesson);
   mongoose.model('Reading', Reading);
   mongoose.model('Video', Video);
