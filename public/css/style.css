@@ -103,13 +103,15 @@ body, html {
 
 #topcontainer {
   margin: 0 auto;
+  min-width:550px;
+  width:auto !important;
   width: 90%;
   top: 0px;
   line-height: 30px;
 }
 
 #topfloater {
-  padding: 10px 0px;
+  padding: 10px 20px 10px 0px;
   list-style-type: none; 
 }
 
@@ -463,6 +465,7 @@ a {
 #cs61as {
   letter-spacing: 3px;
   padding-top: 7px;
+  padding-left: 30px;
   font-family: 'League Gothic';
   color: #4D5A63;
   text-shadow: 0px 1px 0px #fff;
