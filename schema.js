@@ -270,24 +270,28 @@ function defineModels(mongoose, fn) {
     },
     homework: {
       type: ObjectId,
+      required: true,
       ref: 'Homework'
     },
     project: {
       type: ObjectId,
-      ref: 'Intro'
+      ref: 'Project'
     },
-    extra: {
-      type: [Extra],
+    extra: [{
+      type: ObjectId,
+      ref: 'Extra'
       'default': []
-    },
-    videos: {
-      type: [Video],
+    }],
+    videos: [{
+      type: ObjectId,
+      ref: 'Video'
       'default': []
-    },
-    readings: {
-      type: [Reading],
+    }],
+    readings: [{
+      type: ObjectId,
+      ref: 'Reading'
       'default': []
-    }
+    }],
   });
   /** Only valid after populating progress .*/
   Lesson.virtual('isCompleted').get(function() {
