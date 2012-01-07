@@ -1119,7 +1119,7 @@ app.post('/admin/videos/add', loadUser, checkPermit('canAccessAdminPanel'), chec
     } else {
       req.flash('info', 'Video was added successfully.');
     }
-    res.redirect('/admin/lessons');
+    res.redirect('/admin/videos');
   });
 });
 /** Edit an video. */
@@ -1156,7 +1156,7 @@ app.post('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel
       } else {
         req.flash('info', 'video was added successfully.');
       }
-      res.redirect('/admin/videos/edit/' + req.video.id);
+      res.redirect('/admin/videos');
     });
   } else {
     req.flash('error', 'Malformed videoId.');
@@ -1248,7 +1248,7 @@ app.post('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminP
       } else {
         req.flash('info', 'reading was added successfully.');
       }
-      res.redirect('/admin/readings/edit/' + req.reading.id);
+      res.redirect('/admin/readings');
     });
   } else {
     req.flash('error', 'Malformed readingId.');
