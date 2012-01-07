@@ -56,6 +56,11 @@ function defineModels(mongoose, fn) {
       'enum': [permissions.SuperAdmin, permissions.Instructor, permissions.Student, permissions.Guest],
       'default': 0
     },
+    currentUnit: {
+      type: Number,
+      min: 0,
+      'default': 0
+    },
     currentLesson: {
       type: Number,
       min: 1,
@@ -264,7 +269,9 @@ function defineModels(mongoose, fn) {
       type: Number,
       min: 0,
       required: true,
-      index: true
+      index: {
+        unique: true
+      }
     },
     name: {
       type: String,
@@ -284,6 +291,13 @@ function defineModels(mongoose, fn) {
       min: 0
     }
   });
+  /** isCompleted. */
+  Unit.virtual('isProjectCompleted').set(function(value) {
+    this._set(value);
+  }).get(function() {
+    return this._get();
+  });
+
 
   /** A lesson.
    *  one hw, one project, multiple extras, one intro, multiple note, multiple webcasts.  */
@@ -302,10 +316,6 @@ function defineModels(mongoose, fn) {
       type: ObjectId,
       required: true,
       ref: 'Homework'
-    },
-    project: {
-      type: ObjectId,
-      ref: 'Project'
     },
     extra: [{
       type: ObjectId,

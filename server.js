@@ -213,6 +213,29 @@ function loadUserFromCookie(req, res, next) {
   });
 }
 
+/** Set current unit to the one specified by currentUser.currentUnit.
+ *  Redirect to /home if currentUser.currentUnit points to an invalid Unit. */
+function loadUnit(req, res, next) {
+  trace('loadUnit');
+  Unit.findOne({
+    number: req.currentUser.currentUnit
+  }, function(err, unit) {
+    log(err);
+    if (unit) {
+      req.currentUnit = unit;
+      next();
+    } else {
+      req.currentUser.currentUnit = 1;
+      req.currentUser.save(function(err) {
+        log(err);
+        log("WARNING: User " + req.currentUser.username + "'s currentUnit is corrupted: " + req.currentUser.currentLesson);
+        req.flash('error', 'Looks like there is something wrong with your account. If the problem persists, please contact administrators.');
+        res.redirect('/default');
+      });
+    }
+  });
+}
+
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
 function loadLesson(req, res, next) {
@@ -245,7 +268,7 @@ function loadLesson(req, res, next) {
  *  If there is no previous progress, create one. */
 function loadProgress(req, res, next) {
   trace('loadProgress');
-  if (!req.currentLesson) {
+  if (!req.currentUnit || !req.currentLesson) {
     next();
     return;
   }
@@ -280,19 +303,6 @@ function loadProgress(req, res, next) {
     }, function() {
       return progress.project;
     });
-    if (req.currentLesson.project) {
-      req.currentLesson.project.attachProgress(function(value) {
-        if (req.currentUser.canWriteProgress()) {
-          progress.project = value;
-          progress.markModified('project');
-          progress.save(function (err) {
-            log(err);
-          });
-        }
-      }, function() {
-        return progress.project;
-      });
-    }
     for(var i = 0; i < req.currentLesson.extra.length; i++) {
       req.currentLesson.extra[i].attachProgress( function(id) {
         return function(value) {
@@ -344,6 +354,21 @@ function loadProgress(req, res, next) {
         }
       }(i));
     }
+
+    if (req.currentUnit.project && req.currentUnit.projectLessonNumber == req.currentLesson.number) {
+      req.currentUnit.project.attachProgress(function(value) {
+        if (req.currentUser.canWriteProgress()) {
+          progress.project = value;
+          progress.markModified('project');
+          progress.save(function (err) {
+            log(err);
+          });
+        }
+      }, function() {
+        return progress.project;
+      });
+    }
+
     next();
   });
 }
@@ -1609,7 +1634,7 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
   });
 });
 /** Student dashboard. */
-app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
+app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadUnit, loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
   Announcement.find({}, function(err, news) {
     log(err);
@@ -1623,7 +1648,7 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   });
 });
 /** Change dashboard. */
-app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
+app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadUnit, loadProgress, function(req, res) {
   trace('GET /dashboard/:lessonId');
   if (req.currentLesson) {
     req.currentUser.currentLesson = req.currentLesson.number;
@@ -1733,7 +1758,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
   });
 });
 /** Viewing webcast by its URL. */
-app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadUnit, loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.currentUser.currentLesson = req.currentLesson.number;
