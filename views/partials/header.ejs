@@ -44,29 +44,42 @@
       </div>
     </div>
   </div>
-  
+
+<ul id="nav">
   <% if (page != 'lessons') { %>
     <a href="/lessons">
-      <div id="alllessons">
+      <li id="alllessons">
         <span class="iconic article"></span>
-      </div>
+        
+        <ul>
+          All Lessons
+        </ul>
+      </li>
     </a>
   <% } %>
   <% if (page !== 'dashboard' && currentUser.canAccessDashboard()) { %>
     <a href="/dashboard">
-      <div id="dashboard">
+      <li id="dashboard">
         <span class="iconic home"></span>
-      </div>
+        
+        <ul>
+          Dashboard
+        </ul>
+      </li>
     </a>
   <% } %>
   <% if (page !== 'admin/index' && currentUser.canAccessAdminPanel()) { %>
     <a href="/admin">
-      <div id="admin">
+      <li id="admin">
         <span class="iconic pencil"></span>
-      </div>
+        
+        <ul>
+          Admin Panel
+        </ul>
+      </li>
     </a>
   <% } %>
-  
+</ul>
   
   <div id="pusher"></div><%-flashMessages%>
   

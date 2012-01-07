@@ -392,11 +392,10 @@ a {
   padding: 10px;
 }
 
-#alllessons, #dashboard, #admin {
-  position: fixed;
-  right: 0px;
+#nav li {
   width: 50px;
   padding-left: 2px;
+  position: fixed;
   height: 60px;
   z-index: 99;
   font-size: 30px;
@@ -414,6 +413,14 @@ a {
   transition: opacity 0.2s linear;
 }
 
+#nav {
+  position: fixed;
+  right: 0px;
+  z-index: 99;
+  width: 52px;
+  list-style-type: none; 
+}
+
 #alllessons {
   top: 120px;
 }
@@ -426,7 +433,7 @@ a {
   top: 260px;
 }
 
-#alllessons:hover, #dashboard:hover, #admin:hover {
+#nav li:hover {
   opacity: 1;
 }
 
@@ -899,4 +906,26 @@ input {
 .resources {
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(200,215,220,0.5);
+}
+
+#nav ul {
+  display: none;
+  position: relative;
+  margin-top: -35px;
+  margin-left: -50px;
+  opacity: 0.9;
+  font-size: 12px;
+  width: 60px;
+  padding: 5px;
+  border-radius: 5px 0px 5px 5px;
+  line-height: 15px;  
+  border: 1px solid rgba(200,215,220,1);
+	background-color: #394349;
+  color: #fff;
+  text-align: center;
+  z-index: 100;
+}
+
+#nav li:hover > ul {
+  display: block;
 }
