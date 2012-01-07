@@ -59,7 +59,7 @@ completedness of each section for class="completed" li elements. -->
     <h1>Master</h1>
     <ul class="nolist">
       <% if (currentLesson.extra.length > 0) { %>
-      <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %> <a href="/extra/<%-n%>/<%-j%>">
+      <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %> <a href="/extra/<%-n%>/<%-l%>">
       <li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
         <%-extra.name%>
       </li></a>
@@ -110,7 +110,7 @@ completedness of each section for class="completed" li elements. -->
   </div>
   <div class="triangle"></div>
   <div class="clear"></div>
-  <% for (var i = 0; i < news.length; i += 1) { var article = news[i];%>
+  <% for (var i = 0; i < Math.min(news.length, 3); i += 1) { var article = news[i];%>
   <div class="announcement">
     <h3><%-article.title%></h3>
     <div class="morepadding">
@@ -119,5 +119,10 @@ completedness of each section for class="completed" li elements. -->
     <h4>Posted: <%-article.date%></h4>
   </div>
   <% } %>
+  
+  <% if (news.length > 3) { %>
+    <a href="/announcements">(View All Announcements)</a>
+  <% } %>
+  
   <% } %>
 </div>

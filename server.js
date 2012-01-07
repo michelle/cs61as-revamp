@@ -482,6 +482,12 @@ app.param('readingId', function(req, res, next, readingId) {
   req.reading = req.currentLesson.readings && req.currentLesson.readings[readingId];
   next();
 });
+/** Pre condition param extraId into req.extra. */
+app.param('extraId', function(req, res, next, extraId) {
+  trace('param extraId');
+  req.extra = req.currentLesson.extra && req.currentLesson.extra[extraId];
+  next();
+});
 /** Pre condition param unit into req.unit. */
 app.param('unit', function(req, res, next, unitId) {
   trace('param unit');
@@ -707,7 +713,7 @@ app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAd
 app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/announcements/delete/:noteId');
   if (req.note) {
-    note.remove(function(err){
+    req.note.remove(function(err){
       log(err);
       req.flash('info', 'Post deleted.');
       res.redirect('/admin/announcements');
@@ -1824,6 +1830,39 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
     res.redirect('/default');
   }
 });
+
+/** Viewing extra. */
+app.get('/extra/:lessonId/:extraId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /extra/:lessonId/:extraId');
+  if (req.currentLesson && req.extra) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('extra', {
+          page: 'extra',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          extra: req.extra,
+          extraId: req.params.extraId,
+          showControls: req.currentUser.canWriteProgress()
+        });
+      });
+    } else {
+      res.render('extra', {
+        page: 'extra',
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        extra: req.extra,
+        extraId: req.params.extraId,
+        showControls: req.currentUser.canWriteProgress()
+      });
+    }
+  } else {
+    req.flash('error', 'Whoops! This extra does not exist.');
+    res.redirect('/default');
+  }
+});
 /** Marking reading as read. */
 app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /reading/:lessonId/:readingId');
@@ -1832,6 +1871,17 @@ app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgres
     res.redirect('/dashboard');
   } else {
     req.flash('error', 'Whoops! Reading does not exist.');
+    res.redirect('/dashboard');
+  }
+});
+/** Marking extra as read. */
+app.post('/extra/:lessonId/:extraId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /extra/:lessonId/:extraId');
+  if(req.currentLesson && req.extra) {
+    req.extra.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Extra does not exist.');
     res.redirect('/dashboard');
   }
 });
@@ -1997,7 +2047,20 @@ app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req,
   trace('GET /administration');
   res.render('administration', {
     page: 'administration',
-    currentUser: req.currentUser,
+    currentUser: req.currentUser
+  });
+});
+/** All announcements. */
+app.get('/announcements', loadUser, checkPermit('canReadLesson'), function(req, res) {
+  trace('GET /announcements');
+  Announcement.find({}, function(err, news) {
+    log(err);
+    news.sort(function(b, a) { return a.date - b.date } );
+    res.render('announcements', {
+      page: 'announcements',
+      currentUser: req.currentUser,
+      news: news
+    });
   });
 });
 /** Redirect everything else back to default if logged in. */
