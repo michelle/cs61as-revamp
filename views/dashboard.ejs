@@ -74,7 +74,7 @@
         <% if (currentLesson.homework.isCompleted) { %>
           <a href="/solutions/homework/<%-n%>"><li class="resource">HW<%-n%> Solutions</li></a>
         <% } else { %>
-          <div class="yellownote">Solutions for the homework will appear here when you finish it!</div>
+          <li class="bnote">Solutions for the homework will appear here when you finish it!</li>
         <% } %>
       <% } %>
       <% if (currentLesson.project) { %>
@@ -82,7 +82,7 @@
           <!-- TODO: Project #s? -->
           <a href="/solutions/project/<%-n%>"><li class="resource">Proj<%-n%> Solutions</li></a>
         <% } else { %>
-          <div class="yellownote">Solutions for the project will appear here when you finish it!</div>
+          <li class="bnote">Solutions for the project will appear here when you finish it!</li>
         <% } %>
       <% } %>
       

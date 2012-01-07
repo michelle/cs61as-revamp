@@ -366,9 +366,13 @@ a {
   min-height: 1.5em; 
 }
 
-.nolist li { 
+.nolist li.bnote, .nolist li { 
   min-height: 1.5em; 
   line-height: 1.2em; 
+}
+
+.nolist li.bnote {
+  font-size: 15px;
 }
 
 
@@ -924,11 +928,22 @@ input {
   color: #BD9392;
 }
 
-.resource {
+.bnote {
+  font-size: 15px;
+  line-height: 18px;
+  text-shadow: none;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.resource, .bnote {
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(256,256,256,0.5);
   color: #4D5A63;
 }
+
+
 
 .resources {
   border: 1px solid rgba(200,215,220,1);
