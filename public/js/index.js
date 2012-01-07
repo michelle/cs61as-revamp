@@ -25,7 +25,7 @@ $(document).ready(function() {
     }
     if ($('#signal').position().left > 500 && hidden) {
       $('#topbar .up').show();
-      hidden = false
+      hidden = false;
     }
     if ($(document).height() > $(window).height() + 200) {
       $('#bottombar').show();

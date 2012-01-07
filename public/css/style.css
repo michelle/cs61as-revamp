@@ -117,16 +117,17 @@ body, html {
   display: none;
   list-style-type: none;
   margin-left: -20px;
-  margin-top: 40px;
   border-radius: 7px;
-  top: -7px;
-  width: 40px;
+  top: -2px;
+  width: 55px;
   opacity: 0.9;
+  -webkit-margin-before: 40px;
   padding: 5px;
   position: relative;
   text-align: center;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 15px;
+  line-height: 15px;
+  font-weight: 400;
 	background-color: #394349;
   color: #fff;
 }
@@ -134,10 +135,10 @@ body, html {
 
 #alllessons span, #admin span, #dashboard span, #topbar a {
   color: #9aa7b0;
-  font-size: 25px;
+  font-size: 35px;
   text-shadow: 0px 1px 0px #fff;
   margin: 10px 7px;
-  line-height: 32px;
+  line-height: 30px;
   letter-spacing: 2px;
   -webkit-transition: color 0.2s linear;
   -moz-transition: color 0.2s linear;
@@ -156,7 +157,7 @@ body, html {
 .up {
   text-transform: uppercase;
   font-family: 'League Gothic', Arial;
-  font-size: 16px;
+  font-size: 25px;
   line-height: 37px;
 }
 
@@ -546,7 +547,8 @@ h1 {
 }
 
 .smallwidth {
-  width: 23px;
+  width: 35px;
+  height: 35px;
 }
 
 #dash a {
