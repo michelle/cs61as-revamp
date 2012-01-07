@@ -51,9 +51,9 @@ body, html {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
   text-align: center;
   width: 100%;
-  box-shadow: 0px 2px 15px #333;
-  -webkit-box-shadow: 0px 2px 15px #333;
-  -moz-box-shadow: 0px 2px 15px #333;
+  box-shadow: 0px 2px 15px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0px 2px 15px rgba(0,0,0,0.5);
+  -moz-box-shadow: 0px 2px 15px rgba(0,0,0,0.5);
   border-bottom: 1px solid #fff;
   z-index: 100;
 }
@@ -344,7 +344,7 @@ a {
 }
 
 .thirds {
-   width: 23%;
+   width: 22%;
    margin: 1%;
    text-align: center;
    min-height: 50%;
