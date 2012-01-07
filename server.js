@@ -219,7 +219,9 @@ function loadUnit(req, res, next) {
   trace('loadUnit');
   Unit.findOne({
     number: req.currentUser.currentUnit
-  }, function(err, unit) {
+  }).populate('lessons')
+    .populate('project')
+    .run(function(err, unit) {
     log(err);
     if (unit) {
       req.currentUnit = unit;
@@ -469,13 +471,26 @@ app.param('noteId', function(req, res, next, noteId) {
     next();
   });
 });
-/** Pre condition param lessonId into req.lesson. */
+/** Pre condition param lessonId into req.grade. */
 app.param('gradeId', function(req, res, next, gradeId) {
   trace('param gradeId');
   req.grade = req.user.grades && req.user.grades.id(gradeId)
   next();
 });
-/** Pre condition param lessonId into req.lesson. */
+/** Pre condition param unitId into req.currentUnit. */
+app.param('unitId', function(req, res, next, unitId) {
+  trace('param unitId');
+  Unit.findOne({
+    number: unitId
+  }).populate('lessons')
+    .populate('project')
+    .run(function(err, unit) {
+    log(err);
+    req.currentunit = !err && unit;
+    next();
+  });
+});
+/** Pre condition param lessonId into req.currentLesson. */
 app.param('lessonId', function(req, res, next, lessonId) {
   trace('param lessonId');
   Lesson.findOne({
@@ -1508,6 +1523,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
     req.user.username = req.body.user.username;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
+    req.user.currentUnit = req.body.user.currentUnit;
     req.user.units = req.body.user.units;
     req.user.permission = req.body.user.permission;
 
@@ -1643,6 +1659,7 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadUnit, loa
       page: 'dashboard',
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
+      currentUnit: req.currentUnit,
       news: news
     });
   });
@@ -1661,6 +1678,32 @@ app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loa
           page: 'dashboard',
           currentUser: req.currentUser,
           currentLesson: req.currentLesson,
+          currentUnit: req.currentUnit,
+          news: news
+        });
+      });
+    });
+  } else {
+    req.flash('error', 'The lesson you are trying to access does not exist.');
+    res.redirect('/dashboard');
+  }
+});
+/** Change dashboard. */
+app.get('/dashboard/:unitId/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
+  trace('GET /dashboard/:lessonId');
+  if (req.currentUnit && req.currentLesson) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.currentUnit = req.currentUnit.number;
+    req.currentUser.save(function(err) {
+        log(err);
+        Announcement.find({}, function(err, news) {
+          log(err);
+          news.sort(function(b, a) { return a.date - b.date } );
+          res.render('dashboard', {
+          page: 'dashboard',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          currentUnit: req.currentUnit,
           news: news
         });
       });

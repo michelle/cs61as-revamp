@@ -1,19 +1,21 @@
-<!-- TODO: Switch between lessons other than currentLesson on dashboard. Check completedness of each section for class="completed" li elements. -->
+<!-- TODO: Switch between lessons other than currentLesson on dashboard. Check
+completedness of each section for class="completed" li elements. -->
 <div id="dash">
   <% if (currentLesson.isCompleted) { %>
-    <div class="note"><div class="padding">You have completed this lesson.</div></div>
+  <div class="note">
+    <div class="padding">
+      You have completed this lesson.
+    </div>
+  </div>
   <% } %>
-
   <div id="lesson" class="noselect">
     <h2><strong>Lesson <%-currentLesson.number%> - </strong> <%-currentLesson.name%></h2>
   </div>
   <div id="lefttriangle"></div>
   <div id="selection" class="right noselect">
-    <% if (currentLesson.number > 1) { %>
-      <a href="/dashboard/<%-(currentLesson.number - 1)%>">previous lesson</a> | 
+    <% if (currentLesson.number > 1) { %> <a href="/dashboard/<%-(currentLesson.number - 1)%>">previous lesson</a> |
     <% } %>
-    <% if (currentLesson.number < 15) { %>
-      <a href="/dashboard/<%-(currentLesson.number + 1)%>">next lesson</a>
+    <% if (currentLesson.number < 15) { %> <a href="/dashboard/<%-(currentLesson.number + 1)%>">next lesson</a>
     <% } %>
   </div>
   <div class="clear"></div>
@@ -21,90 +23,101 @@
   <div class="thirds left">
     <h1>Learn</h1>
     <ul class="nolist">
-          <% if (currentLesson.videos.length > 0) { %>
-              <% for (var j = 0; j < currentLesson.videos.length; j += 1) { var video = currentLesson.videos[j]; %>
-                <a href="/webcast/<%-n%>/<%-j%>"><li class="<% if (video.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Webcast <%-(j + 1)%></li></a>
-              <% } %>
-          <% } %>
-          
-          <% if (currentLesson.readings.length > 0) { %>
-              <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
-                <a href="/reading/<%-n%>/<%-k%>"><li class="<% if (reading.isCompleted) { %>completed<% } else { %>incomplete<% } %>"><%-reading.name%></li></a>
-              <% } %>
-          <% } %>
-          
+      <% if (currentLesson.videos.length > 0) { %>
+      <% for (var j = 0; j < currentLesson.videos.length; j += 1) { var video = currentLesson.videos[j]; %> <a href="/webcast/<%-n%>/<%-j%>">
+      <li class="<% if (video.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+        Webcast <%-(j + 1)%>
+      </li></a>
+      <% } %>
+      <% } %>
+
+      <% if (currentLesson.readings.length > 0) { %>
+      <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %> <a href="/reading/<%-n%>/<%-k%>">
+      <li class="<% if (reading.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+        <%-reading.name%>
+      </li></a>
+      <% } %>
+      <% } %>
     </ul>
   </div>
   <div class="thirds left">
     <h1>Practice</h1>
-      <ul class="nolist">
-              <% if (currentLesson.homework) { %>
-                <a href="/homework/<%-n%>"><li class="<% if (currentLesson.homework.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Homework</li></a>
-              <% } %>
-              <% if (currentLesson.project) { %>
-                <a href="/project/<%-n%>"><li class="<% if (currentLesson.project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">Project</li></a>
-              <% } %>
+    <ul class="nolist">
+      <% if (currentLesson.homework) { %> <a href="/homework/<%-n%>">
+      <li class="<% if (currentLesson.homework.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+        Homework
+      </li></a>
+      <% } %>
+      <% if (currentLesson.project) { %> <a href="/project/<%-n%>">
+      <li class="<% if (currentLesson.project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+        Project
+      </li></a>
+      <% } %>
     </ul>
   </div>
   <div class="thirds left">
     <h1>Master</h1>
     <ul class="nolist">
-          <% if (currentLesson.extra.length > 0) { %>
-              <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %>
-                <a href="/extra/<%-n%>/<%-j%>"><li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>"><%-extra.name%></li></a>
-              <% } %>
-          <% } else { %>
-            <div class="yellownote"> 
-              <div class="padding">
-                Looks like there's no extras for this lesson.
-              </div>
-            </div>
-          <% } %>
-  
+      <% if (currentLesson.extra.length > 0) { %>
+      <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %> <a href="/extra/<%-n%>/<%-j%>">
+      <li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+        <%-extra.name%>
+      </li></a>
+      <% } %>
+      <% } else { %>
+      <div class="yellownote">
+        <div class="padding">
+          Looks like there's no extras for this lesson.
+        </div>
+      </div>
+      <% } %>
     </ul>
   </div>
-  
   <div class="thirds left resources">
     <h1>Solutions</h1>
     <ul class="nolist">
-      
       <% if (currentLesson.homework) { %>
-        <% if (currentLesson.homework.isCompleted) { %>
-          <a href="/solutions/homework/<%-n%>"><li class="resource">HW<%-n%> Solutions</li></a>
-        <% } else { %>
-          <li class="bnote">Solutions for the homework will appear here when you finish it!</li>
-        <% } %>
+      <% if (currentLesson.homework.isCompleted) { %> <a href="/solutions/homework/<%-n%>">
+      <li class="resource">
+        HW<%-n%> Solutions
+      </li></a>
+      <% } else { %>
+      <li class="bnote">
+        Solutions for the homework will appear here when you finish it!
+      </li>
+      <% } %>
       <% } %>
       <% if (currentLesson.project) { %>
-        <% if (currentLesson.project.isCompleted) { %>
-          <!-- TODO: Project #s? -->
-          <a href="/solutions/project/<%-n%>"><li class="resource">Proj<%-n%> Solutions</li></a>
-        <% } else { %>
-          <li class="bnote">Solutions for the project will appear here when you finish it!</li>
-        <% } %>
+      <% if (currentLesson.project.isCompleted) { %>
+      <!-- TODO: Project #s? -->
+      <a href="/solutions/project/<%-n%>">
+      <li class="resource">
+        Proj<%-n%> Solutions
+      </li></a>
+      <% } else { %>
+      <li class="bnote">
+        Solutions for the project will appear here when you finish it!
+      </li>
       <% } %>
-      
+      <% } %>
     </ul>
   </div>
-  
   <div class="clear"></div>
-  
-<br>
-<% if (news.length > 0) { %>
+  <br>
+  <% if (news.length > 0) { %>
   <div class="otherflag noselect">
     <h2>Announcements</h2>
   </div>
   <div class="triangle"></div>
   <div class="clear"></div>
   <% for (var i = 0; i < news.length; i += 1) { var article = news[i];%>
-    <div class="announcement">
-      <h3><%-article.title%></h3>
-      
+  <div class="announcement">
+    <h3><%-article.title%></h3>
     <div class="morepadding">
       <%-article.content%>
     </div>
     <h4>Posted: <%-article.date%></h4>
-    </div>
+  </div>
   <% } %>
-<% } %>
+  <% } %>
 </div>
