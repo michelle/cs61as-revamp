@@ -117,17 +117,19 @@ body, html {
   display: none;
   list-style-type: none;
   margin-left: -20px;
-  border-radius: 7px;
+  border-radius: 5px;
   top: -2px;
-  width: 55px;
+  width: 65px;
   opacity: 0.9;
   -webkit-margin-before: 40px;
   padding: 5px;
+  letter-spacing: 0px;
   position: relative;
   text-align: center;
-  font-size: 15px;
-  line-height: 15px;
+  font-size: 14px;
+  line-height: 14px;
   font-weight: 400;
+  font-family: 'Open Sans';
 	background-color: #394349;
   color: #fff;
 }
@@ -547,7 +549,7 @@ h1 {
 }
 
 .smallwidth {
-  width: 35px;
+  width: 45px;
   height: 35px;
 }
 
@@ -938,11 +940,12 @@ ul {
 #nav ul {
   display: none;
   position: relative;
-  margin-top: -35px;
-  margin-left: -50px;
+  margin-top: -30px;
+  margin-left: -80px;
   opacity: 0.9;
-  font-size: 12px;
-  width: 60px;
+  font-size: 14px;
+  font-family: 'Open Sans';
+  width: 90px;
   padding: 5px;
   border-radius: 7px 0px 7px 7px;
   line-height: 15px; 
