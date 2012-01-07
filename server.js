@@ -655,7 +655,7 @@ app.get('/admin/lessons', loadUser, checkPermit('canAccessAdminPanel'), checkPer
         log(err);
         Extra.find({}, function(err, extras) {
           log(err);
-          Videos.find({}, function(err, videos) {
+          Video.find({}, function(err, videos) {
             log(err);
             Reading.find({}, function(err, readings) {
               log(err);
@@ -714,7 +714,7 @@ app.get('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminPa
         log(err);
         Extra.find({}, function(err, extras) {
           log(err);
-          Videos.find({}, function(err, videos) {
+          Video.find({}, function(err, videos) {
             log(err);
             Reading.find({}, function(err, readings) {
               log(err);
