@@ -1615,23 +1615,28 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
 /** Student dashboard. */
 app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
-  Announcement.find({}, function(err, news) {
-    log(err);
-    Project.findById(req.currentLesson.unit.project, function(err, project) {
+  if (req.currentLesson && req.currentLesson.unit) {
+    Announcement.find({}, function(err, news) {
       log(err);
-      if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
-        project = undefined;
-      }
-      news.sort(function(b, a) { return a.date - b.date } );
-      res.render('dashboard', {
-        page: 'dashboard',
-        currentUser: req.currentUser,
-        currentLesson: req.currentLesson,
-        project: project,
-        news: news
+      Project.findById(req.currentLesson.unit.project, function(err, project) {
+        log(err);
+        if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
+          project = undefined;
+        }
+        news.sort(function(b, a) { return a.date - b.date } );
+        res.render('dashboard', {
+          page: 'dashboard',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          project: project,
+          news: news
+        });
       });
     });
-  });
+  } else {
+    req.flash('error', 'The lesson you are trying to access does not exist.');
+    res.redirect('/dashboard');
+  }
 });
 /** Change dashboard. */
 app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
