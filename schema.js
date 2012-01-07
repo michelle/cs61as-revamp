@@ -59,6 +59,7 @@ function defineModels(mongoose, fn) {
     currentUnit: {
       type: Number,
       min: 0,
+      max: 5,
       'default': 0
     },
     currentLesson: {
@@ -268,6 +269,7 @@ function defineModels(mongoose, fn) {
     number: {
       type: Number,
       min: 0,
+      max: 5,
       required: true,
       index: {
         unique: true

@@ -71,8 +71,9 @@
     <br>
     <div class="formbox">
       <h3>Edit a lesson (<%-lessons.length %> total)</h3>
+      <% lessons.sort(function(a, b) { return a.number - b.number } ); %>
       <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i];%>
-      <span class="left boxy noselect displaymargin">name: <%-lesson.name%></span>
+      <span class="left boxy noselect displaymargin"><%-lesson.number%>: <%-lesson.name%></span>
       <span class="right linkboxy displaymargin">
         <a href="/admin/lessons/edit/<%-lesson.id%>">(edit)</a>
         <a href="/admin/lessons/delete/<%-lesson.id%>">(delete)</a>

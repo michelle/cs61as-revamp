@@ -5,7 +5,7 @@
   <div id="lefttriangle"></div>
   <div class="contentpadding">
     <div id="accordion">
-      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
+      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; if (n > 99) { n *= Math.pow(10, -3) }%>
         <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
