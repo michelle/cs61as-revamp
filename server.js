@@ -478,6 +478,15 @@ app.param('readingId', function(req, res, next, readingId) {
   req.reading = req.currentLesson.readings && req.currentLesson.readings[readingId];
   next();
 });
+/** Pre condition param unit into req.unit. */
+app.param('unit', function(req, res, next, unitId) {
+  trace('param unit');
+  unit.findById(unitId, function(err, unit) {
+    log(err);
+    req.unit = !err && unit;
+    next();
+  });
+});
 /** Pre condition param lesson into req.lesson. */
 app.param('lesson', function(req, res, next, lessonId) {
   trace('param lesson');
@@ -702,6 +711,118 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
   } else {
     req.flash('error', 'Malformed noteID.');
     res.redirect('/admin/announcements');
+  }
+});
+/** Unit panel */
+app.get('/admin/units', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/units');
+  Unit.find({}, function(err, units) {
+    log(err);
+    Lesson.find({}, function(err, lessons) {
+      log(err);
+      Project.find({}, function(err, projects) {
+        log(err);
+        res.render('admin/units', {
+          page: 'admin/units',
+          currentUser: req.currentUser,
+          units: units,
+          lessons: lessons,
+          projects: projects
+        });
+      });
+    });
+  });
+});
+/** Post new unit */
+app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/units/add');
+  var unit = new Unit({
+    number: req.body.unit.number,
+    name: req.body.unit.name,
+    lessons: req.body.unit.lessons,
+    project: req.body.unit.project,
+    projectLessonNumber: req.body.unit.projectLessonNumber
+  });
+  unit.save(function(err) {
+    if (err) {
+      log(err);
+      for (var e in err.errors) {
+        req.flash('error', err.errors[e].message);
+      }
+      if (err.err) {
+        req.flash('error', err.err);
+      }
+      req.flash('error', 'Unit was not added successfully.');
+    } else {
+      req.flash('info', 'Unit was added successfully.');
+    }
+    res.redirect('/admin/units');
+  });
+});
+/** Edit an unit. */
+app.get('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/units/edit/:unit');
+  if (req.unit) {
+    Lesson.find({}, function(err, lessons) {
+      log(err);
+      Project.find({}, function(err, projects) {
+        log(err);
+        res.render('admin/units/edit', {
+          page: 'admin/units/edit',
+          currentUser: req.currentUser,
+          unit: req.unit,
+          lessons: lessons,
+          projects: projects
+        });
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed unitId.');
+    res.redirect('/admin/unit');
+  }
+});
+/** Save edit a unit. */
+app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/units/edit/:unit');
+  if (req.unit) {
+    req.unit.number = req.body.unit.number;
+    req.unit.name = req.body.unit.name;
+    req.unit.lessons = req.body.unit.lessons;
+    req.unit.project = req.body.unit.project;
+    req.unit.projectLessonNumber = req.body.unit.projectLessonNumber;
+
+    req.unit.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'Unit was not saved successfully.');
+      } else {
+        req.flash('info', 'Unit was saved successfully.');
+      }
+      res.redirect('/admin/units');
+    });
+  } else {
+    req.flash('error', 'Malformed unitId.');
+    res.redirect('/admin/units');
+  }
+});
+/** Delete an unit. */
+app.get('/admin/units/delete/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/units/delete/:unit');
+  if (req.unit) {
+    req.unit.remove(function(err) {
+      log(err);
+      req.flash('info', 'unit deleted.');
+      res.redirect('/admin/units');
+    });
+  } else {
+    req.flash('error', 'Malformed unitId.');
+    res.redirect('/admin/units');
   }
 });
 /** Lessons panel */
