@@ -1,4 +1,12 @@
 $(document).ready(function() {
+  var hidden = false;
+    if ($('#signal').position().left < 150 && !hidden) {
+      $('#topbar .up').hide();
+      hidden = true;
+    }
+    if ($(document).height() <= $(window).height() + 150) {
+      $('#bottombar, #push').hide();
+    }
   /** Dashboard UI. */
   $(function() {
     $( "#accordion" ).accordion({
@@ -9,24 +17,15 @@ $(document).ready(function() {
       active: false
     });
   });
-  /** Superficial things. */
-  $(function() {
-    topbarwidth = $('#topfloater').width();
-    if ($('#topfloater').width() > .96*$(window).width()) {
-      $('#topbar .up').hide();
-    }
-    if ($(document).height() <= $(window).height() + 200) {
-      $('#bottombar').hide();
-    }
-    $('#title, #topbar a, #bottombar a, #splash a, #splash button').disableSelection();
-  });
   /** Window resizing. */
   $(window).resize(function() {
-    if (topbarwidth > .96*$(window).width()) {
+    if ($('#signal').position().left < 150 && !hidden) {
       $('#topbar .up').hide();
+      hidden = true;
     }
-    if (topbarwidth <= .96*$(window).width()) {
+    if ($('#signal').position().left > 500 && hidden) {
       $('#topbar .up').show();
+      hidden = false
     }
     if ($(document).height() > $(window).height() + 200) {
       $('#bottombar').show();
