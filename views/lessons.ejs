@@ -1,18 +1,13 @@
-
-
 <div id="nocenter">
   <div id="lesson" class="noselect">
     <h2>Lessons</h2>
   </div>
   <div id="lefttriangle"></div>
-<div class="contentpadding">
-  <div id="accordion">
-    <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
-        
-        <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
+  <div class="contentpadding">
+    <div id="accordion">
+      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %> <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
-          
             <a href="/dashboard/<%-n%>"><strong>View on dashboard.</strong></a>
             <br>
           <% } %>
@@ -24,36 +19,32 @@
               <% } %>
             <br>
           <% } %>
-          
-          <% if (lesson.readings.length > 0) { %>
-            <strong>Readings:</strong>
-              <% for (var k = 0; k < lesson.readings.length; k += 1) { var reading = lesson.readings[k]; %>
-                <br><span class="indent">- <a href="/reading/<%-n%>/<%-k%>"><%-reading.name%></a></span>
-              <% } %>
+          <% if (lesson.readings.length > 0) { %> <strong>Readings:</strong>
+            <% for (var k = 0; k < lesson.readings.length; k += 1) { var reading = lesson.readings[k]; %>
+              <br>
+              <span class="indent">- <a href="/reading/<%-n%>/<%-k%>"><%-reading.name%></a></span>
+            <% } %>
             <br>
           <% } %>
-          
-          <% if (lesson.assignments.length > 0) { %>
-            <strong>Assignments:</strong>
-              <% if (lesson.homework) { %>
-                <br><span class="indent">- Homework: <a href="/homework/<%-n%>"><%-lesson.homework.name%></a></span>
-              <% } %>
-              <% if (lesson.project) { %>
-                <br><span class="indent">- Project: <a href="/project/<%-n%>"><%-lesson.project.name%></a></span>
-              <% } %>
+          <strong>Assignments:</strong>
+          <% if (lesson.homework) { %>
             <br>
+            <span class="indent">- Homework: <a href="/homework/<%-n%>"><%-lesson.homework.name%></a></span>
           <% } %>
-          
-          <% if (lesson.extra.length > 0) { %>
-            <strong>Extras for Experts:</strong>
-              <% for (var l = 0; l < lesson.extra.length; l += 1) { var extra = lesson.extra[l]; %>
-                <br><span class="indent">- <a href="/extra/<%-n%>/<%-j%>"><%-extra.name%></a></span>
-              <% } %>
+          <% if (lesson.project) { %>
+            <br>
+            <span class="indent">- Project: <a href="/project/<%-n%>"><%-lesson.project.name%></a></span>
+          <% } %>
+          <br>
+          <% if (lesson.extra.length > 0) { %> <strong>Extras for Experts:</strong>
+            <% for (var l = 0; l < lesson.extra.length; l += 1) { var extra = lesson.extra[l]; %>
+              <br>
+              <span class="indent">- <a href="/extra/<%-n%>/<%-j%>"><%-extra.name%></a></span>
+            <% } %>
             <br>
           <% } %>
         </div>
-    
-    <% } %>
+      <% } %>
+    </div>
   </div>
-</div>
 </div>

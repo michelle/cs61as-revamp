@@ -54,7 +54,7 @@
         </select>
         <br>
         <span class="left boxy noselect">videos</span>
-        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+        <select class="right selectboxy" name='lesson[videos]' multiple="multiple">
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
             <% if (lesson.videos && lesson.videos.indexOf(video.id) != -1) { %>
               <option value="<%-video.id%>" selected="selected"><%-video.name%></option>
@@ -65,7 +65,7 @@
         </select>
         <br>
         <span class="left boxy noselect">readings</span>
-        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+        <select class="right selectboxy" name='lesson[readings]' multiple="multiple">
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
             <% if (lesson.readings && lesson.readings.indexOf(reading.id) != -1) { %>
               <option value="<%-reading.id%>" selected="selected"><%-reading.name%></option>
