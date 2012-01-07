@@ -633,11 +633,11 @@ app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAd
 app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/announcements/delete/:noteId');
   if (req.note) {
-    Announcement.findById(req.note.id, function(err, note) {
-      log(err);
-      note.remove();
-      req.flash('info', 'Post deleted.');
-      res.redirect('/admin/announcements');
+      note.remove(function(err){
+        log(err);
+        req.flash('info', 'Post deleted.');
+        res.redirect('/admin/announcements');
+      });
     });
   } else {
     req.flash('error', 'Malformed noteID.');
@@ -750,7 +750,7 @@ app.post('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminP
     req.currentLesson.videos = req.body.lesson.videos;
     req.currentLesson.readings = req.body.lesson.readings;
 
-    req.note.save(function(err){
+    req.currentLesson.save(function(err){
       if (err) {
         log(err);
         for (var e in err.errors) {
@@ -763,12 +763,24 @@ app.post('/admin/lessons/edit/:lessonId', loadUser, checkPermit('canAccessAdminP
       } else {
         req.flash('info', 'Lesson was added successfully.');
       }
-      res.redirect('/admin/lessons/edit');
+      res.redirect('/admin/lessons/edit' + req.currentLesson.id);
     });
   } else {
     req.flash('error', 'Malformed lessonId.');
     res.redirect('/admin/lessons');
   }
+});
+/** Homework panel */
+app.get('/admin/homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/homework');
+  Homework.find({}, function(err, homework) {
+    log(err);
+    res.render('admin/homework', {
+      page: 'admin/homework',
+      currentUser: req.currentUser,
+      homework: homework
+    });
+  });
 });
 /** Post new homework */
 app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
@@ -792,9 +804,76 @@ app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), ch
     res.redirect('/admin/lessons');
   });
 });
+/** Edit an homework. */
+app.get('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/homework/edit/:homeworkId');
+  if (req.homework) {
+    res.render('admin/homework/edit', {
+      page: 'admin/homework/edit',
+      currentUser: req.currentUser,
+      homework: req.homework
+    });
+  } else {
+    req.flash('error', 'Malformed homeworkId.');
+    res.redirect('/admin/homework');
+  }
+});
+/** Save edit a homework. */
+app.post('/admin/homework/edit/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/homework/edit/:homeworkId');
+  if (req.homework) {
+    req.homework.name = req.body.homework.name;
+
+    req.homework.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'Homework was not added successfully.');
+      } else {
+        req.flash('info', 'Homework was added successfully.');
+      }
+      res.redirect('/admin/homework/edit/' + req.homework.id);
+    });
+  } else {
+    req.flash('error', 'Malformed homeworkId.');
+    res.redirect('/admin/homework');
+  }
+});
+/** Delete an homework. */
+app.get('/admin/homework/delete/:homeworkId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/homework/delete/:homeworkId');
+  if (req.homework) {
+      req.homework.remove(functio(err) {
+        log(err);
+        req.flash('info', 'Homework deleted.');
+        res.redirect('/admin/homework');
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed homeworkId.');
+    res.redirect('/admin/homework');
+  }
+});
+/** Project panel */
+app.get('/admin/projects', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/projects');
+  Project.find({}, function(err, projects) {
+    log(err);
+    res.render('admin/projects', {
+      page: 'admin/projects',
+      currentUser: req.currentUser,
+      projects: projects
+    });
+  });
+});
 /** Post new project */
-app.post('/admin/project/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/project/add');
+app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/projects/add');
   var project = new Project({
     name: req.body.project.name
   });
@@ -811,7 +890,74 @@ app.post('/admin/project/add', loadUser, checkPermit('canAccessAdminPanel'), che
     } else {
       req.flash('info', 'Project was added successfully.');
     }
-    res.redirect('/admin/lessons');
+    res.redirect('/admin/projects');
+  });
+});
+/** Edit an project. */
+app.get('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/projects/edit/:projectId');
+  if (req.project) {
+    res.render('admin/projects/edit', {
+      page: 'admin/projects/edit',
+      currentUser: req.currentUser,
+      project: req.project
+    });
+  } else {
+    req.flash('error', 'Malformed projectId.');
+    res.redirect('/admin/projects');
+  }
+});
+/** Save edit a project. */
+app.post('/admin/projects/edit/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/projects/edit/:projectId');
+  if (req.project) {
+    req.project.name = req.body.project.name;
+
+    req.project.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'project was not added successfully.');
+      } else {
+        req.flash('info', 'project was added successfully.');
+      }
+      res.redirect('/admin/projects/edit/' + req.project.id);
+    });
+  } else {
+    req.flash('error', 'Malformed projectId.');
+    res.redirect('/admin/projects');
+  }
+});
+/** Delete an project. */
+app.get('/admin/projects/delete/:projectId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/projects/delete/:projectId');
+  if (req.project) {
+      req.project.remove(functio(err) {
+        log(err);
+        req.flash('info', 'Project deleted.');
+        res.redirect('/admin/projects');
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed projectId.');
+    res.redirect('/admin/projects');
+  }
+});
+/** Extra panel */
+app.get('/admin/extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/extra');
+  Extra.find({}, function(err, extras) {
+    log(err);
+    res.render('admin/extra', {
+      page: 'admin/extra',
+      currentUser: req.currentUser,
+      extras: extras
+    });
   });
 });
 /** Post new extra */
@@ -833,12 +979,79 @@ app.post('/admin/extra/add', loadUser, checkPermit('canAccessAdminPanel'), check
     } else {
       req.flash('info', 'Extra was added successfully.');
     }
-    res.redirect('/admin/lessons');
+    res.redirect('/admin/extra');
   });
 });
-/** Post new homework */
-app.post('/admin/video/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/video/add');
+/** Edit an extra. */
+app.get('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/extra/edit/:extraId');
+  if (req.extra) {
+    res.render('admin/extra/edit', {
+      page: 'admin/extra/edit',
+      currentUser: req.currentUser,
+      extra: req.extra
+    });
+  } else {
+    req.flash('error', 'Malformed extraId.');
+    res.redirect('/admin/extra');
+  }
+});
+/** Save edit a extra. */
+app.post('/admin/extra/edit/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/extra/edit/:extraId');
+  if (req.extra) {
+    req.extra.name = req.body.extra.name;
+
+    req.extra.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'extra was not added successfully.');
+      } else {
+        req.flash('info', 'extra was added successfully.');
+      }
+      res.redirect('/admin/extra/edit/' + req.extra.id);
+    });
+  } else {
+    req.flash('error', 'Malformed extraId.');
+    res.redirect('/admin/extra');
+  }
+});
+/** Delete an extra. */
+app.get('/admin/extra/delete/:extraId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/extra/delete/:extraId');
+  if (req.extra) {
+      req.extra.remove(functio(err) {
+        log(err);
+        req.flash('info', 'Extra deleted.');
+        res.redirect('/admin/extra');
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed extraId.');
+    res.redirect('/admin/extra');
+  }
+});
+/** video panel */
+app.get('/admin/videos', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/videos');
+  Video.find({}, function(err, videos) {
+    log(err);
+    res.render('admin/videos', {
+      page: 'admin/videos',
+      currentUser: req.currentUser,
+      videos: videos
+    });
+  });
+});
+/** Post new video */
+app.post('/admin/videos/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/videos/add');
   var video = new Video({
     name: req.body.video.name,
     url: req.body.video.url
@@ -859,9 +1072,77 @@ app.post('/admin/video/add', loadUser, checkPermit('canAccessAdminPanel'), check
     res.redirect('/admin/lessons');
   });
 });
+/** Edit an video. */
+app.get('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/videos/edit/:videoId');
+  if (req.video) {
+    res.render('admin/videos/edit', {
+      page: 'admin/videos/edit',
+      currentUser: req.currentUser,
+      video: req.video
+    });
+  } else {
+    req.flash('error', 'Malformed videoId.');
+    res.redirect('/admin/videos');
+  }
+});
+/** Save edit a video. */
+app.post('/admin/videos/edit/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/videos/edit/:videoId');
+  if (req.video) {
+    req.video.name = req.body.video.name;
+    req.video.url = req.body.video.url;
+
+    req.video.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'video was not added successfully.');
+      } else {
+        req.flash('info', 'video was added successfully.');
+      }
+      res.redirect('/admin/videos/edit/' + req.video.id);
+    });
+  } else {
+    req.flash('error', 'Malformed videoId.');
+    res.redirect('/admin/videos');
+  }
+});
+/** Delete an video. */
+app.get('/admin/videos/delete/:videoId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/videos/delete/:videoId');
+  if (req.video) {
+      req.video.remove(functio(err) {
+        log(err);
+        req.flash('info', 'video deleted.');
+        res.redirect('/admin/videos');
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed videoId.');
+    res.redirect('/admin/videos');
+  }
+});
+/** Reading panel */
+app.get('/admin/readings', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/readings');
+  Reading.find({}, function(err, readings) {
+    log(err);
+    res.render('admin/reading', {
+      page: 'admin/reading',
+      currentUser: req.currentUser,
+      readings: readings
+    });
+  });
+});
 /** Post new reading */
-app.post('/admin/reading/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('POST /admin/reading/add');
+app.post('/admin/readings/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/readings/add');
   var reading = new Reading({
     name: req.body.reading.name,
     location: req.body.reading.location,
@@ -880,8 +1161,65 @@ app.post('/admin/reading/add', loadUser, checkPermit('canAccessAdminPanel'), che
     } else {
       req.flash('info', 'Reading was added successfully.');
     }
-    res.redirect('/admin/lessons');
+    res.redirect('/admin/readings');
   });
+});
+/** Edit an reading. */
+app.get('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('GET /admin/readings/edit/:readingId');
+  if (req.reading) {
+    res.render('admin/readings/edit', {
+      page: 'admin/readings/edit',
+      currentUser: req.currentUser,
+      reading: req.reading
+    });
+  } else {
+    req.flash('error', 'Malformed readingId.');
+    res.redirect('/admin/readings');
+  }
+});
+/** Save edit a reading. */
+app.post('/admin/readings/edit/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('POST /admin/readings/edit/:readingId');
+  if (req.reading) {
+    req.reading.name = req.body.reading.name;
+    req.reading.location = req.body.reading.location;
+    req.reading.SICP = req.body.reading.SICP;
+
+    req.reading.save(function(err){
+      if (err) {
+        log(err);
+        for (var e in err.errors) {
+          req.flash('error', err.errors[e].message);
+        }
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'reading was not added successfully.');
+      } else {
+        req.flash('info', 'reading was added successfully.');
+      }
+      res.redirect('/admin/readings/edit/' + req.reading.id);
+    });
+  } else {
+    req.flash('error', 'Malformed readingId.');
+    res.redirect('/admin/readings');
+  }
+});
+/** Delete an reading. */
+app.get('/admin/readings/delete/:readingId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/readings/delete/:readingId');
+  if (req.reading) {
+      req.reading.remove(functio(err) {
+        log(err);
+        req.flash('info', 'reading deleted.');
+        res.redirect('/admin/readings');
+      });
+    });
+  } else {
+    req.flash('error', 'Malformed readingId.');
+    res.redirect('/admin/readings');
+  }
 });
 /** Manage users. */
 app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
