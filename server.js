@@ -246,7 +246,7 @@ function loadLesson(req, res, next) {
  *  If there is no previous progress, create one. */
 function loadProgress(req, res, next) {
   trace('loadProgress');
-  if (!req.currentUnit || !req.currentLesson) {
+  if (!req.currentLesson) {
     next();
     return;
   }
@@ -279,7 +279,7 @@ function loadProgress(req, res, next) {
         });
       }
     }, function() {
-      return progress.project;
+      return progress.homework;
     });
     for(var i = 0; i < req.currentLesson.extra.length; i++) {
       req.currentLesson.extra[i].attachProgress( function(id) {
@@ -333,7 +333,7 @@ function loadProgress(req, res, next) {
       }(i));
     }
 
-    if (req.currentUnit.project && req.currentUnit.projectLessonNumber == req.currentLesson.number) {
+    if (req.currentLesson.unit.project && req.currentLesson.unit.projectLessonNumber == req.currentLesson.number) {
       req.currentUnit.project.attachProgress(function(value) {
         if (req.currentUser.canWriteProgress()) {
           progress.project = value;
