@@ -105,7 +105,7 @@ function getType(type) {
     case('Grader'):
       return User.Permissions.Grader;
     case('Student'):
-      return User.Permissions.User;
+      return User.Permissions.Student;
     case('Instructor'):
       return User.Permissions.Instructor;
     default:

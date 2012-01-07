@@ -16,7 +16,7 @@ var permissions = {
   SuperAdmin: 0x1FFFFF,
   Instructor: 0x1FFC4F,
   Grader: 0x1FFC07,
-  User: 0x1FC006,
+  Student: 0x1FC006,
   Guest: 0x000004
 };
 
@@ -232,7 +232,7 @@ function defineModels(mongoose, fn) {
     },
     permission: {
       type: Number,
-      'enum': [permissions.SuperAdmin, permissions.Instructor, permissions.User, permissions.Guest],
+      'enum': [permissions.SuperAdmin, permissions.Instructor, permissions.Student, permissions.Guest],
       'default': 0
     },
     currentLesson: {
@@ -353,8 +353,8 @@ function defineModels(mongoose, fn) {
   User.virtual('Grader').get(function() {
     return this.permission == permissions.Grader;
   });
-  User.virtual('User').get(function() {
-    return this.permission == permissions.User;
+  User.virtual('Student').get(function() {
+    return this.permission == permissions.Student;
   });
   User.virtual('Guest').get(function() {
     return this.permission == permissions.Guest;
