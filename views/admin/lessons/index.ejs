@@ -1,0 +1,138 @@
+<div id="centered">
+  <div class="yellownote">
+    <div class="padding">
+      <strong>Warning: </strong>Think twice before you click save.
+      This is dangerous, and it has the potential to break the DB (no security yet).
+    </div>
+  </div>
+  <div id="lesson" class="noselect">
+    <h2>Manage Lessons</h2>
+  </div>
+  <div id="lefttriangle"></div>
+  <br>
+  <div class="contentpadding">
+    <form method="post" action="/admin/homework/add">
+      <div class="formbox">
+        <h3>Add a new Homework</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='homework[name]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitHomework">
+        Save
+      </button>
+    </form>
+    <form method="post" action="/admin/project/add">
+      <div class="formbox">
+        <h3>Add a new Project</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='project[name]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitProject">
+        Save
+      </button>
+    </form>
+    <form method="post" action="/admin/extra/add">
+      <div class="formbox">
+        <h3>Add a new Extra for experts</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='extra[name]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitExtra">
+        Save
+      </button>
+    </form>
+    <form method="post" action="/admin/video/add">
+      <div class="formbox">
+        <h3>Add a new Webcast</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='video[name]' required >
+        <br/>
+        <span class="left boxy noselect" required>url</span>
+        <input type="text" class="right textboxy" name='video[url]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitVideo">
+        Save
+      </button>
+    </form>
+    <form method="post" action="/admin/reading/add">
+      <div class="formbox">
+        <h3>Add a new Reading</h3>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='reading[name]' required >
+        <span class="left boxy noselect" required>location</span>
+        <input type="text" class="right textboxy" name='reading[location]' required >
+        <span class="left boxy noselect" required>Is SICP</span>
+        <input type="checkbox" class="right textboxy" name='reading[SICP]' required >
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitReading">
+        Save
+      </button>
+    </form>
+    <form method="post" action="/admin/lessons/add">
+      <div class="formbox">
+        <h3>Add a new Lesson</h3>
+        <span class="left boxy noselect" required>number</span>
+        <input type="number" class="right textboxy" name='lesson[number]' required >
+        <br>
+        <span class="left boxy noselect" required>name</span>
+        <input type="text" class="right textboxy" name='lesson[name]' required >
+        <br>
+        <span class="left boxy noselect">homework</span>
+        <select class="right selectboxy" name='lesson[homework]'>
+          <% for (var i = 0; i < homeworks.length; i += 1) { var homework = homeworks[i] ;%>
+            <option value="<%-homework.id%>"><%-homework.name%></option>
+          <% } %>
+        </select>
+        <br>
+        <span class="left boxy noselect">project</span>
+        <select class="right selectboxy" name='lesson[project]'>
+          <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
+            <option value="<%-project.id%>"><%-project.name%></option>
+          <% } %>
+        </select>
+        <br>
+        <span class="left boxy noselect">extra</span>
+        <select class="right selectboxy" name='lesson[extra]' multiple="multiple">
+          <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i] ;%>
+            <option value="<%-extra.id%>"><%-extra.name%></option>
+          <% } %>
+        </select>
+        <br>
+        <span class="left boxy noselect">videos</span>
+        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+          <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
+            <option value="<%-video.id%>"><%-video.name%></option>
+          <% } %>
+        </select>
+        <br>
+        <span class="left boxy noselect">readings</span>
+        <select class="right selectboxy" name='lesson[reading]' multiple="multiple">
+          <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
+            <option value="<%-reading.id%>"><%-reading.name%></option>
+          <% } %>
+        </select>
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton" id="submitLesson">
+        Save
+      </button>
+    </form>
+    <br>
+    <br>
+    <div class="formbox">
+      <h3>Edit a lesson (<%-lessons.length %> total)</h3>
+      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i];%>
+      <span class="left boxy noselect displaymargin">name: <%-lesson.name%></span>
+      <span class="right linkboxy displaymargin">
+        <a href="/admin/lessons/edit/<%-lesson.number%>">(edit)</a>
+        <a href="/admin/lessons/delete/<%-lesson.number%>">(delete)</a>
+      </span>
+      <% } %> <div class="clear"></div>
+    </div>
+  </div>
+</div>
