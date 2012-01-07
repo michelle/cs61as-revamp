@@ -917,9 +917,8 @@ input {
   font-size: 12px;
   width: 60px;
   padding: 5px;
-  border-radius: 5px 0px 5px 5px;
-  line-height: 15px;  
-  border: 1px solid rgba(200,215,220,1);
+  border-radius: 7px 0px 7px 7px;
+  line-height: 15px; 
 	background-color: #394349;
   color: #fff;
   text-align: center;
