@@ -2166,6 +2166,7 @@ app.get('/feedback', loadUser, checkPermit('canAccessDashboard'), function(req, 
   trace('GET URL: /feedback');
   Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
     log(err);
+    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('feedback', {
       page: 'feedback',
       currentUser: req.currentUser,
@@ -2230,6 +2231,7 @@ app.get('/admin/feedback', loadUser, checkPermit('canWriteGradeEveryone'), funct
   trace('GET URL: /admin/feedback');
   Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
     log(err);
+    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback', {
       page: 'admin/feedback',
       currentUser: req.currentUser,
@@ -2242,6 +2244,7 @@ app.get('/admin/feedback/all', loadUser, checkPermit('canWriteGradeEveryone'), f
   trace('GET URL: /admin/feedback/all');
   Ticket.find({}, function(err, tickets) {
     log(err);
+    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback/all', {
       page: 'admin/feedback/all',
       currentUser: req.currentUser,

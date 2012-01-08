@@ -4,7 +4,27 @@
         CS61<span id="color">AS</span>
       </div>
       <ul id="topfloater" class="right">
+          <li class="topnav left">
+            <a href="http://mitpress.mit.edu/sicp/full-text/book/book.html">
+              <div class="smallwidth left"><span class="iconic book"></span></div>
+            </a>
+            
+            <ul>
+              SICP
+            </ul>
+          </li>
+          <li class="topnav left">
+            <a href="/administration">
+              <div class="smallwidth left"><span class="iconic info"></span></div>
+            </a>
+            
+            <ul>
+              Info
+            </ul>
+          </li>
         <% if (!currentUser.canAccessDashboard()) { %>
+        
+          <li class="topnav left">
           <form method="post" action="/login">
             <div class="left small logtop" id="signal">username
             <input type="text" class="field" name='user[username]'% /></div>
@@ -16,6 +36,7 @@
               Login
             </button>
           </form>
+          </li>
         <% } else { %>
         
           <li class="topnav left">
@@ -27,15 +48,7 @@
               Piazza
             </ul>
           </li>
-          <li class="topnav left">
-            <a href="http://mitpress.mit.edu/sicp/full-text/book/book.html">
-              <div class="smallwidth left"><span class="iconic book"></span></div>
-            </a>
-            
-            <ul>
-              SICP
-            </ul>
-          </li>
+          
           <li class="topnav left">
             <a href="/feedback">
               <div class="smallwidth left"><span class="iconic comment"></span></div>
@@ -43,15 +56,6 @@
             
             <ul>
               Feedback
-            </ul>
-          </li>
-            <li class="topnav left">
-            <a href="/administration">
-              <div class="smallwidth left"><span class="iconic info"></span></div>
-            </a>
-            
-            <ul>
-              Info
             </ul>
           </li>
           <li class="topnav left">

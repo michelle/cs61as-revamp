@@ -42,8 +42,8 @@
           <% } %>
         </select>
         <br>
-        <span class="left boxy noselect">project</span>
-        <select class="right selectboxy" name='lesson[project]'>
+        <span class="left boxy selecttextboxy noselect">project</span>
+        <select class="right manyselectboxy" name='lesson[project]' multiple="multiple">
           <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
             <% if (lesson.project && lesson.project.id == project.id) { %>
               <option value="<%-project.id%>" selected="selected"><%-project.name%></option>
@@ -53,8 +53,8 @@
           <% } %>
         </select>
         <br>
-        <span class="left boxy noselect">extra</span>
-        <select class="right selectboxy" name='lesson[extra]' multiple="multiple">
+        <span class="left boxy selecttextboxy noselect">extra</span>
+        <select class="right manyselectboxy" name='lesson[extra]' multiple="multiple">
           <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i] ;%>
             <% if (lesson.extra && lesson.extra.indexOf(extra.id) != -1) { %>
               <option value="<%-extra.id%>" selected="selected"><%-extra.name%></option>
@@ -64,8 +64,8 @@
           <% } %>
         </select>
         <br>
-        <span class="left boxy noselect">videos</span>
-        <select class="right selectboxy" name='lesson[videos]' multiple="multiple">
+        <span class="left boxy selecttextboxy noselect">videos</span>
+        <select class="right manyselectboxy" name='lesson[videos]' multiple="multiple">
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
             <% if (lesson.videos && lesson.videos.indexOf(video.id) != -1) { %>
               <option value="<%-video.id%>" selected="selected"><%-video.name%></option>
@@ -75,8 +75,8 @@
           <% } %>
         </select>
         <br>
-        <span class="left boxy noselect">readings</span>
-        <select class="right selectboxy" name='lesson[readings]' multiple="multiple">
+        <span class="left boxy selecttextboxy noselect">readings</span>
+        <select class="right manyselectboxy" name='lesson[readings]' multiple="multiple">
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
             <% if (lesson.readings && lesson.readings.indexOf(reading.id) != -1) { %>
               <option value="<%-reading.id%>" selected="selected"><%-reading.name%></option>

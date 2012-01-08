@@ -40,7 +40,7 @@
     <% if (ticket.status) { %>
       <div class="reply">
         <form method="post" action="/admin/feedback/reply/<%-ticket.id%>">
-          <input type="text" name="response"/>
+          <textarea name="response"></textarea>
           <button>Close Ticket</button>
         </form>
       </div>

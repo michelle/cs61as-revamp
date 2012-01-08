@@ -775,6 +775,15 @@ h1 {
   width: 44%;
 }
 
+.manyselectboxy {
+  width: 44%;
+  height: 100px;
+}
+
+.selecttextboxy {
+  height: 100px;
+}
+
 .linkboxy {
   color: #394349;
 }
@@ -1102,6 +1111,10 @@ textarea {
 
 }
 
-.appeal button, .reply button {
+#tickets button, #tickets textarea {
+  padding: 10px;
+  border: 0px;
+}
 
+#tickets textarea {
 }
