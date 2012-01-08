@@ -1,0 +1,390 @@
+CS 61A    Project 3 solutions (Part I)
+
+1.  Let's say you live in Foothill, which is east of Soda.  (You have to
+work a little harder if you live on Southside!)
+
+;; We need a place for you to live before we create you.
+
+(define Foothill (instantiate place 'Foothill))
+(can-go Soda 'east Foothill)
+(can-go Foothill 'west Soda)
+
+;; Now we can create you, in your initial place.
+
+(define student (instantiate person 'Nerdbert Foothill))
+
+;; Now we need a place for the potstickers, and the potstickers.
+
+(define Kirin (instantiate place 'Kirin))
+(can-go Soda 'north Kirin)
+(can-go Kirin 'south Soda)
+
+(define potstickers (instantiate thing 'potstickers))
+(ask Kirin 'appear potstickers)
+
+;;Now that the additions to the world are made, we can start the plot rolling.
+
+(ask student 'go 'west)                        ;; move to Soda
+(ask student 'go 'north)                ;; move to Kirin
+(ask student 'take potstickers)
+(ask student 'go 'south)                        ;; back to Soda
+(ask student 'go 'up)                        ;; to art gallery
+(ask student 'go 'west)                        ;; to BH-Office
+(ask student 'lose potstickers)
+(ask Brian 'take potstickers)
+(ask student 'go 'east)                        ;; back to work!
+(ask student 'go 'down)
+(ask student 'go 'down)
+
+2A.  Abstractly, Brian is an object, an instance of the class Person.
+Objects are represented using procedures, so if you print Brian you'll
+see Scheme's representation of a procedure.
+
+2B.  The messages that a PLACE understands are the ones for which methods
+or variables are defined in the PLACE class definition:
+
+name, directions-and-neighbors, things, people, entry-procs, exit-procs,
+type, neighbors, exits, look-in, appear, gone, new-neighbor,
+enter, exit, add-entry-procedure, add-exit-procedure, remove-entry-procedure,
+remove-exit-procedure, clear-all-procs.
+
+Note: If the PLACE class definition included a PARENT clause, then a PLACE
+would also understand the parent class's messages.
+
+2C.  We have moved Brian to a place named Peoples-Park that isn't the
+value of any variable.  [That is, there's no (define Peoples-Park ...).]
+
+(ask Brian 'place) returns #<procedure>, an object.
+
+(let ((where (ask Brian 'place)))
+  (ask where 'name))
+returns Peoples-Park, the symbol that the place procedure remembers as its
+internal name for itself.
+
+(ask Peoples-Park 'appear bagel) gives an error message saying that there
+is no binding for the variable name Peoples-Park.
+
+The point is that there are two different things you could consider
+"the name of the place."  One is its INTERNAL name, the value of its
+internal NAME variable.  The other is its EXTERNAL name, a global
+Scheme variable whose value is the object.  If we say something like
+        (define Peoples-Park (instantiate place 'Peoples-Park))
+then the two names are the same, but if we say
+        (define s-h (instantiate place 'Sproul-Hall))
+then the two names are different.  If, as in this problem, we say
+        (can-go Telegraph-Ave 'east (instantiate place 'Peoples-Park))
+then there is no external name for the place.  If we wanted to put a
+pizza in People's Park we'd then have to say something like
+        (ask (ask Telegraph-Ave 'look-in 'east) 'appear Pizza)
+
+
+2D. (ask 61a-lab 'appear computer) is correct because the argument to the
+appear procedure is supposed to be a procedure object that represents a
+thing. COMPUTER is bound in the global environment to just such a procedure
+object, whereas DURER is unbound and 'DURER evaluates to a symbol, not a
+procedure.
+
+(computer 'name) returns a procedure, the method that the object uses in
+response to the NAME message.  If we were to say (ask computer 'name) the
+answer would be DURER.
+
+2E. THING in object syntax:
+
+(define-class (thing name)
+  (instance-vars (possessor 'no-one))
+  (method (type) 'thing)
+  (method (change-possessor new-possessor)
+    (set! possessor new-possessor)) )
+
+Notice that this is hardly any OOP code at all; most of the below-the-line
+code was generated automatically by the object system.
+
+2F.
+
+(define (whereis person)
+  (ask (ask person 'place) 'name)
+
+(define (owner thing)
+  (let ((obj (ask thing 'possessor)))
+    (if (eq? obj 'no-one)
+        'no-one
+        (ask obj 'name) )))
+
+
+A3.  Several people wanted to know if the procedure should be nasty three
+times, then be nice forever, or if it should be nasty three times, be nice
+once, and then go back to being nasty.  Either is okay with me.  If you want
+it to remember exactly who is trying to exit, and be nasty three times to
+each person, that's somewhat more complicated than I had in mind.  So, here
+are two possible solutions:
+
+(define sproul-hall-exit
+  (let ((times 0))                ;; set up a frame with times bound to 0
+    (lambda ()                        ;; make the procedure
+       (if (< times 3)
+           (begin  (set! times (1+ times))
+                   (error "you can check out....") )
+           '() ))))
+
+(define sproul-hall-exit
+  (let ((times 0))
+    (lambda ()
+      (set! times (1+ times))
+      (if (= (remainder times 4) 0)
+          '()
+          (error "you can check out....")))))
+
+Some people used a global variable to keep track of the number of exits.
+You really need to understand how to create local static variables!  Other
+people tried to solve the problem with a local new-each-time variable:
+
+(define (sproul-hall-exit)
+  (let ((times 0))
+    (if ...) ) )
+
+but of course that doesn't remember the number of times from one invocation
+to the next.  It creates a new TIMES variable, whose value is zero, each time
+someone tries to leave.
+
+To install the new sproul-hall-exit without reloading the entire world, you'd
+have to plan ahead and delete the old one first:
+
+(ask s-h 'remove-exit-procedure sproul-hall-exit)
+(define sproul-hall-exit ...)
+(ask s-h 'add-exit-procedure sproul-hall-exit)
+
+
+A4a.  Many people got in trouble here because they missed the part about
+sending a notice message to each person in the place OTHER THAN THE PERSON
+WHO IS ENTERING.  If you send a message to everyone, including the person
+who's entering, you get in big trouble in problem 6 when the thief starts
+running away from himself, so he never stops moving!
+
+Here is the new ENTER method, to be installed in the PLACE class:
+
+  (method (enter new-person)
+    (if (memq new-person people)
+        (error "Person already in this place" (list name new-person)))
+    (set! people (cons new-person people))
+    (for-each (lambda (proc) (proc)) entry-procs)
+    (for-each (lambda (pers) (ask pers 'notice new-person))
+              (delete new-person people))
+    'appeared)
+
+It would have been easier to write this if we sent the NOTICE messages
+before adding the new person to the list of people; that would avoid
+the call to DELETE.  But we don't know what the other people's NOTICE
+methods might do; in case they ask the place who's there, we want the
+new person to be there officially.  Similarly, we could just take
+(CDR PEOPLE) instead of calling DELETE, since we know that the new
+person is at the head of the list, but it's possible that a place might
+have an entry-proc that either moves the new person somewhere else or
+brings another person into the place too.
+
+
+A4b.  First, here is the MAY-ENTER? method for ordinary places:
+
+  (method (may-enter? person)
+    #t)
+
+And now here's the new class:
+
+(define-class (locked-place name)
+  (parent (place name))
+  (instance-vars (unlocked? #f))
+  (method (unlock)
+    (set! unlocked? #t))
+  (method (may-enter? person)
+    unlocked?))
+
+
+Finally, we have to modify the GO method in the PERSON class:
+
+  (method (go direction)
+    (let ((new-place (ask place 'look-in direction)))
+      (cond ((null? new-place)
+             (error "Can't go" direction))
+            ((NOT (ASK NEW-PLACE 'MAY-ENTER? SELF))
+             (ERROR "CAN'T ENTER LOCKED PLACE" (ASK NEW-PLACE 'NAME)))
+            (else
+             ...))))
+
+
+
+A5.  Here's the garage:
+
+(define-class (garage name)
+  (parent (place name))
+  (class-vars (counter 0))
+  (instance-vars (cars (make-table)) (backroom (instantiate place 'back-room)))
+  (method (park car)
+    (if (not (member car (ask self 'things)))
+        (error "Car isn't here!"))
+    (set! counter (+ counter 1))
+    (insert! counter car cars)
+    (let ((ticket (instantiate ticket counter))
+          (owner (ask car 'possessor)))
+      (ask self 'appear ticket)
+      (ask owner 'lose car)
+      (ask owner 'take ticket)
+      (ask self 'gone car)
+      (ask backroom 'appear car) ))
+  (method (unpark ticket)
+    (if (equal? (ask ticket 'name) 'ticket)
+        (let* ((number (ask ticket 'number))
+               (car (lookup number cars))
+               (owner (ask ticket 'possessor)))
+          (if (equal? car #f)
+              (error "No car parked for ticket" number))
+          (insert! number #f cars)
+          (ask backroom 'gone car)
+          (ask self 'appear car)
+          (ask owner 'lose ticket)
+          (ask self 'gone ticket)   ;; not strictly in the assignment
+          (ask owner 'take car) )
+        (error "Not a ticket!" (ask ticket 'name)) )))
+
+Here's a ticket -- it doesn't need any methods, except for the implicit
+method that returns the NUMBER instantiation variable.
+
+(define-class (ticket number)
+  (parent (thing 'ticket)))
+
+
+
+B3.  We have to find all the things at our current place, find which of those
+things have no owner, and take each of them.
+
+      (method (take-all)
+        (for-each (lambda (thing) (ask self 'take thing))
+                  (filter (lambda (thing)
+                            (eq? (ask thing 'possessor) 'no-one))
+                          (ask place 'things) ) ))
+
+
+
+B4a.
+
+(define-class (basic-object)
+  (instance-vars (properties (make-table)))
+  (method (put key value)
+    (insert! key value properties))
+  (default-method (lookup message properties)) )
+
+Remember that in default-method you're given the MESSAGE variable
+automatically by the OOP system.
+
+We also have to modify people, places, and things so that each
+of them has basic-object as its parent class.
+Here is the modification to the THING class, as an example:
+
+(define-class (thing name)
+  (instance-vars (possessor 'no-one))
+  (PARENT (BASIC-OBJECT))
+  (method ...) ...)
+
+Now that we have this mechanism, there is really no need for objects
+to have any other local state variables.  For example, instead of a
+local variable for possessor, make-thing could just say
+    (method (change-possessor new-possessor)
+      (ask self 'put 'possessor new-possessor))
+But I haven't eliminated any of the existing state variables because
+of the First Law of Engineering:  "If it's not broken, don't fix it!"
+Also, it wouldn't be quite the same taking out the local state variables,
+since you'd have to go through some extra trouble to access them.  For
+example, (set! possessions (cons thing possessions)) would have to
+turn into:
+(ask self 'put 'possessions (cons thing (ask self 'possessions)))
+
+To give people an initial default strength, we can say
+
+  (initialize (ASK SELF 'PUT 'STRENGTH 100)
+              (ask place 'enter self))
+
+in the PERSON class.
+
+
+B4b.  Some students have suggested that it would make more sense for
+PERSON? to be a property of the PERSON class rather than a method.
+Either solution is okay, so I'll show both solutions.
+
+To use a method, the changes to the object class definitions are like this:
+
+(define-class (person name place)
+  ...
+  (method (person?) #t)
+  ...)
+
+(define-class (place name)
+  ...
+  (method (place?) #t)
+  ...)
+
+(define-class (thing name)
+  ...
+  (method (thing?) #t)
+  ...)
+
+(define-class (thief name place)
+  ...
+  (method (thief?) #t)
+  ...)
+
+(define-class (police name place)
+  ...
+  (method (police?) #t)
+  ...)
+
+Note that thieves and policepersons inherit the PERSON? method from
+their parent people, so that both THIEF? and PERSON? will be true
+for a thief.
+
+You could accomplish the same thing by giving each class a local state
+variable instead of an explicit method, since the OOP system generates
+methods for each local state variable.  With this solution, the THING
+class would look like:
+
+(define-class (thing name)
+  (instance-vars (possessor 'no-one) (THING? #t))
+  ...)
+
+(And similarly for the other classes.)
+If you want to use a property instead, then the changes are
+
+(define-class (person name place)
+  ...
+  (initialize (ask self 'put 'person? #t))
+  ...)
+
+and similarly for the other classes.
+Now we change the predicate procedures (this is the same either way):
+
+(define (person? obj)
+  (and (procedure? obj)
+       (ask obj 'person?) ))
+
+etc.
+
+
+B5.  I hope you enjoyed playing with this one.
+
+(define-class (hotspot name password)
+  (parent (place name))
+  (instance-vars (laptops '()))
+  (method (connect laptop word)
+    (if (and (equal? word password)
+             (member laptop (ask self 'things)))
+        (set! laptops (cons laptop laptops))))
+  (method (surf laptop url)
+    (if (member laptop laptops)
+        (system (string-append "lynx " url))))
+  (method (gone thing)
+    (set! laptops (delete thing laptops))
+    (usual 'gone thing)))
+
+(define-class (laptop name)
+  (parent (thing name))
+  (method (connect password)
+    (ask (ask (ask self 'possessor) 'place) 'connect self password))
+  (method (surf url)
+    (ask (ask (ask self 'possessor) 'place) 'surf self url)))
