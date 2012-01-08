@@ -299,7 +299,9 @@ function defineModels(mongoose, fn) {
       type: Number,
       min: 1,
       required: true,
-      index: true
+      index: {
+        unique: true
+      }
     },
     name: {
       type: String,

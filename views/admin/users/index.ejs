@@ -19,7 +19,8 @@
         <br>
         <span class="left boxy noselect">grader</span>
         <select class="right selectboxy" name='user[grader]'>
-          <% for (var i = 0; i < graders.length; i += 1) { var grader = graders[i] ;%> <option value="<%-grader.username%>"><%-grader.username%></option>
+          <% for (var i = 0; i < graders.length; i += 1) { var grader = graders[i] ;%>
+            <option value="<%-grader.username%>"><%-grader.username%></option>
           <% } %>
         </select>
         <span class="left boxy noselect">type</span>
@@ -38,10 +39,14 @@
     <br>
     <div class="formbox">
       <h3>Edit a user (<%-users.length %> total)</h3>
-      <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%> <span class="left boxy noselect displaymargin">username: <%-user.username %></span>
-      <a class="right linkboxy displaymargin" href="/admin/users/edit/<%-user.id%>">(edit)</a>
-      <a class="right linkboxy displaymargin" href="/admin/users/delete/<%-user.id%>">(delete)</a>
-      <% } %> <div class="clear"></div>
+      <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%>
+        <span class="left boxy noselect displaymargin">username: <%-user.username %></span>
+        <span class="right linkboxy displaymargin">
+          <a href="/admin/users/edit/<%-user.id%>">(edit)</a>
+          <a href="/admin/users/delete/<%-user.id%>">(delete)</a>
+        </span>
+      <% } %>
+      <div class="clear"></div>
     </div>
   </div>
 </div>
