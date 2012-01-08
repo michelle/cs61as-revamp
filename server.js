@@ -243,8 +243,9 @@ function checkUser(req, res, next) {
       req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
       res.redirect('/settings');
     }
+  } else {
+    next();
   }
-  next();
 }
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
@@ -956,7 +957,7 @@ app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPer
   }
 });
 /** Delete a lesson. */
-app.get('/admin/lessons/delete/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/lessons/delete/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/lessons/delete/:lesson');
   if (req.lesson) {
     req.lesson.remove(function(err) {
@@ -970,7 +971,7 @@ app.get('/admin/lessons/delete/:lesson', loadUser, checkPermit('canAccessAdminPa
   }
 });
 /** Delete a unit. */
-app.get('/admin/units/delete/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/units/delete/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/units/delete/:unit');
   if (req.unit) {
     req.unit.remove(function(err) {
@@ -2161,7 +2162,7 @@ app.post('/homework/:lessonId', checkPermit('canWriteProgress'), loadProgress, f
 });
 
 /** Marking project as complete. */
-app.post('/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.post('/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /project/:lessonId/:projectId');
   if(req.currentLesson && req.project) {
     if (req.body.confirm) {
@@ -2181,7 +2182,7 @@ app.post('/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgres
   }
 });
 /** View project solutions. */
-app.get('/solutions/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.get('/solutions/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('GET /solutions/project/:lessonId/:projectId');
   if(req.currentLesson && req.project) {
     if (req.project.isCompleted) {
