@@ -7,8 +7,10 @@
 
   <div id="openticket">
     <form method="post" action="/feedback/new">
-        <input type="text" name="subject" required/>
-        <input type="text" name="complaint" required/>
+        <label>Subject</label><br>
+        <input type="text" name="subject" required><br>
+        <label>Complaint (please be specific)</label><br>
+        <textarea name="complaint" required></textarea><br>
         <button>Submit</button>
     </form>
   </div>
@@ -23,7 +25,7 @@
 <div id="tickets">
   <% for (var i = 0; i < tickets.length; i += 1) { var ticket = tickets[i];%>
   <div class="ticket">
-    <h3><%-ticket.subject%></h3>
+    <h3>Subject: <%-ticket.subject%></h3>
     <h4>Status: 
       <%if (ticket.status) {%>
         <span class="green">Open</span>
@@ -51,9 +53,12 @@
     <% } %>
     
     <% if (!ticket.status) { %>
+    <br>
       <div class="appeal">
         <form method="post" action="/feedback/appeal/<%-ticket.id%>">
-          <input type="text" name="complaint"/>
+          <label>More details</label><br>
+          <textarea name="complaint" required></textarea>
+          <br>
           <button>Appeal</button>
         </form>
       </div>

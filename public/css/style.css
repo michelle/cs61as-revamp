@@ -415,7 +415,17 @@ a {
   border: 1px solid #E5E0B2;
 }
 
-.rednote, .errornote {
+.complain, .response {
+  color: #333;
+}
+
+.response {
+  background-color: #BEE1CA;
+  border: 1px solid #609472;
+}
+
+
+.complain, .rednote, .errornote {
   background-color: #e1bfbe;
   border: 1px solid #BD9392;
 }
@@ -960,7 +970,7 @@ input {
   margin-bottom: 20px;
 }
 
-.resource, .bnote {
+.appeal, .reply, .resource, .bnote {
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(256,256,256,0.5);
   color: #4D5A63;
@@ -968,7 +978,7 @@ input {
 
 
 
-.resources {
+.ticket, .resources {
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(200,215,220,0.5);
 }
@@ -1006,6 +1016,7 @@ ul {
 
 textarea {
   resize: none;
+  outline: none;
 }
 
 #selection {
@@ -1076,21 +1087,27 @@ textarea {
 }
 
 .ticket {
-  margin-bottom: 100px;
+  padding: 5px;
+  margin: 20px 0px;
 }
 
 .ticket h3 {
-
+  padding: 5px;
+  border: 1px solid rgba(200,215,220,1);
+  background-color: rgba(256,256,256,0.5);
+  color: #4D5A63;
+  margin: 0px;
 }
 
 .ticket h4 {
-
+  margin: 10px;
+  text-align: center;
 }
 
 .complain, .response {
   float: left;
-  width: 49%;
-  border: 1px solid #000;
+  width: 48%;
+  margin: 1%;
   min-height: 100px;
   height: auto !important;
   height: 100%;
@@ -1103,23 +1120,55 @@ textarea {
 .exchange {
   min-height: 100px;
   width: 100%;
-  margin-bottom: 15px;
 }
 
-.appeal {
-
+.appeal, .reply {
+  text-align: center;
+  margin: 5px;
+  padding: 10px;
 }
 
-.reply {
 
+
+#openticket {
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
 }
 
-#tickets button, #tickets textarea {
+#openticket input, #tickets input, #openticket textarea, #tickets button, #openticket button, #tickets textarea {
   padding: 10px;
   border: 0px;
+  margin: 10px;
+  box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
+  -webkit-box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
+  -moz-box-shadow: 0px 0px 10px rgba(200,215,220,0.7);
+  border-radius: 5px;
 }
 
-#tickets textarea {
+#openticket input, #tickets input {
+  width: 300px;
+  margin-bottom: 20px;
+}
+
+
+#openticket textarea, #tickets textarea {
+  height: 100px;
+  width: 300px;
+}
+
+#openticket button, #tickets button {
+  background-color: #4D5A63;
+  cursor: pointer;
+  color: #fff;
+  -webkit-transition: background-color 0.2s linear;
+  -moz-transition: background-color 0.2s linear;
+  -o-transition: background-color 0.2s linear;
+  transition: background-color 0.2s linear;
+}
+
+#openticket button:hover, #tickets button:hover {
+  background-color: #394349;
 }
 
 h3.projectHeader {
@@ -1136,4 +1185,9 @@ h3.projectHeader {
 
 a.nounderline {
   text-decoration: none;
+}
+
+#openticket, #tickets {
+  font-size: 12px;
+  line-height: 18px;
 }

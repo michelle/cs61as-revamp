@@ -10,7 +10,7 @@
 <div id="tickets">
   <% for (var i = 0; i < tickets.length; i += 1) { var ticket = tickets[i];%>
   <div class="ticket">
-    <h3><%-ticket.subject%></h3>
+    <h3>Subject: <%-ticket.subject%></h3>
     <h4>Status: 
       <%if (ticket.status) {%>
         <span class="green">Open</span>
@@ -40,7 +40,8 @@
     <% if (ticket.status) { %>
       <div class="reply">
         <form method="post" action="/admin/feedback/reply/<%-ticket.id%>">
-          <textarea name="response"></textarea>
+          <label>Response (please be specific)</label><br>
+          <textarea name="response"></textarea><br>
           <button>Close Ticket</button>
         </form>
       </div>
