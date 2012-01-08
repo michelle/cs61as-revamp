@@ -25,6 +25,9 @@ var permissions = {
   Guest: 0x000004
 };
 
+var emailRegEx = /^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$/i;
+var usernameRegEx = /^[a-z][a-z0-9_-]{2,31}$/i;
+
 /** @return a random string that can be used as salt or token. */
 function randomToken() {
   return String(Math.round(new Date().valueOf() * Math.random()));
@@ -42,11 +45,11 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       },
-      match: /^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$/i
+      match: emailRegEx
     },
     username: {
       type: String,
-      match: /^[a-z][a-z0-9_-]{2,31}$/i,
+      match: usernameRegEx,
       required: true,
       index: {
         unique: true
@@ -211,7 +214,7 @@ function defineModels(mongoose, fn) {
   LoginToken = new Schema({
     username: {
       type: String,
-      match: /^[a-z][a-z0-9_-]{2,31}$/i,
+      match: usernameRegEx,
       required: true,
       index: {
         unique: true
@@ -559,3 +562,5 @@ function defineModels(mongoose, fn) {
 }
 
 exports.defineModels = defineModels;
+exports.emailRegEx = emailRegEx;
+exports.usernameRegEx = usernameRegEx;

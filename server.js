@@ -67,6 +67,7 @@ app.use(loadUser);
 if (DEBUG_USER) {
   app.use(logUser);
 }
+app.use(checkUser);
 
 app.use(app.router);
 app.use(express.errorHandler({
@@ -225,7 +226,18 @@ function logUser(req, res, next) {
   }
   next();
 }
-
+/** Check if the user has a valid email. */
+function checkUser(req, res, next) {
+  trace('checkUser');
+  if (req.currentUser != GUEST
+    && !(req.url in {"/settings":1, "/logout":1})
+    && !(schema.emailRegEx.test(req.currentUser.email))) {
+  req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
+    res.redirect('/settings');
+  } else {
+    next();
+  }
+}
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
 function loadLesson(req, res, next) {
