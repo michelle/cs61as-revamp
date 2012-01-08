@@ -5,7 +5,14 @@
   <div id="lefttriangle"></div>
   <div class="contentpadding">
     <div id="accordion">
-      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; if (n > 99) { n *= Math.pow(10, -3) }%>
+      <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
+      
+        <% if (projectLessons.indexOf(n)) { %>
+          <% for (var p = 0; p < lesson.projects.length) { var project = lesson.projects[p]; %>
+            <a href="/project/<%-n%>/<%-p%>"><h3 class="noselect projectHeader"><%-project.name%></h3></a>
+          <% } %>
+        <% } %>
+      
         <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
@@ -30,10 +37,6 @@
           <% if (lesson.homework) { %>
             <br>
             <span class="indent">- Homework: <a href="/homework/<%-n%>"><%-lesson.homework.name%></a></span>
-          <% } %>
-          <% if (lesson.project) { %>
-            <br>
-            <span class="indent">- Project: <a href="/project/<%-n%>"><%-lesson.project.name%></a></span>
           <% } %>
           <br>
           <% if (lesson.extra.length > 0) { %> <strong>Extras for Experts:</strong>
