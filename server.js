@@ -6,7 +6,7 @@ var DEBUG_WARNING = true;
 var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
-var SEND_GRADER_NOTIFICATION = false;
+var ENABLE_GRADER_NOTIFICATION = false;
 
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
@@ -24,9 +24,6 @@ var nodemailer = require('nodemailer');
 
 /** Database. */
 var db;
-
-/** Configuration. */
-//var config = JSON.parse(fs.readFileSync('private/config.conf'));
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -54,12 +51,6 @@ schema.defineModels(mongoose, function() {
   db = mongoose.connect(app.set('db-uri'));
 });
 
-/** Default unauthenticated user. */
-var GUEST = new User({
-  username: 'Guest',
-  permission: User.Permissions.Guest
-});
-
 /** Set up server, session management. */
 app.use(express.favicon(__dirname + '/public/favicon.ico', {
   maxAge: FAVICON_LIFETIME
@@ -71,13 +62,28 @@ app.use(express.session({
   store: mongoStore(db)
 }));
 app.use(express.static(__dirname + '/public'));
+app.use(loadUser);
+app.use(app.router);
+app.use(express.errorHandler({
+  showStack: true,
+  dumpExceptions: true
+}));
 
 /** Where to look for templates. */
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
-// setting up SMTP information
-//nodemailer.SMTP = config.SMTP;
+/** Default unauthenticated user. */
+var GUEST = new User({
+  username: 'Guest',
+  permission: User.Permissions.Guest
+});
+
+/** setting up SMTP information. */
+if (ENABLE_GRADER_NOTIFICATION) {
+  var config = JSON.parse(fs.readFileSync('private/config.conf'));
+  nodemailer.SMTP = config.SMTP;
+}
 
 /** Log OBJ to console bases on the type of OBJ and debug flags.*/
 function log(obj) {
@@ -430,7 +436,7 @@ function sendGraderProjNotification(req, next) {
 
 /** Grader email. */
 function sendGraderNotification(req, next) {
-  if (!SEND_GRADER_NOTIFICATION) {
+  if (!ENABLE_GRADER_NOTIFICATION) {
     req.flash('info', "Grader notification is not sent because option flag is off.");
     next();
     return;
@@ -631,7 +637,7 @@ app.param('reading', function(req, res, next, readingId) {
   });
 });
 /** Defaults for each type of user. */
-app.get('/default', loadUser, function(req, res) {
+app.get('/default', function(req, res) {
   trace('GET /default');
   if (req.currentUser.canAccessAdminPanel()) {
     res.redirect('/admin');
@@ -646,7 +652,7 @@ app.get('/default', loadUser, function(req, res) {
   }
 });
 /** Default view iff logged in. */
-app.get('/', loadUser, function(req, res) {
+app.get('/', function(req, res) {
   trace('GET /');
   if (req.currentUser.canAccessDashboard()) {
     res.redirect('/dashboard');
@@ -691,7 +697,7 @@ app.post('/login', function(req, res) {
   });
 });
 /** Logging out. */
-app.get('/logout', loadUser, function(req, res) {
+app.get('/logout', function(req, res) {
   trace('GET /logout');
   if (req.session) {
     LoginToken.remove({ username: req.currentUser.username }, function() {});
@@ -702,7 +708,7 @@ app.get('/logout', loadUser, function(req, res) {
   res.redirect('/home');
 });
 /** Admin Control Panel. */
-app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, res) {
+app.get('/admin', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin');
   res.render('admin', {
     page: 'admin/index',
@@ -710,7 +716,7 @@ app.get('/admin', loadUser, checkPermit('canAccessAdminPanel'), function(req, re
   });
 });
 /** Announcements panel */
-app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/announcements');
   Announcement.find({}, function(err, news) {
     log(err);
@@ -722,7 +728,7 @@ app.get('/admin/announcements', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Post new announcement */
-app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/announcements/new', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcement/new');
   var announcement = new Announcement({
     title: req.body.announcement.title,
@@ -746,7 +752,7 @@ app.post('/admin/announcements/new', loadUser, checkPermit('canAccessAdminPanel'
   });
 });
 /** Edit an announcement. */
-app.get('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/announcements/edit/:noteId');
   if (req.note) {
     res.render('admin/announcements/edit', {
@@ -760,7 +766,7 @@ app.get('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdm
   }
 });
 /** Save edit a note. */
-app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcements/edit/:noteId');
   if (req.note) {
     req.note.title = req.body.note.title;
@@ -789,7 +795,7 @@ app.post('/admin/announcements/edit/:noteId', loadUser, checkPermit('canAccessAd
   }
 });
 /** Delete an announcement. */
-app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/announcements/delete/:noteId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/announcements/delete/:noteId');
   if (req.note) {
     req.note.remove(function(err){
@@ -803,7 +809,7 @@ app.get('/admin/announcements/delete/:noteId', loadUser, checkPermit('canAccessA
   }
 });
 /** Unit panel */
-app.get('/admin/units', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/units', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/units');
   Unit.find({}, function(err, units) {
     log(err);
@@ -823,7 +829,7 @@ app.get('/admin/units', loadUser, checkPermit('canAccessAdminPanel'), checkPermi
   });
 });
 /** Post new unit */
-app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/add');
   var unit = new Unit({
     number: req.body.unit.number,
@@ -854,7 +860,7 @@ app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), check
   });
 });
 /** Edit an unit. */
-app.get('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/units/edit/:unit');
   if (req.unit) {
     Lesson.find({}, function(err, lessons) {
@@ -876,7 +882,7 @@ app.get('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel'),
   }
 });
 /** Save edit a unit. */
-app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/edit/:unit');
   if (req.unit) {
     req.unit.number = req.body.unit.number;
@@ -938,7 +944,7 @@ app.get('/admin/units/delete/:unit', loadUser, checkPermit('canAccessAdminPanel'
   }
 });
 /** Lessons panel */
-app.get('/admin/lessons', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons');
   Unit.find({}, function(err, units) {
     log(err);
@@ -974,7 +980,7 @@ app.get('/admin/lessons', loadUser, checkPermit('canAccessAdminPanel'), checkPer
   });
 });
 /** Post new lesson */
-app.post('/admin/lessons/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/add');
   var lesson = new Lesson({
     number: req.body.lesson.number,
@@ -1002,7 +1008,7 @@ app.post('/admin/lessons/add', loadUser, checkPermit('canAccessAdminPanel'), che
   });
 });
 /** Edit a lesson. */
-app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons/edit/:lesson');
   if (req.lesson) {
     Unit.find({}, function(err, units) {
@@ -1040,7 +1046,7 @@ app.get('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPane
   }
 });
 /** Save edit a lesson. */
-app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/edit/:lesson');
   if (req.lesson) {
     req.lesson.number = req.body.lesson.number;
@@ -1073,7 +1079,7 @@ app.post('/admin/lessons/edit/:lesson', loadUser, checkPermit('canAccessAdminPan
   }
 });
 /** Homework panel */
-app.get('/admin/homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/homework');
   Homework.find({}, function(err, homeworks) {
     log(err);
@@ -1085,7 +1091,7 @@ app.get('/admin/homework', loadUser, checkPermit('canAccessAdminPanel'), checkPe
   });
 });
 /** Post new homework */
-app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/homework/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/add');
   var homework = new Homework({
     name: req.body.homework.name
@@ -1107,7 +1113,7 @@ app.post('/admin/homework/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an homework. */
-app.get('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/homework/edit/:homework');
   if (req.homework) {
     res.render('admin/homework/edit', {
@@ -1121,7 +1127,7 @@ app.get('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdminP
   }
 });
 /** Save edit a homework. */
-app.post('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/edit/:homework');
   if (req.homework) {
     req.homework.name = req.body.homework.name;
@@ -1147,7 +1153,7 @@ app.post('/admin/homework/edit/:homework', loadUser, checkPermit('canAccessAdmin
   }
 });
 /** Delete an homework. */
-app.get('/admin/homework/delete/:homework', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/homework/delete/:homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/homework/delete/:homework');
   if (req.homework) {
     req.homework.remove(function(err) {
@@ -1161,7 +1167,7 @@ app.get('/admin/homework/delete/:homework', loadUser, checkPermit('canAccessAdmi
   }
 });
 /** Project panel */
-app.get('/admin/projects', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/projects', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/projects');
   Project.find({}, function(err, projects) {
     log(err);
@@ -1173,7 +1179,7 @@ app.get('/admin/projects', loadUser, checkPermit('canAccessAdminPanel'), checkPe
   });
 });
 /** Post new project */
-app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/projects/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/add');
   var project = new Project({
     name: req.body.project.name,
@@ -1196,7 +1202,7 @@ app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an project. */
-app.get('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/projects/edit/:project');
   if (req.project) {
     res.render('admin/projects/edit', {
@@ -1210,7 +1216,7 @@ app.get('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminPa
   }
 });
 /** Save edit a project. */
-app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/edit/:project');
   if (req.project) {
     req.project.name = req.body.project.name;
@@ -1237,7 +1243,7 @@ app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminP
   }
 });
 /** Delete an project. */
-app.get('/admin/projects/delete/:project', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/projects/delete/:project', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/projects/delete/:project');
   if (req.project) {
     req.project.remove(function(err) {
@@ -1251,7 +1257,7 @@ app.get('/admin/projects/delete/:project', loadUser, checkPermit('canAccessAdmin
   }
 });
 /** Extra panel */
-app.get('/admin/extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/extra');
   Extra.find({}, function(err, extras) {
     log(err);
@@ -1263,7 +1269,7 @@ app.get('/admin/extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermi
   });
 });
 /** Post new extra */
-app.post('/admin/extra/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/extra/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/add');
   var extra = new Extra({
     name: req.body.extra.name
@@ -1285,7 +1291,7 @@ app.post('/admin/extra/add', loadUser, checkPermit('canAccessAdminPanel'), check
   });
 });
 /** Edit an extra. */
-app.get('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/extra/edit/:extra');
   if (req.extra) {
     res.render('admin/extra/edit', {
@@ -1299,7 +1305,7 @@ app.get('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel')
   }
 });
 /** Save edit a extra. */
-app.post('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/edit/:extra');
   if (req.extra) {
     req.extra.name = req.body.extra.name;
@@ -1325,7 +1331,7 @@ app.post('/admin/extra/edit/:extra', loadUser, checkPermit('canAccessAdminPanel'
   }
 });
 /** Delete an extra. */
-app.get('/admin/extra/delete/:extra', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/extra/delete/:extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/extra/delete/:extra');
   if (req.extra) {
     req.extra.remove(function(err) {
@@ -1339,7 +1345,7 @@ app.get('/admin/extra/delete/:extra', loadUser, checkPermit('canAccessAdminPanel
   }
 });
 /** video panel */
-app.get('/admin/videos', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/videos', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/videos');
   Video.find({}, function(err, videos) {
     log(err);
@@ -1351,7 +1357,7 @@ app.get('/admin/videos', loadUser, checkPermit('canAccessAdminPanel'), checkPerm
   });
 });
 /** Post new video */
-app.post('/admin/videos/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/videos/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/add');
   var video = new Video({
     name: req.body.video.name,
@@ -1374,7 +1380,7 @@ app.post('/admin/videos/add', loadUser, checkPermit('canAccessAdminPanel'), chec
   });
 });
 /** Edit an video. */
-app.get('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/videos/edit/:video');
   if (req.video) {
     res.render('admin/videos/edit', {
@@ -1388,7 +1394,7 @@ app.get('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel'
   }
 });
 /** Save edit a video. */
-app.post('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/edit/:video');
   if (req.video) {
     req.video.name = req.body.video.name;
@@ -1415,7 +1421,7 @@ app.post('/admin/videos/edit/:video', loadUser, checkPermit('canAccessAdminPanel
   }
 });
 /** Delete an video. */
-app.get('/admin/videos/delete/:video', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/videos/delete/:video', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/videos/delete/:video');
   if (req.video) {
     req.video.remove(function(err) {
@@ -1429,7 +1435,7 @@ app.get('/admin/videos/delete/:video', loadUser, checkPermit('canAccessAdminPane
   }
 });
 /** Reading panel */
-app.get('/admin/readings', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/readings', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/readings');
   Reading.find({}, function(err, readings) {
     log(err);
@@ -1441,7 +1447,7 @@ app.get('/admin/readings', loadUser, checkPermit('canAccessAdminPanel'), checkPe
   });
 });
 /** Post new reading */
-app.post('/admin/readings/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/readings/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/add');
   var reading = new Reading({
     name: req.body.reading.name,
@@ -1465,7 +1471,7 @@ app.post('/admin/readings/add', loadUser, checkPermit('canAccessAdminPanel'), ch
   });
 });
 /** Edit an reading. */
-app.get('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/readings/edit/:reading');
   if (req.reading) {
     res.render('admin/readings/edit', {
@@ -1479,7 +1485,7 @@ app.get('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminPa
   }
 });
 /** Save edit a reading. */
-app.post('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.post('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/edit/:reading');
   if (req.reading) {
     req.reading.name = req.body.reading.name;
@@ -1507,7 +1513,7 @@ app.post('/admin/readings/edit/:reading', loadUser, checkPermit('canAccessAdminP
   }
 });
 /** Delete an reading. */
-app.get('/admin/readings/delete/:reading', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+app.get('/admin/readings/delete/:reading', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/readings/delete/:reading');
   if (req.reading) {
     req.reading.remove(function(err) {
@@ -1521,7 +1527,7 @@ app.get('/admin/readings/delete/:reading', loadUser, checkPermit('canAccessAdmin
   }
 });
 /** Manage users. */
-app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
   User.find({ permission: User.Permissions.Grader }, function(err, graders) {
     log(err);
@@ -1537,7 +1543,7 @@ app.get('/admin/users', loadUser, checkPermit('canAccessAdminPanel'), checkPermi
   });
 });
 /** Add an user. */
-app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
   var user = new User({
     username: req.body.user.username
@@ -1576,7 +1582,7 @@ app.post('/admin/users/add', loadUser, checkPermit('canAccessAdminPanel'), check
   });
 });
 /** Edit an user. */
-app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
+app.get('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
     User.find({ permission: User.Permissions.Grader }, function(err, graders) {
@@ -1594,7 +1600,7 @@ app.get('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'
   }
 });
 /** Save edit an user. */
-app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
   if (req.user) {
     if (req.body.user.password != '') {
@@ -1641,7 +1647,7 @@ app.post('/admin/users/edit/:userId', loadUser, checkPermit('canAccessAdminPanel
   }
 });
 /** Manage grades. */
-app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
+app.get('/admin/grades', checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades');
   User.find({ permission: User.Permissions.Student }, function(err, users) {
     log(err);
@@ -1653,7 +1659,7 @@ app.get('/admin/grades', loadUser, checkPermit('canAccessAdminPanel'), checkPerm
   });
 });
 /** Get grades from a user. */
-app.get('/admin/grades/:username', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
+app.get('/admin/grades/:username', checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades/:username');
   if(req.user) {
     res.render('admin/grades/user', {
@@ -1667,7 +1673,7 @@ app.get('/admin/grades/:username', loadUser, checkPermit('canAccessAdminPanel'),
   }
 });
 /** Add a grade. */
-app.post('/admin/grades/:username/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
+app.post('/admin/grades/:username/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/add');
   req.user.grades.push({
     name: req.body.grade.name,
@@ -1692,7 +1698,7 @@ app.post('/admin/grades/:username/add', loadUser, checkPermit('canAccessAdminPan
   });
 });
 /** Edit a grade from a user. */
-app.get('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
+app.get('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades/:username/:gradeId');
   if(req.user && req.grade) {
     res.render('admin/grades/edit', {
@@ -1707,7 +1713,7 @@ app.get('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdmi
   }
 });
 /** Edit a grade. */
-app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
+app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/:gradeId');
   req.grade.name = req.body.grade.name;
   req.grade.order = req.body.grade.order;
@@ -1730,7 +1736,7 @@ app.post('/admin/grades/:username/:gradeId', loadUser, checkPermit('canAccessAdm
   });
 });
 /** Student dashboard. */
-app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
+app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
   if (req.currentLesson && req.currentLesson.unit) {
     Announcement.find({}, function(err, news) {
@@ -1750,7 +1756,7 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   }
 });
 /** Change dashboard. */
-app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
+app.get('/dashboard/:lessonId', checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
   trace('GET /dashboard/:lessonId');
   if (req.currentLesson && req.currentLesson.unit) {
     req.currentUser.currentLesson = req.currentLesson.number;
@@ -1774,7 +1780,7 @@ app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loa
   }
 });
 /** Get grades for current user. */
-app.get('/grades', loadUser, checkPermit('canReadGrade'), function(req, res) {
+app.get('/grades', checkPermit('canReadGrade'), function(req, res) {
   trace('GET /grades');
   res.render('grades', {
     page: 'grades',
@@ -1782,7 +1788,7 @@ app.get('/grades', loadUser, checkPermit('canReadGrade'), function(req, res) {
   });
 });
 /** Settings page. */
-app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res) {
+app.get('/settings', checkPermit('canReadUserInfo'), function(req, res) {
   trace('GET /settings');
   res.render('settings', {
     page: 'settings',
@@ -1790,7 +1796,7 @@ app.get('/settings', loadUser, checkPermit('canReadUserInfo'), function(req, res
   });
 });
 /** Save edit an user. */
-app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, res) {
+app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   trace('POST /settings');
   if (req.currentUser.authenticate(req.body.user.password)) {
     if (req.body.user.newpassword != '') {
@@ -1826,7 +1832,7 @@ app.post('/settings', loadUser, checkPermit('canWritePassword'), function(req, r
   }
 });
 /** Collective lessons. */
-app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
+app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /lessons');
   Lesson.find()
   .populate('homework')
@@ -1845,7 +1851,7 @@ app.get('/lessons', loadUser, checkPermit('canReadLesson'), function(req, res) {
   });
 });
 /** Viewing webcast by its URL. */
-app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.currentUser.currentLesson = req.currentLesson.number;
@@ -1877,7 +1883,7 @@ app.get('/webcast/:lessonId/:videoId', loadUser, checkPermit('canReadLesson'), l
   }
 });
 /** Marking webcast as read. */
-app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.post('/webcast/:lessonId/:videoId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /webcast/:lessonId/:videoId');
   if(req.currentLesson && req.video) {
     req.video.isCompleted = true;
@@ -1888,7 +1894,7 @@ app.post('/webcast/:lessonId/:videoId', loadUser, checkPermit('canWriteProgress'
   }
 });
 /** Viewing reading. */
-app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /reading/:lessonId/:readingId');
   // TODO: iframe view for SICP readings.
   if (req.currentLesson && req.reading) {
@@ -1922,7 +1928,7 @@ app.get('/reading/:lessonId/:readingId', loadUser, checkPermit('canReadLesson'),
 });
 
 /** Viewing extra. */
-app.get('/extra/:lessonId/:extraId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /extra/:lessonId/:extraId');
   if (req.currentLesson && req.extra) {
     req.currentUser.currentLesson = req.currentLesson.number;
@@ -1954,7 +1960,7 @@ app.get('/extra/:lessonId/:extraId', loadUser, checkPermit('canReadLesson'), loa
   }
 });
 /** Marking reading as read. */
-app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.post('/reading/:lessonId/:readingId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /reading/:lessonId/:readingId');
   if(req.currentLesson && req.reading) {
     req.reading.isCompleted = true;
@@ -1965,7 +1971,7 @@ app.post('/reading/:lessonId/:readingId', loadUser, checkPermit('canWriteProgres
   }
 });
 /** Marking extra as read. */
-app.post('/extra/:lessonId/:extraId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.post('/extra/:lessonId/:extraId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /extra/:lessonId/:extraId');
   if(req.currentLesson && req.extra) {
     req.extra.isCompleted = true;
@@ -1978,7 +1984,7 @@ app.post('/extra/:lessonId/:extraId', loadUser, checkPermit('canWriteProgress'),
 /** Homework.
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
-app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/homework', loadLesson, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework');
   if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
@@ -1994,7 +2000,7 @@ app.get('/homework', loadUser, loadLesson, checkPermit('canReadLesson'), loadPro
 });
 /** View homework at LESSONID.
  *  Only displays progress control when the user has permission. */
-app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/homework/:lessonId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /homework/:lessonId');
   if (req.currentLesson && req.currentLesson.homework) {
     req.currentUser.currentLesson = req.currentLesson.number;
@@ -2022,7 +2028,7 @@ app.get('/homework/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgr
   }
 });
 /** Marking homework as complete. */
-app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+app.post('/homework/:lessonId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /homework/:lessonId');
   if(req.currentLesson && req.currentLesson.homework) {
     if (req.body.confirm) {
@@ -2066,7 +2072,7 @@ app.post('/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgres
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
 // TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.
-app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /solutions/:type/:lessonId');
   var type = req.params.type;
   var checktype = req.params.type;
@@ -2114,7 +2120,7 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
 // TODO: view for projects
-app.get('/project/:lessonId/:projectId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /project/:lessonId/:projectId');
   if (req.currentUnit && req.project) {
     res.render('project', {
@@ -2133,7 +2139,7 @@ app.get('/project/:lessonId/:projectId', loadUser, checkPermit('canReadLesson'),
 });
 /** Administration. */
 // TODO: Compile administrative documents onto a static page.
-app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req, res) {
+app.get('/administration', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /administration');
   res.render('administration', {
     page: 'administration',
@@ -2141,7 +2147,7 @@ app.get('/administration', loadUser, checkPermit('canReadLesson'), function(req,
   });
 });
 /** All announcements. */
-app.get('/announcements', loadUser, checkPermit('canReadLesson'), function(req, res) {
+app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /announcements');
   Announcement.find({}, function(err, news) {
     log(err);
