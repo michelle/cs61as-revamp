@@ -62,7 +62,12 @@ app.use(express.session({
   store: mongoStore(db)
 }));
 app.use(express.static(__dirname + '/public'));
+
 app.use(loadUser);
+if (DEBUG_USER) {
+  app.use(logUser);
+}
+
 app.use(app.router);
 app.use(express.errorHandler({
   showStack: true,
@@ -88,11 +93,7 @@ if (ENABLE_GRADER_NOTIFICATION) {
 /** Log OBJ to console bases on the type of OBJ and debug flags.*/
 function log(obj) {
   if (obj) {
-    if (obj instanceof User) {
-      if (DEBUG_USER) {
-        console.log(obj);
-      }
-    } else if (obj instanceof Error) {
+    if (obj instanceof Error) {
       if (DEBUG_ERR) {
         console.log(obj);
         if (FORCE_CRASH_ON_ERR) {
@@ -149,10 +150,8 @@ function loadUserFromSession(req, res, next) {
     log(err);
     if (user) {
       req.currentUser = user;
-      log(req.currentUser);
       next();
     } else {
-      log(req.currentUser);
       log('WARNING: Session tampering attempt detected: ' + req.session);
       res.clearCookie('rememberme');
       req.flash('info', 'Please login.');
@@ -166,7 +165,6 @@ function loadUserFromSession(req, res, next) {
 function loadUserFromCookie(req, res, next) {
   var cookie = req.cookies['rememberme'] && JSON.parse(req.cookies['rememberme']);
   if (!cookie || !cookie.username || !cookie.series || !cookie.token) {
-    log(req.currentUser);
     next();
     return;
   }
@@ -184,7 +182,6 @@ function loadUserFromCookie(req, res, next) {
     if (token) {
       if (token.token != cookie.token) {
         log('WARNING: Cookie tampering attempt detected for user: ' + cookie.username);
-
         LoginToken.remove({
           username: cookie.username
         }, function() {
@@ -204,21 +201,29 @@ function loadUserFromCookie(req, res, next) {
               log(err);
               res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
               req.currentUser = user;
-              log(req.currentUser);
               next();
             });
           } else {
-            log(req.currentUser);
             next();
           }
         });
       }
     } else {
       res.clearCookie('rememberme');
-      log(req.currentUser);
       next();
     }
   });
+}
+
+/** Debug function, print out the currentUser .*/
+function logUser(req, res, next) {
+  trace('logUser');
+  if (req.currentUser instanceof User) {
+    console.log(req.currentUser);
+  } else {
+    console.log('ERROR: req.currentUser is not a User.')
+  }
+  next();
 }
 
 /** Set current lesson to the one specified by currentUser.currentLesson.
