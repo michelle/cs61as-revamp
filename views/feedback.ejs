@@ -1,0 +1,70 @@
+<div id="nocenter">
+  <div class="otherflag noselect">
+    <h2>Submit a Grading Complaint</h2>
+  </div>
+    <div class="triangle"></div>
+    <div class="clear"></div>
+
+  <div id="openticket">
+    <form method="post" action="/feedback/new">
+        <input type="text" name="subject" required/>
+        <input type="text" name="complaint" required/>
+        <button>Submit</button>
+    </form>
+  </div>
+  
+<% if (tickets.length > 0) { %>
+<br>
+  <div class="otherflag noselect">
+    <h2>Your Tickets</h2>
+  </div>
+    <div class="triangle"></div>
+    <div class="clear"></div>
+<div id="tickets">
+  <% for (var i = 0; i < tickets.length; i += 1) { var ticket = tickets[i];%>
+  <div class="ticket">
+    <h3><%-ticket.subject%></h3>
+    <h4>Status: 
+      <%if (ticket.status) {%>
+        <span class="green">Open</span>
+      <% } else { %>
+        <span class="red">Closed</span>
+      <% } %>
+    </h4>
+    
+    <% for (var j = 0; j < ticket.complaints.length; j += 1) { %>
+    <div class="exchange">
+      <div class="complain">
+        <div class="padding">
+          <strong><%-ticket.complainer%></strong>: <%-ticket.complaints[j]%>
+        </div>
+      </div>
+      <% if (!ticket.status || (ticket.status && j + 1 !== ticket.complaints.length)) { %>
+        <div class="response">
+          <div class="padding">
+            <strong><%-ticket.responder%></strong>: <%-ticket.responses[j]%>
+          </div>
+        </div>
+      <% } %>
+      <div class="clear"></div>
+    </div>
+    <% } %>
+    
+    <% if (!ticket.status) { %>
+      <div class="appeal">
+        <form method="post" action="/feedback/appeal/<%-ticket.id%>">
+          <input type="text" name="complaint"/>
+          <button>Appeal</button>
+        </form>
+      </div>
+    <% } %>
+    
+    <h4>Last Updated: <%-ticket.date%></h4>
+  </div>
+  
+  <% } %>
+</div>
+  
+<% } %>
+
+</div>

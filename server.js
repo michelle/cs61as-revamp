@@ -49,6 +49,7 @@ schema.defineModels(mongoose, function() {
   app.Project = Project = mongoose.model('Project');
   app.Extra = Extra = mongoose.model('Extra');
   app.Progress = Progress = mongoose.model('Progress');
+  app.Ticket = Ticket = mongoose.model('Ticket');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -385,26 +386,56 @@ function sameUser(permit, identification) {
   }
 }
 
+/** Feedback email. */
+// TODO: implement email
+function sendFeedbackEmail(req, next) {
+  var html = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":<br/>" + req.body.complaint;
+  var body = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":\n" + req.body.complaint;
+  var emailjson = {
+    sender: req.currentUser.email,
+    to: req.currentUser.grader.email,
+    subject: '[CS61AS] Feedback from student: ' + req.currentUser.username,
+    html: html,
+    body: body
+  }
+  next();
+}
 
+/** Response to feedback email. */
+// TODO: implement email
+function sendResponseEmail(req, next) {
+  var html = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":<br/>" + req.body.response;
+  var body = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":\n" + req.body.response;
+  var emailjson = {
+    sender: req.currentUser.email,
+    to: req.body.complainer,
+    subject: '[CS61AS] Response from instructor: ' + req.currentUser.username,
+    html: html,
+    body: body
+  }
+  next();
+}
+
+/** Grader email. */
 function sendGraderNotification(req, next) {
   if (!SEND_GRADER_NOTIFICATION) {
     req.flash('info', "Grader notification is not sent because option flag is off.");
     next();
     return;
   }
-  var html = "<p>You receive a grade request from " + req.currentUser.username
+  var html = "<p>You've received a grade request from " + req.currentUser.username
            + " regarding homework " + req.currentLesson.number + " at "
            +  String(new Date())
-           + ".<br /> If you receive this email in error. Please discard immediately.</p>";
-  var body = "You receive a grade request from " + req.currentUser.username
+           + ".<br /> If you received this email in error, please discard it immediately.</p>";
+  var body = "You've received a grade request from " + req.currentUser.username
            + " regarding homework " + req.currentLesson.number + " at "
            +  String(new Date())
-           + ". If you receive this email in error. Please discard immediately.";
+           + ". If you received this email in error, please discard it immediately.";
 
   nodemailer.send_mail({
     sender: 'astudent@somewhere.com',
     to: req.currentUser.grader.email,
-    subject: 'Grade request from student: ' + req.currentUser.username,
+    subject: '[CS61AS] Grade request from student: ' + req.currentUser.username,
     html: html,
     body: body
   }, function(err, success) {
@@ -430,6 +461,15 @@ app.param('userId', function(req, res, next, userId) {
   User.findById(userId).populate('grader').run(function(err, user) {
     log(err);
     req.user = !err && user;
+    next();
+  });
+});
+/** Pre condition param ticketId into req.ticket. */
+app.param('ticketId', function(req, res, next, ticketId) {
+  trace('param ticketId');
+  Ticket.findById(ticketId, function(err, ticket) {
+    log(err);
+    req.ticket = !err && ticket;
     next();
   });
 });
@@ -2058,6 +2098,95 @@ app.get('/announcements', loadUser, checkPermit('canReadLesson'), function(req, 
       page: 'announcements',
       currentUser: req.currentUser,
       news: news
+    });
+  });
+});
+/** Feedback system. */
+// TODO: Make Google doc for general feedback. 
+app.get('/feedback', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+  trace('GET URL: /feedback');
+  Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
+    log(err);
+    res.render('feedback', {
+      page: 'feedback',
+      currentUser: req.currentUser,
+      tickets: tickets
+    });
+  });
+});
+// TODO: Error checking
+app.post('/feedback/new', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+  trace('POST URL: /feedback/new');
+  sendFeedbackEmail(req, function(err){
+    if (!err) {
+      ticket = new Ticket({
+        status: true,
+        subject: req.body.subject,
+        complainer: req.currentUser.email,
+        responder: req.currentUser.grader.email,
+        complaints: [req.body.complaint],
+        responses: [],
+        date: new Date()
+      });
+      ticket.save(function(err) {
+        log(err);
+        res.redirect('/feedback');
+      });
+    }
+  });
+});
+// TODO: error checking
+app.post('/admin/feedback/reply/:ticketId', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
+  trace('POST URL: /admin/feedback/reply/:ticketId');
+  sendResponseEmail(req, function(err){
+    if (!err) {
+      req.ticket.date = new Date();
+      req.ticket.responses.push(req.body.response);
+      req.ticket.status = false;
+      req.ticket.save(function(err) {
+        log(err);
+        res.redirect('/admin/feedback');
+      });
+    }
+  });
+});
+// TODO: error checking
+app.post('/feedback/appeal/:ticketId', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+  trace('POST URL: /feedback/appeal/:ticketId');
+  sendFeedbackEmail(req, function(err){
+    if (!err) {
+      req.ticket.date = new Date();
+      req.ticket.complaints.push(req.body.complaint);
+      req.ticket.status = true;
+      req.ticket.save(function(err) {
+        log(err);
+        res.redirect('/feedback');
+      });
+    }
+  });
+});
+
+/** Feedback for admins. */
+app.get('/admin/feedback', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
+  trace('GET URL: /admin/feedback');
+  Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
+    log(err);
+    res.render('admin/feedback', {
+      page: 'admin/feedback',
+      currentUser: req.currentUser,
+      tickets: tickets
+    });
+  });
+});
+/** All feedback for admins. */
+app.get('/admin/feedback/all', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
+  trace('GET URL: /admin/feedback/all');
+  Ticket.find({}, function(err, tickets) {
+    log(err);
+    res.render('admin/feedback/all', {
+      page: 'admin/feedback/all',
+      currentUser: req.currentUser,
+      tickets: tickets
     });
   });
 });

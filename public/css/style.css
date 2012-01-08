@@ -1026,7 +1026,7 @@ textarea {
   line-height: 22px;
   letter-spacing: 0px;
   text-align: left;
-  margin: 20px 1% 40px 1%;
+  margin: 0 auto;
   background-color: #fff;  
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(256,256,256,0.7);
@@ -1047,4 +1047,49 @@ textarea {
   width: 110px;
   text-align: center;
   margin: -5px 10px 0px 10px;
+}
+
+#tickets {
+  margin: 0 auto;
+  width: 80%;
+  margin-bottom: 50px;
+}
+
+.ticket {
+  margin-bottom: 100px;
+}
+
+.ticket h3 {
+
+}
+
+.ticket h4 {
+
+}
+
+.complain, .response {
+  float: left;
+  width: 49%;
+  border: 1px solid #000;
+  min-height: 100px;
+  height: auto !important;
+  height: 100%;
+}
+
+.response {
+  float: right;
+}
+
+.exchange {
+  min-height: 100px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.appeal {
+
+}
+
+.reply {
+
 }

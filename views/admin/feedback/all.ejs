@@ -1,0 +1,49 @@
+<div id="nocenter">
+  <div class="otherflag noselect">
+    <h2>All Tickets</h2>
+  </div>
+    <div class="triangle"></div>
+    <div class="clear"></div>
+<% if (tickets.length > 0) { %>
+  
+<div id="tickets">
+  <% for (var i = 0; i < tickets.length; i += 1) { var ticket = tickets[i];%>
+  <div class="ticket">
+    <h3><%-ticket.subject%></h3>
+    <h4>Status: 
+      <%if (ticket.status) {%>
+        <span class="green">Open</span>
+      <% } else { %>
+        <span class="red">Closed</span>
+      <% } %>
+    </h4>
+    
+    <% for (var j = 0; j < ticket.complaints.length; j += 1) { %>
+    <div class="exchange">
+      <div class="complain">
+        <div class="padding">
+          <strong><%-ticket.complainer%></strong>: <%-ticket.complaints[j]%>
+        </div>
+      </div>
+      <% if (!ticket.status || (ticket.status && j + 1 !== ticket.complaints.length)) { %>
+        <div class="response">
+          <div class="padding">
+            <strong><%-ticket.responder%></strong>: <%-ticket.responses[j]%>
+          </div>
+        </div>
+      <% } %>
+      <div class="clear"></div>
+    </div>
+    <% } %>
+    
+    <h4>Last Updated: <%-ticket.date%></h4>
+  </div>
+  
+  <% } %>
+</div>
+  
+<% } else { %>
+  <div class="rednote"><div class="padding">Looks like there aren't any tickets at the moment.</div></div>
+<% } %>
+
+</div>

@@ -462,7 +462,7 @@ function defineModels(mongoose, fn) {
     return this._get();
   });
 
-  /** Progress to keep track of what a user has completed .*/
+  /** Progress to keep track of what a user has completed. */
   Progress = new Schema({
     lesson: {
       type: ObjectId,
@@ -494,6 +494,47 @@ function defineModels(mongoose, fn) {
     }]
   });
   Progress.index({ lesson: 1, user: 1 }, { unique: true });
+  
+  /** Ticket to keep track of feedback. Status is true if open. */
+  Ticket = new Schema({
+    status: {
+      type: Boolean,
+      'default': true,
+      required: true
+    },
+    subject: {
+      type: String,
+      required: true
+    },
+    complainer: {
+      type: String,
+      required: true
+    },
+    responder: {
+      type: String,
+      required: true
+    },
+    complaints: [{
+      type: String,
+      'default': []
+    }],
+    responses: [{
+      type: String,
+      'default': []
+    }],
+    date: {
+      type: Date,
+      'default': new Date()
+    }
+  });
+  /** Determines whose turn it is to talk.*/
+  Ticket.virtual('who').get(function() {
+    if (this.responses.length > this.complaints.length) {
+      return this.complainer;
+    } else {
+      return this.responder;
+    }
+  });
 
   /** Set up models. */
   mongoose.model('User', User);
@@ -508,6 +549,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Project', Project);
   mongoose.model('Extra', Extra);
   mongoose.model('Progress', Progress);
+  mongoose.model('Ticket', Ticket);
 
   fn();
 }
