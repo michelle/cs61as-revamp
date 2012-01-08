@@ -29,7 +29,7 @@ completedness of each section for class="completed" li elements. -->
     </div>
   </div>
   <% var n = currentLesson.number; %>
-  <div class="thirds left">
+  <div class="thirds left first">
     <h1>Learn</h1>
     <ul class="nolist">
       <% if (currentLesson.videos.length > 0) { %>
@@ -61,11 +61,9 @@ completedness of each section for class="completed" li elements. -->
         <% if (currentLesson.number >= project.projectLessonNumber) { %>
         <a href="/project/<%-n%>/<%-o%>">
           <li class="<% if (project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
-            <% if (currentUnit.projects.length > 1) { %>
-              Project <%-project.number%>-<%-(o + 1)%>
-            <% } else { %>
-              Project <%-project.number%>
-            <% } %>
+   
+              <%-project.name%>
+
           </li>
         </a>
         <% } %>

@@ -354,6 +354,14 @@ a {
    margin-top: 0px;
 }
 
+.first {
+  margin-left: 2%;
+}
+
+.resources {
+  width: 24%;
+}
+
 .nolist { 
   list-style-type: none; 
   margin: 0; 
@@ -1018,7 +1026,7 @@ textarea {
 }
 
 #introduction {
-  width: 90%;
+  width: 92%;
   height: 200px;
   padding: 20px;
   font-family: 'Open Sans';
@@ -1026,7 +1034,7 @@ textarea {
   line-height: 22px;
   letter-spacing: 0px;
   text-align: left;
-  margin: 0 auto;
+  margin: 30px auto;
   background-color: #fff;  
   border: 1px solid rgba(200,215,220,1);
   background-color: rgba(256,256,256,0.7);
