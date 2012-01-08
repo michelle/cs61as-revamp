@@ -568,6 +568,15 @@ app.param('unit', function(req, res, next, unitId) {
   });
 });
 /** Pre condition param lesson into req.lesson. */
+app.param('lesson', function(req, res, next, lesson) {
+  trace('param lesson');
+  Lesson.findById(lesson, function(err, lesson) {
+    log(err);
+    req.lesson = !err && lesson;
+    next();
+  });
+});
+/** Pre condition param lesson into req.lesson. */
 app.param('lesson', function(req, res, next, lessonId) {
   trace('param lesson');
   Lesson.findById(lessonId, function(err, lesson) {
@@ -900,7 +909,21 @@ app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel')
     res.redirect('/admin/units');
   }
 });
-/** Delete an unit. */
+/** Delete a lesson. */
+app.get('/admin/lessons/delete/:lesson', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/lessons/delete/:lesson');
+  if (req.lesson) {
+    req.lesson.remove(function(err) {
+      log(err);
+      req.flash('info', 'Lesson deleted.');
+      res.redirect('/admin/lessons');
+    });
+  } else {
+    req.flash('error', 'Malformed lessonId.');
+    res.redirect('/admin/lessons');
+  }
+});
+/** Delete a unit. */
 app.get('/admin/units/delete/:unit', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/units/delete/:unit');
   if (req.unit) {
