@@ -1851,17 +1851,25 @@ app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /lessons');
   Lesson.find()
   .populate('homework')
-  .populate('project')
+  .populate('projects')
   .populate('extra')
   .populate('videos')
   .populate('readings')
   .sort('number', 1)
   .run(function(err, lessons) {
     log(err);
-    res.render('lessons', {
-      page: 'lessons',
-      currentUser: req.currentUser,
-      lessons: lessons
+    Project.find({}, function(err, projects) {
+      var projectLessons = [];
+      for (var b in projects) {
+        projectLessons.push(projects[b].projectLessonNumber.toString());
+      }
+      res.render('lessons', {
+        page: 'lessons',
+        currentUser: req.currentUser,
+        lessons: lessons,
+        projects: projects,
+        projectLessons: projectLessons
+      });
     });
   });
 });

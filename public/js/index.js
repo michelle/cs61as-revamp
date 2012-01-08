@@ -10,13 +10,16 @@ $(document).ready(function() {
   /** Dashboard UI. */
   $(function() {
     $( "#accordion" ).accordion({
-			collapsible: true
+			collapsible: true,
+			autoHeight: false
 		});
     $("#solution").accordion({
       collapsible: true,
-      active: false
+      active: false,
+      autoHeight: false
     });
   });
+  
   /** Window resizing. */
   $(window).resize(function() {
     if ($('#signal').position().left < 150 && !hidden) {

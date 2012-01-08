@@ -663,7 +663,7 @@ h1 {
   padding: 10px 40px 40px 40px;
 }
 
-#accordion h3, #solution h3 {
+#accordion h3.boring, #solution h3 {
   border-bottom: 0px;
   background-color: rgba(200,215,220,0.5);
   border: 1px solid rgba(200,215,220,1);
@@ -682,9 +682,12 @@ h1 {
   padding: 10px 20px;
 }
 
+#accordion .links a {
+  text-decoration: underline;
+}
+
 #accordion a {
   color: #BD9392;
-  text-decoration: underline;
 }
 
 #accordion a:hover {
@@ -1119,6 +1122,18 @@ textarea {
 #tickets textarea {
 }
 
-.projectHeader {
-  background-color: #000;
+h3.projectHeader {
+  border-bottom: 0px;
+  background-color: #BEE1CA;
+  border: 1px solid #609472;
+  color: #333;
+  margin: 0px;
+  margin-top: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  outline: none;
+}
+
+a.nounderline {
+  text-decoration: none;
 }

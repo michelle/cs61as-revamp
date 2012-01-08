@@ -7,13 +7,16 @@
     <div id="accordion">
       <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
       
-        <% if (projectLessons.indexOf(n)) { %>
-          <% for (var p = 0; p < lesson.projects.length) { var project = lesson.projects[p]; %>
-            <a href="/project/<%-n%>/<%-p%>"><h3 class="noselect projectHeader"><%-project.name%></h3></a>
+        <% if (projectLessons.indexOf(n.toString()) !== -1) {  %>
+          <% for (var p = 0; p < projects.length; p += 1) { var project = projects[p]; %>
+            <% if (project.projectLessonNumber.toString() == n.toString()) { %>
+              <h3 class="noselect projectHeader"><%-project.name%></h3>
+              <div class="links"><a href="/project/<%-n%>/<%-p%>"><strong>Go to Project</strong></a></div>
+            <% } %>
           <% } %>
         <% } %>
       
-        <h3 class="noselect" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
+        <h3 class="noselect boring" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
             <a href="/dashboard/<%-n%>"><strong>View on dashboard.</strong></a>
