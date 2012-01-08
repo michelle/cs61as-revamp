@@ -1783,6 +1783,47 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
     res.redirect('/admin/grades/' + req.user.username);
   });
 });
+/** Feedback for admins. */
+app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res) {
+  trace('GET URL: /admin/feedback');
+  Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
+    log(err);
+    tickets.sort(function(b, a) { return a.date - b.date });
+    res.render('admin/feedback', {
+      page: 'admin/feedback',
+      currentUser: req.currentUser,
+      tickets: tickets
+    });
+  });
+});
+/** All feedback for admins. */
+app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req, res) {
+  trace('GET URL: /admin/feedback/all');
+  Ticket.find({}, function(err, tickets) {
+    log(err);
+    tickets.sort(function(b, a) { return a.date - b.date });
+    res.render('admin/feedback/all', {
+      page: 'admin/feedback/all',
+      currentUser: req.currentUser,
+      tickets: tickets
+    });
+  });
+});
+// TODO: error checking
+app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), function(req, res) {
+  trace('POST URL: /admin/feedback/reply/:ticketId');
+  sendResponseEmail(req, function(err){
+    if (!err) {
+      req.ticket.date = new Date();
+      req.ticket.responses.push(req.body.response);
+      req.ticket.status = false;
+      req.ticket.save(function(err) {
+        log(err);
+        res.redirect('/admin/feedback');
+      });
+    }
+  });
+});
 /** Student dashboard. */
 app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
@@ -2240,7 +2281,7 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
 /** Feedback system. */
 // TODO: Style feedback
 // TODO: Make Google doc for general feedback. 
-app.get('/feedback', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
   trace('GET URL: /feedback');
   Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
     log(err);
@@ -2253,7 +2294,7 @@ app.get('/feedback', loadUser, checkPermit('canAccessDashboard'), function(req, 
   });
 });
 // TODO: Error checking
-app.post('/feedback/new', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST URL: /feedback/new');
   sendFeedbackEmail(req, function(err){
     if (!err) {
@@ -2274,22 +2315,7 @@ app.post('/feedback/new', loadUser, checkPermit('canAccessDashboard'), function(
   });
 });
 // TODO: error checking
-app.post('/admin/feedback/reply/:ticketId', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
-  trace('POST URL: /admin/feedback/reply/:ticketId');
-  sendResponseEmail(req, function(err){
-    if (!err) {
-      req.ticket.date = new Date();
-      req.ticket.responses.push(req.body.response);
-      req.ticket.status = false;
-      req.ticket.save(function(err) {
-        log(err);
-        res.redirect('/admin/feedback');
-      });
-    }
-  });
-});
-// TODO: error checking
-app.post('/feedback/appeal/:ticketId', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
+app.post('/feedback/appeal/:ticketId', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST URL: /feedback/appeal/:ticketId');
   sendFeedbackEmail(req, function(err){
     if (!err) {
@@ -2301,33 +2327,6 @@ app.post('/feedback/appeal/:ticketId', loadUser, checkPermit('canAccessDashboard
         res.redirect('/feedback');
       });
     }
-  });
-});
-
-/** Feedback for admins. */
-app.get('/admin/feedback', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
-  trace('GET URL: /admin/feedback');
-  Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
-    log(err);
-    tickets.sort(function(b, a) { return a.date - b.date });
-    res.render('admin/feedback', {
-      page: 'admin/feedback',
-      currentUser: req.currentUser,
-      tickets: tickets
-    });
-  });
-});
-/** All feedback for admins. */
-app.get('/admin/feedback/all', loadUser, checkPermit('canWriteGradeEveryone'), function(req, res) {
-  trace('GET URL: /admin/feedback/all');
-  Ticket.find({}, function(err, tickets) {
-    log(err);
-    tickets.sort(function(b, a) { return a.date - b.date });
-    res.render('admin/feedback/all', {
-      page: 'admin/feedback/all',
-      currentUser: req.currentUser,
-      tickets: tickets
-    });
   });
 });
 /** Redirect everything else back to default if logged in. */
