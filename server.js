@@ -83,7 +83,9 @@ app.set('views', __dirname + '/views');
 /** Default unauthenticated user. */
 var GUEST = new User({
   username: 'Guest',
-  permission: User.Permissions.Guest
+  permission: User.Permissions.Guest,
+  isEnable: true,
+  isActivated: true
 });
 
 /** setting up SMTP information. */
@@ -231,17 +233,19 @@ function logUser(req, res, next) {
 function checkUser(req, res, next) {
   trace('checkUser');
 
-  if (!req.currentUser.isEnable) {
-    req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
-    res.redirect('/home');
-  } else if (!(req.url in {"/settings":1, "/logout":1})) {
-    if (!req.currentUser.isActivated) {
+  if (!(req.url in {"/home":1, "/settings":1, "/logout":1})) {
+    if (!req.currentUser.isEnable) {
+      req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
+      res.redirect('/home');
+    } else if(!req.currentUser.isActivated) {
       req.flash('info', "It looks like you is not activated. Please enter your information below.");
       res.redirect('/settings');
     } else if (req.currentUser != GUEST
       && !(schema.emailRegEx.test(req.currentUser.email))) {
       req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
       res.redirect('/settings');
+    } else {
+      next();
     }
   } else {
     next();
@@ -1915,6 +1919,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
     req.currentUser.fullname = req.body.user.fullname;
     req.currentUser.email = req.body.user.email;
     req.currentUser.units = req.body.user.units;
+    req.currentUser.isActivated = true;
 
     req.currentUser.save(function(err) {
       if (err) {
@@ -1929,7 +1934,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
       } else {
         req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
       }
-      res.redirect('/settings');
+      res.redirect('/default');
     });
   } else {
     req.flash('error', 'Please enter your current password to make any changes.');
