@@ -5,65 +5,89 @@
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
+  <% if (currentUser.canWriteLesson()) { %>
   <a href="/admin/feedback">
     <div class="adminpanel">
       Your Tickets
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a href="/admin/feedback/all">
     <div class="adminpanel">
       All Tickets
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canReadUserInfoEveryone()) { %>
   <a href="/admin/users">
     <div class="adminpanel">
       Add/Edit Users
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canReadGradeEveryone()) { %>
   <a class="adminpanel" href="/admin/grades">
     <div class="adminpanel">
       Enter grades
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/announcements">
     <div class="adminpanel">
       Announcements
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/homework">
     <div class="adminpanel">
       Edit homework
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/projects">
     <div class="adminpanel">
       Edit projects
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/extra">
     <div class="adminpanel">
       Edit extra for experts
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/videos">
     <div class="adminpanel">
       Edit videos
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/readings">
     <div class="adminpanel">
       Edit readings
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/lessons">
     <div class="adminpanel">
       Edit lessons
     </div>
   </a>
+  <% } %>
+  <% if (currentUser.canWriteLesson()) { %>
   <a class="adminpanel" href="/admin/units">
     <div class="adminpanel">
       Edit units
     </div>
   </a>
+  <% } %>
   </div>
 </div>

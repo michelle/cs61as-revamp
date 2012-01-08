@@ -26,6 +26,7 @@ var permissions = {
 };
 
 var emailRegEx = /^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$/i;
+var emailRegExOptional = /^([a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu)?$/i;
 var usernameRegEx = /^[a-z][a-z0-9_-]{2,31}$/i;
 
 /** @return a random string that can be used as salt or token. */
@@ -45,7 +46,7 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       },
-      match: emailRegEx
+      match: emailRegExOptional
     },
     username: {
       type: String,
