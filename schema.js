@@ -361,7 +361,7 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    projectLessonNumbers: {
+    projectLessonNumber: {
       type: Number,
       required: true
     }
@@ -465,10 +465,6 @@ function defineModels(mongoose, fn) {
       type: Boolean,
       'default': false
     },
-    projects: [{
-      type: Boolean,
-      'default': []
-    }],
     extra: [{
       type: Boolean,
       'default': []
@@ -483,6 +479,23 @@ function defineModels(mongoose, fn) {
     }]
   });
   Progress.index({ lesson: 1, user: 1 }, { unique: true });
+  
+  /** Progress to keep track of which projects a user has completed .*/
+  UnitProgress = new Schema({
+    unit: {
+      type: ObjectId,
+      ref: 'Unit'
+    },
+    user: {
+      type: ObjectId,
+      ref: 'User'
+    },
+    projects: [{
+      type: Boolean,
+      'default': []
+    }]
+  });
+  UnitProgress.index({ unit: 1, user: 1 }, { unique: true });
 
   /** Set up models. */
   mongoose.model('User', User);

@@ -227,10 +227,9 @@ function loadLesson(req, res, next) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      unitId = req.currentLesson.unit.id;
       Unit.findById(
-        unitId
-      ).populate('project')
+        req.currentLesson.unit.id
+      ).populate('projects')
         .run(function(err, unit) {
           log(err);
           req.currentUnit = !err && unit;
@@ -250,110 +249,118 @@ function loadProgress(req, res, next) {
 
   Progress.findOne({ lesson: req.currentLesson, user: req.currentUser }, function (err, progress) {
     log(err);
-    if (!progress) {
-      progress = new Progress({
-        lesson: req.currentLesson,
-        user: req.currentUser,
-        homework: false,
-        projects: req.currentUnit.projects.map(function (extra) { return false }),
-        extra: req.currentLesson.extra.map(function (extra) { return false }),
-        videos: req.currentLesson.videos.map(function (videos) { return false }),
-        readings: req.currentLesson.readings.map(function (reading) { return false })
+    UnitProgress.findOne({ unit: req.currentUnit, user: req.currentUser }, function (err, unitprogress) {
+      log(err);
+      if (!progress) {
+        progress = new Progress({
+          lesson: req.currentLesson,
+          user: req.currentUser,
+          homework: false,
+          extra: req.currentLesson.extra.map(function (extra) { return false }),
+          videos: req.currentLesson.videos.map(function (videos) { return false }),
+          readings: req.currentLesson.readings.map(function (reading) { return false })
+        });
+        if (req.currentUser.canWriteProgress()) {
+          progress.save(function (err){
+            log(err);
+          });
+        }
+      }
+      if (!unitprogress) {
+        unitprogress = new UnitProgress({
+          unit: req.currentUnit,
+          user: req.currentUser,
+          projects: req.currentUnit.projects.map(function (extra) { return false }),
+        });
+        if (req.currentUser.canWriteProgress()) {
+          unitprogress.save(function (err){
+            log(err);
+          });
+        }
+      }
+        
+      req.currentLesson.homework.attachProgress(function(value) {
+        if (req.currentUser.canWriteProgress()) {
+          progress.homework = value;
+          progress.markModified('homework');
+          progress.save(function (err) {
+            log(err);
+          });
+        }
+      }, function() {
+        return progress.homework;
       });
-      if (req.currentUser.canWriteProgress()) {
-        progress.save(function (err){
-          log(err);
-        });
+      for(var i = 0; i < req.currentLesson.extra.length; i++) {
+        req.currentLesson.extra[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.extra[id] = value;
+              progress.markModified('extra');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.extra[id];
+          }
+        }(i));
       }
-    }
-
-    req.currentLesson.homework.attachProgress(function(value) {
-      if (req.currentUser.canWriteProgress()) {
-        progress.homework = value;
-        progress.markModified('homework');
-        progress.save(function (err) {
-          log(err);
-        });
+      for(var i = 0; i < req.currentLesson.videos.length; i++) {
+        req.currentLesson.videos[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.videos[id] = value;
+              progress.markModified('videos');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.videos[id];
+          }
+        }(i));
       }
-    }, function() {
-      return progress.homework;
+      for(var i = 0; i < req.currentLesson.readings.length; i++) {
+        req.currentLesson.readings[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.readings[id] = value;
+              progress.markModified('readings');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.readings[id];
+          }
+        }(i));
+      }
+      for(var i = 0; i < req.currentUnit.projects.length; i++) {
+        req.currentUnit.projects[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              unitprogress.projects[id] = value;
+              unitprogress.markModified('projects');
+              unitprogress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return unitprogress.project[id];
+          }
+        }(i));
+      }
+  
+      next();
     });
-    for(var i = 0; i < req.currentLesson.extra.length; i++) {
-      req.currentLesson.extra[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.extra[id] = value;
-            progress.markModified('extra');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.extra[id];
-        }
-      }(i));
-    }
-    for(var i = 0; i < req.currentLesson.videos.length; i++) {
-      req.currentLesson.videos[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.videos[id] = value;
-            progress.markModified('videos');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.videos[id];
-        }
-      }(i));
-    }
-    for(var i = 0; i < req.currentLesson.readings.length; i++) {
-    
-      console.log(req.currentLesson.readings);
-      req.currentLesson.readings[i].attachProgress( function(id) {
-      
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.readings[id] = value;
-            progress.markModified('readings');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.readings[id];
-        }
-      }(i));
-    }
-    if (req.currentLesson.project) {
-    for(var i = 0; i < req.currentUnit.project.length; i++) {
-      console.log(req.currentUnit.project);
-      req.currentUnit.project[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.project[id] = value;
-            progress.markModified('project');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.project[id];
-        }
-      }(i));
-    }
-    }
-
-    next();
   });
 }
 
@@ -472,10 +479,9 @@ app.param('lessonId', function(req, res, next, lessonId) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      unitId = req.currentLesson.unit.id;
       Unit.findById(
-        unitId
-      ).populate('project')
+        req.currentLesson.unit.id
+      ).populate('projects')
         .run(function(err, unit) {
           log(err);
           req.currentUnit = !err && unit;
