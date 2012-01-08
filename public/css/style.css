@@ -1183,6 +1183,10 @@ h3.projectHeader {
   outline: none;
 }
 
+.complain, .response {
+  border-radius: 5px;
+}
+
 a.nounderline {
   text-decoration: none;
 }
