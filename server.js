@@ -778,7 +778,9 @@ app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), check
     lessons: req.body.unit.lessons,
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
-  if (req.body.unit.project != "undefined") {
+  if (req.body.unit.projects.indexOf("undefined") != -1) {
+    unit.projects = [];
+  } else {
     unit.projects = req.body.unit.projects;
   }
 
@@ -827,7 +829,11 @@ app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel')
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
     req.unit.lessons = req.body.unit.lessons;
-    req.unit.projects = req.body.unit.projects;
+    if (req.body.unit.projects.indexOf("undefined") != -1) {
+      req.unit.projects = [];
+    } else {
+      req.unit.projects = req.body.unit.projects;
+    }
     req.unit.projectLessonNumber = req.body.unit.projectLessonNumber;
 
     req.unit.save(function(err){
@@ -2027,6 +2033,7 @@ app.get('/project/:lessonId/:projectId', loadUser, checkPermit('canReadLesson'),
       project: req.project,
       projectId: req.params.projectId,
       currentUser: req.currentUser,
+      currentLesson: req.currentLesson,
       currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
     });
