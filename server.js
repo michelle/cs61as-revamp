@@ -1102,7 +1102,8 @@ app.get('/admin/projects', loadUser, checkPermit('canAccessAdminPanel'), checkPe
 app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/add');
   var project = new Project({
-    name: req.body.project.name
+    name: req.body.project.name,
+    projectLessonNumber: req.body.project.projectLessonNumber
   });
   project.save(function(err) {
     if (err) {
@@ -1139,6 +1140,7 @@ app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminP
   trace('POST /admin/projects/edit/:project');
   if (req.project) {
     req.project.name = req.body.project.name;
+    req.project.projectLessonNumber = req.body.project.projectLessonNumber;
 
     req.project.save(function(err){
       if (err) {
@@ -2030,13 +2032,13 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
 // TODO: view for projects
 app.get('/project/:lessonId/:projId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /project/:lessonId/:projId');
-  if (req.currentLesson && req.project) {
+  if (req.currentUnit && req.project) {
     res.render('project', {
       page: 'project',
       project: req.project,
       projId: req.params.projId,
       currentUser: req.currentUser,
-      currentLesson: req.currentLesson,
+      currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
