@@ -423,7 +423,7 @@ function sendResponseEmail(req, next) {
   }
   next();
 }
-
+// TODO: write
 function sendGraderProjNotification(req, next) {
   next();
 }
@@ -2131,6 +2131,7 @@ app.get('/announcements', loadUser, checkPermit('canReadLesson'), function(req, 
   });
 });
 /** Feedback system. */
+// TODO: Style feedback
 // TODO: Make Google doc for general feedback. 
 app.get('/feedback', loadUser, checkPermit('canAccessDashboard'), function(req, res) {
   trace('GET URL: /feedback');
