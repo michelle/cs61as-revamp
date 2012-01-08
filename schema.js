@@ -5,7 +5,9 @@ var crypto = require('crypto');
 var User;
 var Grade;
 var LoginToken;
+var ConfirmationToken;
 var Announcement;
+var Ticket;
 var Unit;
 var Lesson;
 var Reading;
@@ -49,6 +51,14 @@ function defineModels(mongoose, fn) {
       },
       match: emailRegExOptional
     },
+    isEnable: {
+      //TODO: required: true,
+      type: Boolean
+    },
+    isActivated: {
+      //TODO: required: true,
+      type: Boolean
+    },
     username: {
       type: String,
       match: usernameRegEx,
@@ -56,6 +66,10 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       }
+    },
+    fullname: {
+      //TODO: required: true
+      type: String
     },
     permission: {
       type: Number,
@@ -247,6 +261,19 @@ function defineModels(mongoose, fn) {
       series: this.series
     });
   });
+  
+  ConfirmationToken = new Schema({
+    user: {
+      type: ObjectId,
+      ref: 'User',
+      required: true
+    },
+    date: {
+      type: Date,
+      default: new Date(),
+      required: true
+    }
+  });
 
   /** An announcement. */
   Announcement = new Schema({
@@ -266,6 +293,47 @@ function defineModels(mongoose, fn) {
   });
   Announcement.virtual('created').get(function() {
     return this.date.getMonth() + '/' + this.date.getDate();
+  });
+
+  /** Ticket to keep track of feedback. Status is true if open. */
+  Ticket = new Schema({
+    status: {
+      type: Boolean,
+      'default': true,
+      required: true
+    },
+    subject: {
+      type: String,
+      required: true
+    },
+    complainer: {
+      type: String,
+      required: true
+    },
+    responder: {
+      type: String,
+      required: true
+    },
+    complaints: [{
+      type: String,
+      'default': []
+    }],
+    responses: [{
+      type: String,
+      'default': []
+    }],
+    date: {
+      type: Date,
+      'default': new Date()
+    }
+  });
+  /** Determines whose turn it is to talk.*/
+  Ticket.virtual('who').get(function() {
+    if (this.responses.length > this.complaints.length) {
+      return this.complainer;
+    } else {
+      return this.responder;
+    }
   });
 
   /** A Unit.
@@ -487,47 +555,6 @@ function defineModels(mongoose, fn) {
     }]
   });
   Progress.index({ lesson: 1, user: 1 }, { unique: true });
-
-  /** Ticket to keep track of feedback. Status is true if open. */
-  Ticket = new Schema({
-    status: {
-      type: Boolean,
-      'default': true,
-      required: true
-    },
-    subject: {
-      type: String,
-      required: true
-    },
-    complainer: {
-      type: String,
-      required: true
-    },
-    responder: {
-      type: String,
-      required: true
-    },
-    complaints: [{
-      type: String,
-      'default': []
-    }],
-    responses: [{
-      type: String,
-      'default': []
-    }],
-    date: {
-      type: Date,
-      'default': new Date()
-    }
-  });
-  /** Determines whose turn it is to talk.*/
-  Ticket.virtual('who').get(function() {
-    if (this.responses.length > this.complaints.length) {
-      return this.complainer;
-    } else {
-      return this.responder;
-    }
-  });
   
   /** Progress to keep track of which projects a user has completed .*/
   UnitProgress = new Schema({
@@ -550,7 +577,9 @@ function defineModels(mongoose, fn) {
   mongoose.model('User', User);
   mongoose.model('Grade', Grade);
   mongoose.model('LoginToken', LoginToken);
+  mongoose.model('ConfirmationToken', LoginToken);
   mongoose.model('Announcement', Announcement);
+  mongoose.model('Ticket', Ticket);
   mongoose.model('Unit', Unit);
   mongoose.model('Lesson', Lesson);
   mongoose.model('Reading', Reading);
@@ -559,7 +588,6 @@ function defineModels(mongoose, fn) {
   mongoose.model('Project', Project);
   mongoose.model('Extra', Extra);
   mongoose.model('Progress', Progress);
-  mongoose.model('Ticket', Ticket);
   mongoose.model('UnitProgress', UnitProgress);
 
   fn();

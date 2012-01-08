@@ -37,7 +37,9 @@ schema.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
   app.Grade = Grade = mongoose.model('Grade');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
+  app.ConfirmationToken = ConfirmationToken = mongoose.model('ConfirmationToken');
   app.Announcement = Announcement = mongoose.model('Announcement');
+  app.Ticket = Ticket = mongoose.model('Ticket');
   app.Unit = Unit = mongoose.model('Unit');
   app.Lesson = Lesson = mongoose.model('Lesson');
   app.Reading = Reading = mongoose.model('Reading');
@@ -46,7 +48,6 @@ schema.defineModels(mongoose, function() {
   app.Project = Project = mongoose.model('Project');
   app.Extra = Extra = mongoose.model('Extra');
   app.Progress = Progress = mongoose.model('Progress');
-  app.Ticket = Ticket = mongoose.model('Ticket');
   app.UnitProgress = UnitProgress = mongoose.model('UnitProgress');
   db = mongoose.connect(app.set('db-uri'));
 });
@@ -226,17 +227,24 @@ function logUser(req, res, next) {
   }
   next();
 }
-/** Check if the user has a valid email. */
+/** Check if the user has valid information. */
 function checkUser(req, res, next) {
   trace('checkUser');
-  if (req.currentUser != GUEST
-    && !(req.url in {"/settings":1, "/logout":1})
-    && !(schema.emailRegEx.test(req.currentUser.email))) {
-  req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
-    res.redirect('/settings');
-  } else {
-    next();
+
+  if (!req.currentUser.isEnable) {
+    req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
+    res.redirect('/home');
+  } else if (!(req.url in {"/settings":1, "/logout":1})) {
+    if (!req.currentUser.isActivated) {
+      req.flash('info', "It looks like you is not activated. Please enter your information below.");
+      res.redirect('/settings');
+    } else if (req.currentUser != GUEST
+      && !(schema.emailRegEx.test(req.currentUser.email))) {
+      req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
+      res.redirect('/settings');
+    }
   }
+  next();
 }
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
