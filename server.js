@@ -1785,7 +1785,7 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
 });
 /** Feedback for admins. */
 app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res) {
-  trace('GET URL: /admin/feedback');
+  trace('GET /admin/feedback');
   Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
     log(err);
     tickets.sort(function(b, a) { return a.date - b.date });
@@ -1798,7 +1798,7 @@ app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res
 });
 /** All feedback for admins. */
 app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req, res) {
-  trace('GET URL: /admin/feedback/all');
+  trace('GET /admin/feedback/all');
   Ticket.find({}, function(err, tickets) {
     log(err);
     tickets.sort(function(b, a) { return a.date - b.date });
@@ -1811,7 +1811,7 @@ app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req,
 });
 // TODO: error checking
 app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), function(req, res) {
-  trace('POST URL: /admin/feedback/reply/:ticketId');
+  trace('POST /admin/feedback/reply/:ticketId');
   sendResponseEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
@@ -2282,7 +2282,7 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
 // TODO: Style feedback
 // TODO: Make Google doc for general feedback. 
 app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
-  trace('GET URL: /feedback');
+  trace('GET /feedback');
   Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
     log(err);
     tickets.sort(function(b, a) { return a.date - b.date });
@@ -2295,7 +2295,7 @@ app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
 });
 // TODO: Error checking
 app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) {
-  trace('POST URL: /feedback/new');
+  trace('POST /feedback/new');
   sendFeedbackEmail(req, function(err){
     if (!err) {
       ticket = new Ticket({
@@ -2316,7 +2316,7 @@ app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) 
 });
 // TODO: error checking
 app.post('/feedback/appeal/:ticketId', checkPermit('canAccessDashboard'), function(req, res) {
-  trace('POST URL: /feedback/appeal/:ticketId');
+  trace('POST /feedback/appeal/:ticketId');
   sendFeedbackEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
