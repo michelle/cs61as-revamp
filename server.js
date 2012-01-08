@@ -271,7 +271,7 @@ function loadProgress(req, res, next) {
         unitprogress = new UnitProgress({
           unit: req.currentUnit,
           user: req.currentUser,
-          projects: req.currentUnit.projects.map(function (extra) { return false }),
+          projects: req.currentUnit.projects.map(function (project) { return false }),
         });
         if (req.currentUser.canWriteProgress()) {
           unitprogress.save(function (err){
@@ -355,7 +355,7 @@ function loadProgress(req, res, next) {
           }
         }(i), function(id) {
           return function() {
-            return unitprogress.project[id];
+            return unitprogress.projects[id];
           }
         }(i));
       }
@@ -1662,7 +1662,7 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   if (req.currentLesson && req.currentLesson.unit) {
     Announcement.find({}, function(err, news) {
       log(err);
-      news.sort(function(b, a) { return a.date - b.date } );
+      news.sort(function(b, a) { return a.date - b.date });
       res.render('dashboard', {
         page: 'dashboard',
         currentUnit: req.currentUnit,
