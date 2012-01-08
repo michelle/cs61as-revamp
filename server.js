@@ -1586,7 +1586,10 @@ app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canRead
 app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
   var user = new User({
-    username: req.body.user.username
+    username: req.body.user.username,
+    fullname: req.body.user.fullname,
+    isEnable: req.body.user.isEnable,
+    isActivated: req.body.user.isActivated
   });
   if (req.body.user.email != "") {
     user.email = req.body.user.email;
@@ -1649,6 +1652,9 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
       req.user.password = req.body.user.password;
     }
     req.user.username = req.body.user.username;
+    req.user.fullname = req.body.user.fullname;
+    req.user.isEnable = req.body.user.isEnable;
+    req.user.isActivated = req.body.user.isActivated;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.currentUnit = req.body.user.currentUnit;
@@ -1905,6 +1911,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
         return;
       }
     }
+    req.currentUser.fullname = req.body.user.fullname;
     req.currentUser.email = req.body.user.email;
     req.currentUser.units = req.body.user.units;
 
