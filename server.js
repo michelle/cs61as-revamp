@@ -424,6 +424,10 @@ function sendResponseEmail(req, next) {
   next();
 }
 
+function sendGraderProjNotification(req, next) {
+  next();
+}
+
 /** Grader email. */
 function sendGraderNotification(req, next) {
   if (!SEND_GRADER_NOTIFICATION) {
@@ -2014,6 +2018,28 @@ app.post('/homework/:lessonId', loadUser, checkPermit('canWriteProgress'), loadP
     res.redirect('/dashboard');
   }
 });
+
+/** Marking project as complete. */
+app.post('/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /project/:lessonId/:projectId');
+  if(req.currentLesson && req.project) {
+    if (req.body.confirm) {
+      sendGraderProjNotification(req, function(err){
+        if (!err) {
+          req.project.isCompleted = true;
+        }
+        res.redirect('/project/' + req.params.lessonId + '/' + req.params.projectId);
+      });
+    } else {
+      req.flash('error', 'You did not check the box to confirm your understanding of homework guidelines.');
+      res.redirect('/project/' + req.params.lessonId + '/' + req.params.projectId);
+    }
+  } else {
+    req.flash('error', 'Whoops! Project does not exist.');
+    res.redirect('/dashboard');
+  }
+});
+
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
 // TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.

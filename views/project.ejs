@@ -14,15 +14,29 @@
       </div>
     <% } %>
     <%-partial('cs61as/unit' + currentUnit.number + '/proj' + projectId +'.ejs')%>
+    <br><br>
     <% if (showControls) { %>
       <% if (!project.isCompleted) {%>
-      <center>
-        <form method="post" action="/project/<%-currentLesson.number%>/<%-projectId%>">
-          <button class="mark">
-            Mark as complete
-          </button>
-        </form>
-      </center>
+      <div class="rednote">
+        <div class="padding">
+          <form method="post" action="/project/<%-currentLesson.number%>/<%-projectId%>">
+            <input type="checkbox" name="confirm"></input> I understand that by checking this box and clicking the button below I hereby acknowledge that my reader will grade my most recently submitted version of this project.
+            <br>
+            <button class="mark">
+              I am ready to be graded
+            </button>
+          </form>
+        </div>
+      </div>
+      <% } else { %>
+      <hr />
+      <br>
+      <div id="solution">
+        <h3 class="noselect">View Project Solutions</h3>
+        <div class="wrapper">
+          <%-partial('cs61as/unit' + currentLesson.unit.number + '/proj' + projectId + '-solutions.ejs')%>
+        </div>
+      </div>
       <% } %>
     <% } %>
   </div>
