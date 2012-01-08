@@ -14,6 +14,7 @@ var Homework;
 var Project;
 var Extra;
 var Progress;
+var UnitProgress;
 
 /** Default permissions set. */
 var permissions = {
@@ -279,16 +280,11 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    project: [{
+    projects: [{
       type: ObjectId,
-      required: true,
       ref: 'Project',
       'default': []
-    }],
-    projectLessonNumber: {
-      type: Number,
-      min: 0
-    }
+    }]
   });
 
   /** A lesson.
@@ -328,21 +324,15 @@ function defineModels(mongoose, fn) {
       type: ObjectId,
       ref: 'Reading',
       'default': []
-    }],
+    }]
   });
   /** Only valid after populating progress .*/
   Lesson.virtual('isCompleted').get(function() {
     return this.homework.isCompleted;
   });
   /** Returns array of projects. */
-  Lesson.virtual('project').get(function() {
-    return this.unit.project;
-  });
-  /** isCompleted. */
-  Lesson.virtual('isProjectCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
+  Lesson.virtual('projects').get(function() {
+    return this.unit.projects;
   });
 
   /** A homework assignment.
@@ -372,7 +362,7 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    number: {
+    projectLessonNumber: {
       type: Number,
       required: true
     }
@@ -476,10 +466,6 @@ function defineModels(mongoose, fn) {
       type: Boolean,
       'default': false
     },
-    project: [{
-      type: Boolean,
-      'default': []
-    }],
     extra: [{
       type: Boolean,
       'default': []
@@ -494,7 +480,7 @@ function defineModels(mongoose, fn) {
     }]
   });
   Progress.index({ lesson: 1, user: 1 }, { unique: true });
-  
+
   /** Ticket to keep track of feedback. Status is true if open. */
   Ticket = new Schema({
     status: {
@@ -535,6 +521,23 @@ function defineModels(mongoose, fn) {
       return this.responder;
     }
   });
+  
+  /** Progress to keep track of which projects a user has completed .*/
+  UnitProgress = new Schema({
+    unit: {
+      type: ObjectId,
+      ref: 'Unit'
+    },
+    user: {
+      type: ObjectId,
+      ref: 'User'
+    },
+    projects: [{
+      type: Boolean,
+      'default': []
+    }]
+  });
+  UnitProgress.index({ unit: 1, user: 1 }, { unique: true });
 
   /** Set up models. */
   mongoose.model('User', User);
@@ -550,6 +553,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Extra', Extra);
   mongoose.model('Progress', Progress);
   mongoose.model('Ticket', Ticket);
+  mongoose.model('UnitProgress', UnitProgress);
 
   fn();
 }

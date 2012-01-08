@@ -50,6 +50,7 @@ schema.defineModels(mongoose, function() {
   app.Extra = Extra = mongoose.model('Extra');
   app.Progress = Progress = mongoose.model('Progress');
   app.Ticket = Ticket = mongoose.model('Ticket');
+  app.UnitProgress = UnitProgress = mongoose.model('UnitProgress');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -228,10 +229,9 @@ function loadLesson(req, res, next) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      unitId = req.currentLesson.unit.id;
       Unit.findById(
-        unitId
-      ).populate('project')
+        req.currentLesson.unit.id
+      ).populate('projects')
         .run(function(err, unit) {
           log(err);
           req.currentUnit = !err && unit;
@@ -251,110 +251,118 @@ function loadProgress(req, res, next) {
 
   Progress.findOne({ lesson: req.currentLesson, user: req.currentUser }, function (err, progress) {
     log(err);
-    if (!progress) {
-      progress = new Progress({
-        lesson: req.currentLesson,
-        user: req.currentUser,
-        homework: false,
-        project: req.currentLesson.project.map(function (extra) { return false }),
-        extra: req.currentLesson.extra.map(function (extra) { return false }),
-        videos: req.currentLesson.videos.map(function (videos) { return false }),
-        readings: req.currentLesson.readings.map(function (reading) { return false })
+    UnitProgress.findOne({ unit: req.currentUnit, user: req.currentUser }, function (err, unitprogress) {
+      log(err);
+      if (!progress) {
+        progress = new Progress({
+          lesson: req.currentLesson,
+          user: req.currentUser,
+          homework: false,
+          extra: req.currentLesson.extra.map(function (extra) { return false }),
+          videos: req.currentLesson.videos.map(function (videos) { return false }),
+          readings: req.currentLesson.readings.map(function (reading) { return false })
+        });
+        if (req.currentUser.canWriteProgress()) {
+          progress.save(function (err){
+            log(err);
+          });
+        }
+      }
+      if (!unitprogress) {
+        unitprogress = new UnitProgress({
+          unit: req.currentUnit,
+          user: req.currentUser,
+          projects: req.currentUnit.projects.map(function (project) { return false }),
+        });
+        if (req.currentUser.canWriteProgress()) {
+          unitprogress.save(function (err){
+            log(err);
+          });
+        }
+      }
+        
+      req.currentLesson.homework.attachProgress(function(value) {
+        if (req.currentUser.canWriteProgress()) {
+          progress.homework = value;
+          progress.markModified('homework');
+          progress.save(function (err) {
+            log(err);
+          });
+        }
+      }, function() {
+        return progress.homework;
       });
-      if (req.currentUser.canWriteProgress()) {
-        progress.save(function (err){
-          log(err);
-        });
+      for(var i = 0; i < req.currentLesson.extra.length; i++) {
+        req.currentLesson.extra[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.extra[id] = value;
+              progress.markModified('extra');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.extra[id];
+          }
+        }(i));
       }
-    }
-
-    req.currentLesson.homework.attachProgress(function(value) {
-      if (req.currentUser.canWriteProgress()) {
-        progress.homework = value;
-        progress.markModified('homework');
-        progress.save(function (err) {
-          log(err);
-        });
+      for(var i = 0; i < req.currentLesson.videos.length; i++) {
+        req.currentLesson.videos[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.videos[id] = value;
+              progress.markModified('videos');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.videos[id];
+          }
+        }(i));
       }
-    }, function() {
-      return progress.homework;
+      for(var i = 0; i < req.currentLesson.readings.length; i++) {
+        req.currentLesson.readings[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              progress.readings[id] = value;
+              progress.markModified('readings');
+              progress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return progress.readings[id];
+          }
+        }(i));
+      }
+      for(var i = 0; i < req.currentUnit.projects.length; i++) {
+        req.currentUnit.projects[i].attachProgress( function(id) {
+          return function(value) {
+            if (req.currentUser.canWriteProgress()) {
+              unitprogress.projects[id] = value;
+              unitprogress.markModified('projects');
+              unitprogress.save(function (err) {
+                log(err);
+              });
+            }
+          }
+        }(i), function(id) {
+          return function() {
+            return unitprogress.projects[id];
+          }
+        }(i));
+      }
+  
+      next();
     });
-    for(var i = 0; i < req.currentLesson.extra.length; i++) {
-      req.currentLesson.extra[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.extra[id] = value;
-            progress.markModified('extra');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.extra[id];
-        }
-      }(i));
-    }
-    for(var i = 0; i < req.currentLesson.videos.length; i++) {
-      req.currentLesson.videos[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.videos[id] = value;
-            progress.markModified('videos');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.videos[id];
-        }
-      }(i));
-    }
-    for(var i = 0; i < req.currentLesson.readings.length; i++) {
-    
-      console.log(req.currentLesson.readings);
-      req.currentLesson.readings[i].attachProgress( function(id) {
-      
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.readings[id] = value;
-            progress.markModified('readings');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.readings[id];
-        }
-      }(i));
-    }
-    if (req.currentLesson.project) {
-    for(var i = 0; i < req.currentUnit.project.length; i++) {
-      console.log(req.currentUnit.project);
-      req.currentUnit.project[i].attachProgress( function(id) {
-        return function(value) {
-          if (req.currentUser.canWriteProgress()) {
-            progress.project[id] = value;
-            progress.markModified('project');
-            progress.save(function (err) {
-              log(err);
-            });
-          }
-        }
-      }(i), function(id) {
-        return function() {
-          return progress.project[id];
-        }
-      }(i));
-    }
-    }
-
-    next();
   });
 }
 
@@ -512,10 +520,9 @@ app.param('lessonId', function(req, res, next, lessonId) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      unitId = req.currentLesson.unit.id;
       Unit.findById(
-        unitId
-      ).populate('project')
+        req.currentLesson.unit.id
+      ).populate('projects')
         .run(function(err, unit) {
           log(err);
           req.currentUnit = !err && unit;
@@ -529,10 +536,10 @@ app.param('videoId', function(req, res, next, videoId) {
   req.video = req.currentLesson.videos && req.currentLesson.videos[videoId];
   next();
 });
-/** Pre condition param projId into req.project. */
-app.param('projId', function(req, res, next, projId) {
-  trace('param projId');
-  req.project = req.currentLesson.project && req.currentLesson.project[projId];
+/** Pre condition param projectId into req.project. */
+app.param('projectId', function(req, res, next, projectId) {
+  trace('param projectId');
+  req.project = req.currentUnit.projects && req.currentUnit.projects[projectId];
   next();
 });
 /** Pre condition param readingId into req.reading. */
@@ -811,8 +818,10 @@ app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), check
     lessons: req.body.unit.lessons,
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
-  if (req.body.unit.project != "undefined") {
-    unit.project = req.body.unit.project;
+  if (req.body.unit.projects.indexOf("undefined") != -1) {
+    unit.projects = [];
+  } else {
+    unit.projects = req.body.unit.projects;
   }
 
   unit.save(function(err) {
@@ -860,7 +869,11 @@ app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel')
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
     req.unit.lessons = req.body.unit.lessons;
-    req.unit.project = req.body.unit.project;
+    if (req.body.unit.projects.indexOf("undefined") != -1) {
+      req.unit.projects = [];
+    } else {
+      req.unit.projects = req.body.unit.projects;
+    }
     req.unit.projectLessonNumber = req.body.unit.projectLessonNumber;
 
     req.unit.save(function(err){
@@ -1136,7 +1149,8 @@ app.get('/admin/projects', loadUser, checkPermit('canAccessAdminPanel'), checkPe
 app.post('/admin/projects/add', loadUser, checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/add');
   var project = new Project({
-    name: req.body.project.name
+    name: req.body.project.name,
+    projectLessonNumber: req.body.project.projectLessonNumber
   });
   project.save(function(err) {
     if (err) {
@@ -1173,6 +1187,7 @@ app.post('/admin/projects/edit/:project', loadUser, checkPermit('canAccessAdminP
   trace('POST /admin/projects/edit/:project');
   if (req.project) {
     req.project.name = req.body.project.name;
+    req.project.projectLessonNumber = req.body.project.projectLessonNumber;
 
     req.project.save(function(err){
       if (err) {
@@ -1693,20 +1708,13 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   if (req.currentLesson && req.currentLesson.unit) {
     Announcement.find({}, function(err, news) {
       log(err);
-      Project.findById(req.currentLesson.unit.project, function(err, project) {
-        log(err);
-        if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
-          project = undefined;
-        }
-        news.sort(function(b, a) { return a.date - b.date } );
-        res.render('dashboard', {
-          page: 'dashboard',
-          currentUnit: req.currentUnit,
-          currentUser: req.currentUser,
-          currentLesson: req.currentLesson,
-          project: project,
-          news: news
-        });
+      news.sort(function(b, a) { return a.date - b.date });
+      res.render('dashboard', {
+        page: 'dashboard',
+        currentUnit: req.currentUnit,
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        news: news
       });
     });
   } else {
@@ -1717,24 +1725,19 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
 /** Change dashboard. */
 app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
   trace('GET /dashboard/:lessonId');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.unit) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
       Announcement.find({}, function(err, news) {
-        Project.findById(req.currentLesson.unit.project, function(err, project) {
-          log(err);
-          if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
-            project = undefined;
-          }
-          news.sort(function(b, a) { return a.date - b.date } );
-          res.render('dashboard', {
-            page: 'dashboard',
-            currentUser: req.currentUser,
-            currentLesson: req.currentLesson,
-            project: project,
-            news: news
-          });
+        log(err);
+        news.sort(function(b, a) { return a.date - b.date } );
+        res.render('dashboard', {
+          page: 'dashboard',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          currentUnit: req.currentUnit,
+          news: news
         });
       });
     });
@@ -2062,16 +2065,16 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
 // TODO: view for projects
-app.get('/project/:lessonId/:projId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /project/:lessonId/:projId');
-  if (req.currentLesson && req.project) {
+app.get('/project/:lessonId/:projectId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /project/:lessonId/:projectId');
+  if (req.currentUnit && req.project) {
     res.render('project', {
       page: 'project',
       project: req.project,
-      lessonno: req.currentLesson.unit.projectLessonNumber,
-      projId: req.params.projId,
+      projectId: req.params.projectId,
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,
+      currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
