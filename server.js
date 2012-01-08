@@ -2108,7 +2108,29 @@ app.post('/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgres
     res.redirect('/dashboard');
   }
 });
-
+/** View project solutions. */
+app.get('/solutions/project/:lessonId/:projectId', loadUser, checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('GET /solutions/project/:lessonId/:projectId');
+  if(req.currentLesson && req.project) {
+    if (req.project.isCompleted) {
+      res.render('solution', {
+        page: 'solution',
+        currentUser: req.currentUser,
+        type: 'project',
+        name: req.project.name,
+        currentLesson: req.currentLesson,
+        projectId: req.params.projectId,
+        showControls: req.currentUser.canWriteProgress()
+      });
+    } else {
+      req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
+      res.redirect('/dashboard');
+    }
+  } else {
+    req.flash('error', 'Whoops! Project does not exist.');
+    res.redirect('/dashboard');
+  }
+});
 /** View solution for TYPE at lessonId.
  *  Only displays progress control when the user has permission. */
 // TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.
@@ -2132,6 +2154,7 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
         if (req.currentLesson[checktype].isCompleted) {
           res.render('solution', {
             page: 'solution',
+            name: req.currentLesson[checktype].name,
             currentUser: req.currentUser,
             type: type,
             currentLesson: req.currentLesson,
@@ -2159,7 +2182,6 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
 /** Project.
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
-// TODO: view for projects
 app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /project/:lessonId/:projectId');
   if (req.currentUnit && req.project) {

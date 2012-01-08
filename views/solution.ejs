@@ -1,11 +1,11 @@
 <div id="nocenter">
   <div id="lesson">
-    <h2>Solutions - <strong><%-type%> <%-currentLesson.number%></strong></h2>
+    <h2>Solutions - <strong><%-name%><% if (type === 'lab') { %> - Lab Portion<% } %></strong></h2>
   </div>
   <div id="lefttriangle"></div>
   <div class="clear"></div>
   <div id="homework">
-    <% var url; if (type === 'homework') { url = 'hw'; } else if (type === 'project') { url = 'proj' } else { url = type } %>
-    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/' + url + '-solutions.ejs')%>
+    <% var url; if (type === 'homework') { url = currentLesson.number + '/hw'; } else if (type === 'project') { url = 'proj' + projectId; } else { url = currentLesson.number + '/' + type; } %>
+    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + url + '-solutions.ejs')%>
   </div>
 </div>

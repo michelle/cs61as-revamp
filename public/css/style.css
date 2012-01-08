@@ -103,7 +103,7 @@ body, html {
 
 #topcontainer {
   margin: 0 auto;
-  min-width:650px;
+  min-width:750px;
   width:auto !important;
   width: 90%;
   top: 0px;
@@ -1108,9 +1108,6 @@ textarea {
   float: left;
   width: 48%;
   margin: 1%;
-  min-height: 100px;
-  height: auto !important;
-  height: 100%;
 }
 
 .response {
@@ -1118,7 +1115,6 @@ textarea {
 }
 
 .exchange {
-  min-height: 100px;
   width: 100%;
 }
 
@@ -1181,6 +1177,10 @@ h3.projectHeader {
   padding: 10px 20px;
   cursor: pointer;
   outline: none;
+}
+
+.complain, .response {
+  border-radius: 5px;
 }
 
 a.nounderline {
