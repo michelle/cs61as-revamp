@@ -20,11 +20,13 @@
         <span class="left boxy noselect" required>name</span>
         <input type="text" class="right textboxy" name='unit[name]' value="<%-unit.name%>" required >
         <br>
-        <span class="left boxy noselect">project</span>
-        <select class="right selectboxy" name='unit[project]'>
+        <span class="left boxy noselect">projects</span>
+        <select class="right selectboxy" name='unit[projects]' multiple="multiple">
           <option value="undefined">-- No Project --</option>
+          <% console.log(unit.projects) %>
           <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
-            <% if (unit.project && unit.project.id == project.id) { %>
+            <% console.log(project) %>
+            <% if (unit.projects && unit.projects.indexOf(project.id) != -1) { %>
               <option value="<%-project.id%>" selected="selected"><%-project.name%></option>
             <% } else { %>
               <option value="<%-project.id%>"><%-project.name%></option>

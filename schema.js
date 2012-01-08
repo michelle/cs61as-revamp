@@ -14,6 +14,7 @@ var Homework;
 var Project;
 var Extra;
 var Progress;
+var UnitProgress;
 
 /** Default permissions set. */
 var permissions = {
@@ -510,6 +511,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('Project', Project);
   mongoose.model('Extra', Extra);
   mongoose.model('Progress', Progress);
+  mongoose.model('UnitProgress', UnitProgress);
 
   fn();
 }

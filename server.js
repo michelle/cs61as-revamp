@@ -49,6 +49,7 @@ schema.defineModels(mongoose, function() {
   app.Project = Project = mongoose.model('Project');
   app.Extra = Extra = mongoose.model('Extra');
   app.Progress = Progress = mongoose.model('Progress');
+  app.UnitProgress = UnitProgress = mongoose.model('UnitProgress');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -778,7 +779,7 @@ app.post('/admin/units/add', loadUser, checkPermit('canAccessAdminPanel'), check
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
   if (req.body.unit.project != "undefined") {
-    unit.project = req.body.unit.project;
+    unit.projects = req.body.unit.projects;
   }
 
   unit.save(function(err) {
@@ -826,7 +827,7 @@ app.post('/admin/units/edit/:unit', loadUser, checkPermit('canAccessAdminPanel')
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
     req.unit.lessons = req.body.unit.lessons;
-    req.unit.project = req.body.unit.project;
+    req.unit.projects = req.body.unit.projects;
     req.unit.projectLessonNumber = req.body.unit.projectLessonNumber;
 
     req.unit.save(function(err){
@@ -1661,20 +1662,13 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
   if (req.currentLesson && req.currentLesson.unit) {
     Announcement.find({}, function(err, news) {
       log(err);
-      Project.findById(req.currentLesson.unit.project, function(err, project) {
-        log(err);
-        if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
-          project = undefined;
-        }
-        news.sort(function(b, a) { return a.date - b.date } );
-        res.render('dashboard', {
-          page: 'dashboard',
-          currentUnit: req.currentUnit,
-          currentUser: req.currentUser,
-          currentLesson: req.currentLesson,
-          project: project,
-          news: news
-        });
+      news.sort(function(b, a) { return a.date - b.date } );
+      res.render('dashboard', {
+        page: 'dashboard',
+        currentUnit: req.currentUnit,
+        currentUser: req.currentUser,
+        currentLesson: req.currentLesson,
+        news: news
       });
     });
   } else {
@@ -1685,24 +1679,19 @@ app.get('/dashboard', loadUser, checkPermit('canAccessDashboard'), loadLesson, l
 /** Change dashboard. */
 app.get('/dashboard/:lessonId', loadUser, checkPermit('canAccessDashboard'), loadProgress, function(req, res) {
   trace('GET /dashboard/:lessonId');
-  if (req.currentLesson) {
+  if (req.currentLesson && req.currentLesson.unit) {
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
       Announcement.find({}, function(err, news) {
-        Project.findById(req.currentLesson.unit.project, function(err, project) {
-          log(err);
-          if (req.currentLesson.number < req.currentLesson.unit.projectLessonNumber) {
-            project = undefined;
-          }
-          news.sort(function(b, a) { return a.date - b.date } );
-          res.render('dashboard', {
-            page: 'dashboard',
-            currentUser: req.currentUser,
-            currentLesson: req.currentLesson,
-            project: project,
-            news: news
-          });
+        log(err);
+        news.sort(function(b, a) { return a.date - b.date } );
+        res.render('dashboard', {
+          page: 'dashboard',
+          currentUser: req.currentUser,
+          currentLesson: req.currentLesson,
+          currentUnit: req.currentUnit,
+          news: news
         });
       });
     });
@@ -2030,13 +2019,13 @@ app.get('/solutions/:type/:lessonId', loadUser, checkPermit('canReadLesson'), lo
  *  Defaults: display the one specified by currentUser.currentLesson.
  *  Only displays progress control when the user has permission. */
 // TODO: view for projects
-app.get('/project/:lessonId/:projId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /project/:lessonId/:projId');
+app.get('/project/:lessonId/:projectId', loadUser, checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /project/:lessonId/:projectId');
   if (req.currentUnit && req.project) {
     res.render('project', {
       page: 'project',
       project: req.project,
-      projId: req.params.projId,
+      projectId: req.params.projectId,
       currentUser: req.currentUser,
       currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
