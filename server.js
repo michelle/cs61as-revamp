@@ -235,14 +235,20 @@ function loadLesson(req, res, next) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      Unit.findById(
-        req.currentLesson.unit.id
-      ).populate('projects')
-        .run(function(err, unit) {
-          log(err);
-          req.currentUnit = !err && unit;
-          next();
-        });
+      if (req.currentLesson) {
+        Unit.findById(
+          req.currentLesson.unit.id
+        ).populate('projects')
+          .run(function(err, unit) {
+            log(err);
+            req.currentUnit = !err && unit;
+            next();
+          });
+      } else {
+        req.flash('error', 'ERROR 102: Your account appears to be corrupted. Please see admin.');
+        req.flash('error', 'You have been logged out.');
+        res.redirect('/home');
+      }
     });
 }
 
@@ -530,14 +536,20 @@ app.param('lessonId', function(req, res, next, lessonId) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
-      Unit.findById(
-        req.currentLesson.unit.id
-      ).populate('projects')
-        .run(function(err, unit) {
-          log(err);
-          req.currentUnit = !err && unit;
-          next();
-        });
+      if (req.currentLesson) {
+        Unit.findById(
+          req.currentLesson.unit.id
+        ).populate('projects')
+          .run(function(err, unit) {
+            log(err);
+            req.currentUnit = !err && unit;
+            next();
+          });
+      } else {
+        req.flash('error', 'ERROR 102: Your account appears to be corrupted. Please see admin.');
+        req.flash('error', 'You have been logged out.');
+        res.redirect('/home');
+      }
     });
 });
 /** Pre condition param videoId into req.video. */
