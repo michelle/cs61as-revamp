@@ -255,7 +255,7 @@ function loadProgress(req, res, next) {
         lesson: req.currentLesson,
         user: req.currentUser,
         homework: false,
-        project: req.currentLesson.project.map(function (extra) { return false }),
+        projects: req.currentUnit.projects.map(function (extra) { return false }),
         extra: req.currentLesson.extra.map(function (extra) { return false }),
         videos: req.currentLesson.videos.map(function (videos) { return false }),
         readings: req.currentLesson.readings.map(function (reading) { return false })
@@ -489,10 +489,10 @@ app.param('videoId', function(req, res, next, videoId) {
   req.video = req.currentLesson.videos && req.currentLesson.videos[videoId];
   next();
 });
-/** Pre condition param projId into req.project. */
-app.param('projId', function(req, res, next, projId) {
-  trace('param projId');
-  req.project = req.currentLesson.project && req.currentLesson.project[projId];
+/** Pre condition param projectId into req.project. */
+app.param('projectId', function(req, res, next, projectId) {
+  trace('param projectId');
+  req.project = req.currentUnit.projects && req.currentUnit.projects[projectId];
   next();
 });
 /** Pre condition param readingId into req.reading. */
@@ -2028,7 +2028,6 @@ app.get('/project/:lessonId/:projId', loadUser, checkPermit('canReadLesson'), lo
     res.render('project', {
       page: 'project',
       project: req.project,
-      lessonno: req.currentLesson.unit.projectLessonNumber,
       projId: req.params.projId,
       currentUser: req.currentUser,
       currentLesson: req.currentLesson,

@@ -279,16 +279,11 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    project: [{
+    projects: [{
       type: ObjectId,
-      required: true,
       ref: 'Project',
       'default': []
-    }],
-    projectLessonNumber: {
-      type: Number,
-      min: 0
-    }
+    }]
   });
 
   /** A lesson.
@@ -328,21 +323,15 @@ function defineModels(mongoose, fn) {
       type: ObjectId,
       ref: 'Reading',
       'default': []
-    }],
+    }]
   });
   /** Only valid after populating progress .*/
   Lesson.virtual('isCompleted').get(function() {
     return this.homework.isCompleted;
   });
   /** Returns array of projects. */
-  Lesson.virtual('project').get(function() {
-    return this.unit.project;
-  });
-  /** isCompleted. */
-  Lesson.virtual('isProjectCompleted').set(function(value) {
-    this._set(value);
-  }).get(function() {
-    return this._get();
+  Lesson.virtual('projects').get(function() {
+    return this.unit.projects;
   });
 
   /** A homework assignment.
@@ -372,7 +361,7 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    number: {
+    projectLessonNumbers: {
       type: Number,
       required: true
     }
@@ -476,7 +465,7 @@ function defineModels(mongoose, fn) {
       type: Boolean,
       'default': false
     },
-    project: [{
+    projects: [{
       type: Boolean,
       'default': []
     }],

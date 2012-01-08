@@ -58,11 +58,12 @@ completedness of each section for class="completed" li elements. -->
       </li></a>
       <% } %>
       <% if (currentUnit.project.length > 1) { %>
-      <% for (var o = 0; o < currentUnit.project.length; o += 1) { var project = currentUnit.project[o]; %> <a href="/project/<%-n%>/<%-o%>">
-      <li class="<% if (project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
-        Project <%-project.number%>-<%-(o + 1)%>
-      </li></a>
-      <% } %>
+        <% for (var o = 0; o < currentUnit.project.length; o += 1) { var project = currentUnit.project[o]; %>
+          <a href="/project/<%-n%>/<%-o%>">
+          <li class="<% if (project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+            Project <%-project.number%>-<%-(o + 1)%>
+          </li></a>
+        <% } %>
       <% } else if (currentLesson.project.length === 1) { %>
         <a href="/project/<%-n%>/0">
         <li class="<% if (project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
