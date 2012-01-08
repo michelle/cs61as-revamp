@@ -16,7 +16,8 @@
     "mongoose": "",
     "connect-mongodb": "",
     "connect": "",
-    "nodemailer": ""
+    "nodemailer": "",
+    "express-validator": ""
   },
   "devDependencies": {}
 }
