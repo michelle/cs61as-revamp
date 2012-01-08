@@ -1108,9 +1108,6 @@ textarea {
   float: left;
   width: 48%;
   margin: 1%;
-  min-height: 100px;
-  height: auto !important;
-  height: 100%;
 }
 
 .response {
@@ -1118,7 +1115,6 @@ textarea {
 }
 
 .exchange {
-  min-height: 100px;
   width: 100%;
 }
 
