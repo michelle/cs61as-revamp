@@ -245,9 +245,13 @@ function loadLesson(req, res, next) {
             next();
           });
       } else {
-        req.flash('error', 'ERROR 102: Your account appears to be corrupted. Please see admin.');
-        req.flash('error', 'You have been logged out.');
-        res.redirect('/home');
+        req.currentUser.currentLesson = 1;
+          req.currentUser.save(function(err) {
+           log(err);
+           log("WARNING: User " + req.currentUser.username + "'s currentLesson is corrupted: " + req.currentUser.currentLesson);
+           req.flash('error', 'Looks like there is something wrong with your account. Please select one of the lesson below. If the problem persists, please contact administrators.');
+           res.redirect('/lessons');
+         });
       }
     });
 }
@@ -546,9 +550,8 @@ app.param('lessonId', function(req, res, next, lessonId) {
             next();
           });
       } else {
-        req.flash('error', 'ERROR 102: Your account appears to be corrupted. Please see admin.');
-        req.flash('error', 'You have been logged out.');
-        res.redirect('/home');
+        req.flash('error', 'Whoops! Lesson does not exist.');
+        res.redirect('/default');
       }
     });
 });
