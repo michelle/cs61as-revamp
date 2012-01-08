@@ -61,9 +61,7 @@ completedness of each section for class="completed" li elements. -->
         <% if (currentLesson.number >= project.projectLessonNumber) { %>
         <a href="/project/<%-n%>/<%-o%>">
           <li class="<% if (project.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
-   
               <%-project.name%>
-
           </li>
         </a>
         <% } %>
@@ -74,10 +72,11 @@ completedness of each section for class="completed" li elements. -->
     <h1>Master</h1>
     <ul class="nolist">
       <% if (currentLesson.extra.length > 0) { %>
-      <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %> <a href="/extra/<%-n%>/<%-l%>">
-      <li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
-        <%-extra.name%>
-      </li></a>
+      <% for (var l = 0; l < currentLesson.extra.length; l += 1) { var extra = currentLesson.extra[l]; %>
+        <a href="/extra/<%-n%>/<%-l%>">
+        <li class="<% if (extra.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+          <%-extra.name%>
+        </li></a>
       <% } %>
       <% } else { %>
       <div class="yellownote">
