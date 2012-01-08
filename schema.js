@@ -263,7 +263,7 @@ function defineModels(mongoose, fn) {
   });
 
   /** A Unit.
-   *  A Unit contains multiple lessons, and one project.
+   *  A Unit contains multiple lessons, and multiple projects.
    *  Project will appear on dashboard when a user comes pass a lessons threshold.  */
   Unit = new Schema({
     number: {
@@ -279,10 +279,12 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
-    project: {
+    project: [{
       type: ObjectId,
-      ref: 'Project'
-    },
+      required: true,
+      ref: 'Project',
+      'default': []
+    }],
     projectLessonNumber: {
       type: Number,
       min: 0
@@ -332,6 +334,10 @@ function defineModels(mongoose, fn) {
   Lesson.virtual('isCompleted').get(function() {
     return this.homework.isCompleted;
   });
+  /** Returns array of projects. */
+  Lesson.virtual('project').get(function() {
+    return this.unit.project;
+  });
   /** isCompleted. */
   Lesson.virtual('isProjectCompleted').set(function(value) {
     this._set(value);
@@ -339,7 +345,7 @@ function defineModels(mongoose, fn) {
     return this._get();
   });
 
-  /** An homework assignment.
+  /** A homework assignment.
    *  Only accessible through Lesson. */
   Homework = new Schema({
     name: {
@@ -359,11 +365,15 @@ function defineModels(mongoose, fn) {
     return this._get();
   });
 
-  /** An project assignment.
+  /** A project assignment.
    *  Only accessible through Lesson. */
   Project = new Schema({
     name: {
       type: String,
+      required: true
+    },
+    number: {
+      type: Number,
       required: true
     }
   });
@@ -466,10 +476,10 @@ function defineModels(mongoose, fn) {
       type: Boolean,
       'default': false
     },
-    project: {
+    project: [{
       type: Boolean,
-      'default': false
-    },
+      'default': []
+    }],
     extra: [{
       type: Boolean,
       'default': []
