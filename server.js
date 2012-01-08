@@ -1580,7 +1580,9 @@ app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
   var user = new User({
     username: req.body.user.username
   });
-  user.email = req.body.user.email;
+  if (req.body.user.email != "") {
+    user.email = req.body.user.email;
+  }
   user.password = req.body.user.password;
   user.permission = getType(req.body.user.type);
 
@@ -1675,6 +1677,20 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
     });
   } else {
     req.flash('error', 'Malformed userID.');
+    res.redirect('/admin/users');
+  }
+});
+/** Delete a user. */
+app.get('/admin/users/delete/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
+  trace('DEL /admin/users/delete/:userId');
+  if (req.user) {
+    req.user.remove(function(err) {
+      log(err);
+      req.flash('info', 'user deleted.');
+      res.redirect('/admin/users');
+    });
+  } else {
+    req.flash('error', 'Malformed userId.');
     res.redirect('/admin/users');
   }
 });

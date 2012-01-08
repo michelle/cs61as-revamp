@@ -44,6 +44,7 @@ function defineModels(mongoose, fn) {
     email: {
       type: String,
       index: {
+        sparse: true,
         unique: true
       },
       match: emailRegExOptional

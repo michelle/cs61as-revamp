@@ -1,51 +1,47 @@
 <div id="centered">
-
   <div id="lesson" class="noselect">
     <h2>User Administration - <strong><%-currentUser.username%></strong></h2>
   </div>
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-  <form method="post" action="/admin/users/add">
-  <div class="formbox">
-  <h3>Add a user</h3>
-    <span class="left boxy noselect">username</span>
-    <input type="text" class="right textboxy" name='user[username]' pattern="^[a-z][a-z0-9_-]{2,31}$" title="Must start with a letter, between 3 to 32 characters, contains only a-z, 0-9, underscore, and dash." required>
+    <form method="post" action="/admin/users/add">
+      <div class="formbox">
+        <h3>Add a user</h3>
+        <span class="left boxy noselect">username</span>
+        <input type="text" class="right textboxy" name='user[username]' pattern="^[a-z][a-z0-9_-]{2,31}$" title="Must start with a letter, between 3 to 32 characters, contains only a-z, 0-9, underscore, and dash." required>
+        <br>
+        <span class="left boxy noselect">password</span>
+        <input type="text" class="right textboxy" name='user[password]' required>
+        <br>
+        <span class="left boxy noselect">email</span>
+        <input type="email" class="right textboxy" name='user[email]' pattern="^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$" title="Must be a berkeley.edu email, start with a letter, between 2-32 characters long before the @ sign, and contains at most one dot.">
+        <br>
+        <span class="left boxy noselect">grader</span>
+        <select class="right selectboxy" name='user[grader]'>
+          <% for (var i = 0; i < graders.length; i += 1) { var grader = graders[i] ;%> <option value="<%-grader.username%>"><%-grader.username%></option>
+          <% } %>
+        </select>
+        <span class="left boxy noselect">type</span>
+        <select class="right selectboxy" name='user[type]'>
+          <option value="Student">Student</option>
+          <option value="Grader">Reader</option>
+          <option value="Instructor">Instructor</option>
+        </select>
+        <div class="clear"></div>
+      </div>
+      <button class="anotherbutton noselect" id="submitUserEdit">
+        Add
+      </button>
+    </form>
     <br>
-    <span class="left boxy noselect">password</span>
-    <input type="text" class="right textboxy" name='user[password]' required>
     <br>
-    <span class="left boxy noselect">email</span>
-    <input type="email" class="right textboxy" name='user[email]' pattern="^[a-z](?=[\w.]{1,31}@)\w*\.?\w*@(cs\.)*berkeley.edu$" title="Must be a berkeley.edu email, start with a letter, between 2-32 characters long before the @ sign, and contains at most one dot.">
-    <br>
-    <span class="left boxy noselect">grader</span>
-    <select class="right selectboxy" name='user[grader]'>
-      <% for (var i = 0; i < graders.length; i += 1) { var grader = graders[i] ;%>
-        <option value="<%-grader.username%>"><%-grader.username%></option>
-      <% } %>
-    </select>
-    <span class="left boxy noselect">type</span>
-    <select class="right selectboxy" name='user[type]'>
-      <option value="Student">Student</option>
-      <option value="Grader">Reader</option>
-      <option value="Instructor">Instructor</option>
-    </select>
-    <div class="clear"></div>
-  </div>
-    <button class="anotherbutton noselect" id="submitUserEdit">
-      Add
-    </button>
-  </form>
-  <br><br>
-  <div class="formbox">
-  <h3>Edit a user (<%-users.length %> total)</h3>
-  <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%>
-  
-      <span class="left boxy noselect displaymargin">username: <%-user.username %></span>
+    <div class="formbox">
+      <h3>Edit a user (<%-users.length %> total)</h3>
+      <% for (var i = 0; i < users.length; i += 1) { var user = users[i];%> <span class="left boxy noselect displaymargin">username: <%-user.username %></span>
       <a class="right linkboxy displaymargin" href="/admin/users/edit/<%-user.id%>">(edit)</a>
-
-  <% } %>
-  <div class="clear"></div>
+      <a class="right linkboxy displaymargin" href="/admin/users/delete/<%-user.id%>">(delete)</a>
+      <% } %> <div class="clear"></div>
+    </div>
   </div>
-</div>
 </div>
