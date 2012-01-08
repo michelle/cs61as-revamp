@@ -1,11 +1,16 @@
-Project:  Write an adventure game.  We'll provide most of the program.  You
-will mostly make modification and some additions.
+<p>
+<b>Project:  Write an adventure game.  We'll provide most of the program.  You
+will mostly make modification and some additions.</b>
+</p>
 
+<p>
 This project is designed to be done by two people working in parallel, then
 combining your results into one finished product.  (Hereafter the two partners
 are called Person A and Person B.)  But you will combine your work to hand in
 a single report for your group.
+</p>
 
+<p>
 The project begins with two exercises that everyone should do; these
 exercises do not require new programming, but rather familiarize you
 with the overall structure of the program as we've provided it.  After
@@ -14,14 +19,18 @@ for everyone that requires the two partners' work to be combined.
 (Therefore, you should probably keep notes about all of the procedures
 that you've modified during the project, so you can notice the ones that
 both partners modified independently.)
+</p>
 
+<p>
 This is a two-week project.  Each week, your group should
 hand in one paper (not one per person) including a listing of your modified
 adv.scm program with the modifications highlighted, and a transcript of the
 testing of your work.  Indicate on the paper which of you is person A and
 which is person B.
+</p>
 
-Scoring:  Each person works on nine problems.  Three of these (numbers
+<p>
+<b>Scoring:  Each person works on nine problems.  Three of these (numbers
 1, 2, and 9) are common to the two partners; the others are separate.
 You hand in a single solution to each problem.  Both partners get
 the points awarded to the group for problems 1, 2, and 9; each
@@ -33,38 +42,54 @@ work, but you shouldn't because those problems are necessary to help you
 understand the structure of the entire project.  Problem 9 requires that both
 partners have already done their separate work, and meet together to
 understand each other's solutions, so probably nobody will get credit for it
-unless both have done their jobs.
+unless both have done their jobs.</b>
+</p>
 
+<p>
 (Acknowledgement:  This assignment is loosely based on an MIT homework
 assignment in their version of this course.  But since this is Berkeley we've
 changed it to be politically correct; instead of killing each other, the
 characters go around eating gourmet food all the time.  N.B.:  Unless you
 are a diehard yuppie you may feel that eating gourmet food does not express
 appropriate sensitivity to the plight of the homeless.  But it's a start.)
+</p>
 
+<p>
 In this laboratory assignment, we will be exploring two key ideas: the
 simulation of a world in which objects are characterized by a set of state
 variables, and the use of message passing as a programming technique for
 modularizing worlds in which objects interact.
+</p>
 
+<p>
 OBJECT-ORIENTED PROGRAMMING is becoming an extremely popular methodology for
 any application that involves interactions among computational entities.
 Examples:
+</p>
 
-	-- operating systems (processes as objects)
-	-- window systems (windows as objects)
-	-- games (asteroids, spaceships, gorillas as objects)
-	-- drawing programs (shapes as objects)
+<ul>
+	<li>operating systems (processes as objects)</li>
+	<li>window systems (windows as objects)</li>
+	<li>games (asteroids, spaceships, gorillas as objects)</li>
+	<li>drawing programs (shapes as objects)</li>
+</li>
 
+<br />
+<h2>GETTING STARTED</h2>
 
-GETTING STARTED
+<p>
 To start, copy the following five files into your directory:
+</p>
+
+<pre>
    ~cs61as/lib/obj.scm           The object-oriented system
    ~cs61as/lib/adv.scm           The adventure game program
    ~cs61as/lib/tables.scm        An ADT you'll need for parts A5 and B4
    ~cs61as/lib/adv-world.scm     The specific people, places, and things
    ~cs61as/lib/small-world.scm   A smaller world you can use for debugging
+</pre>
 
+<p>
 To work on this project, you must load these files into Scheme in the
 correct order: obj.scm first, then adv.scm and tables.scm when you're using
 that, and finally the particular world you're using, either adv-world.scm or
@@ -72,19 +97,26 @@ small-world.scm.  The work you are asked to do refers to adv-world.scm;
 small-world.scm is provided in case you'd prefer to debug some of your
 procedures in a smaller world that may be less complicated to remember and
 also faster to load.
+</p>
 
+<p>
 The reason the adventure game is divided into adv.scm (containing the
 definitions of the object classes) and adv-world.scm (containing the
 specific instances of those objects in Berkeley) is that when you change
 something in adv.scm you may need to reload the entire world in order for
 your changed version to take effect.  Having two files means that you don't
 also have to reload the first batch of procedures.
+</p>
 
-
+<p>
 In this program there are three classes: THING, PLACE, and PERSON.
+</p>
 
+<p>
 Here are some examples selected from adv-world.scm:
+</p>
 
+<pre>
 ;;; construct the places in the world
 (define Soda (instantiate place 'Soda))
 (define BH-Office (instantiate place 'BH-Office))
@@ -123,11 +155,14 @@ messages to objects.  Here is a short example.
 (NORTH SOUTH)
 > (ask hacker 'go 'north)
 HACKER moved from PIMENTEL to SODA
+</pre>
 
-
+<p>
 We can put objects in the different places, and the people can then take the
 objects:
+</p>
 
+<pre>
 > (define Jolt (instantiate thing 'Jolt))
 JOLT
 > (ask Soda 'appear Jolt)
@@ -135,26 +170,35 @@ APPEARED
 > (ask hacker 'take Jolt)
 HACKER took JOLT
 TAKEN
+</pre>
 
+<p>
 You can take objects away from other people, but the management is not
 responsible for the consequences...  (Too bad this is a fantasy game, and
 there aren't really vending machines in Soda that stock Jolt.)
+</p>
 
-PART I:
+<br />
+<h2>PART I:</h2>
 
+<p>
 The first two exercises in this part should be done by everyone -- that is,
 everyone should actually sit in front of a terminal and do it!  It's okay to
 work in pairs as long as you all really know what's going on by the time
 you're finished.  (Nevertheless, you should only hand in one solution, that
 both agree about.)  The remaining exercises have numbers like "A3"
 which means exercise 3 for Person A.
+</p>
 
+<p>
 After you've done the work separately, you should meet together
 to make sure that you each understands what the other person did, because
 the second week's work depends on all of the first week's work.  You can
 do the explaining while you're merging the two sets of modifications into
 one adv.scm file to hand in.
+</p>
 
+<p>
 1.  Create a new person to represent yourself.  Put yourself in a new place
 called Dormitory (or wherever you live) and connect it to campus so that you
 can get there from here.  Create a place called Kirin, north of Soda.
@@ -165,7 +209,9 @@ Potstickers, and have Brian take them. Then go back to the lab and get back
 to work. (There is no truth to the rumor that you'll get an A in the course
 for doing this in real life!)  All this is just to ensure that you know how
 to speak the language of the adventure program.
+</p>
 
+<p>
 LIST ALL THE MESSAGES THAT ARE SENT DURING THIS EPISODE.  It's a good idea
 to see if you can work this out in your head, at least for some of the
 actions that take place, but you can also trace the ASK procedure to get
@@ -173,10 +219,12 @@ a complete list.  You don't have to hand in this listing of messages.  (Do
 hand in a transcript of the episode without the tracing.)  The point is that
 you should have a good sense of the ways in which the different objects send
 messages back and forth as they do their work.
+</p>
 
+<p>
 [Tip:  we have provided a MOVE-LOOP procedure that you may find useful as
 an aid in debugging your work.  You can use it to move a person repeatedly.]
-
+</p>
 
 2.  It is very important that you think about and understand the kinds of
 objects involved in the adventure game.  Please answer the following questions:
