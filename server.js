@@ -6,7 +6,10 @@ var DEBUG_WARNING = true;
 var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
+var ENABLE_SENDMAIL = true;
 var ENABLE_GRADER_NOTIFICATION = false;
+var ENABLE_FEEDBACK_NOTIFICATION = false;
+var ENABLE_EMAIL_CONFIRMATION = true;
 
 /** Default cookie lifetime is 1 day. */
 var COOKIE_LIFETIME = 1000 * 60 * 60 * 24;
@@ -89,7 +92,7 @@ var GUEST = new User({
 });
 
 /** setting up SMTP information. */
-if (ENABLE_GRADER_NOTIFICATION) {
+if (ENABLE_SENDMAIL) {
   var config = JSON.parse(fs.readFileSync('private/config.conf'));
   nodemailer.SMTP = config.SMTP;
 }
@@ -232,13 +235,12 @@ function logUser(req, res, next) {
 /** Check if the user has valid information. */
 function checkUser(req, res, next) {
   trace('checkUser');
-
-  if (!(req.url in {"/home":1, "/settings":1, "/logout":1})) {
+  if (!(/^(\/home|\/settings|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
     if (!req.currentUser.isEnable) {
       req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
       res.redirect('/home');
     } else if(!req.currentUser.isActivated) {
-      req.flash('info', "It looks like you is not activated. Please enter your information below.");
+      req.flash('info', "It looks like you has not activated your account. Please enter your information below.");
       res.redirect('/settings');
     } else if (req.currentUser != GUEST
       && !(schema.emailRegEx.test(req.currentUser.email))) {
@@ -443,21 +445,31 @@ function sameUser(permit, identification) {
 /** Feedback email. */
 // TODO: implement email
 function sendFeedbackEmail(req, next) {
+  if (!ENABLE_FEEDBACK_NOTIFICATION) {
+    req.flash('info', "Feedback notification is not sent because option flag is off.");
+    next();
+    return;
+  }
   var html = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":<br/>" + req.body.complaint;
   var body = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":\n" + req.body.complaint;
-  var emailjson = {
+  var email = {
     sender: req.currentUser.email,
     to: req.currentUser.grader.email,
     subject: '[CS61AS] Feedback from student: ' + req.currentUser.username,
     html: html,
     body: body
   }
-  next();
+  sendMail(email, next);
 }
 
 /** Response to feedback email. */
 // TODO: implement email
 function sendResponseEmail(req, next) {
+  if (!ENABLE_FEEDBACK_NOTIFICATION) {
+    req.flash('info', "Feedback notification is not sent because option flag is off.");
+    next();
+    return;
+  }
   var html = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":<br/>" + req.body.response;
   var body = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":\n" + req.body.response;
   var emailjson = {
@@ -467,14 +479,34 @@ function sendResponseEmail(req, next) {
     html: html,
     body: body
   }
-  next();
+  sendMail(emailjson, next);
 }
-// TODO: write
-function sendGraderProjNotification(req, next) {
-  next();
-}
+/** Grader email for Project. */
+function sendGraderProjectNotification(req, next) {
+  if (!ENABLE_GRADER_NOTIFICATION) {
+    req.flash('info', "Grader notification is not sent because option flag is off.");
+    next();
+    return;
+  }
+  var html = "<p>You've received a grade request from " + req.currentUser.username
+           + " regarding project " + req.project.name + " at "
+           +  String(new Date())
+           + ".<br /> If you received this email in error, please discard it immediately.</p>";
+  var body = "You've received a grade request from " + req.currentUser.username
+           + " regarding project " + req.project.name + " at "
+           +  String(new Date())
+           + ". If you received this email in error, please discard it immediately.";
 
-/** Grader email. */
+  var email = {
+    sender: 'astudent@somewhere.com',
+    to: req.currentUser.grader.email,
+    subject: '[CS61AS] Grade request (project) from student: ' + req.currentUser.username,
+    html: html,
+    body: body
+  };
+  sendMail(email, next);
+}
+/** Grader email for homework. */
 function sendGraderNotification(req, next) {
   if (!ENABLE_GRADER_NOTIFICATION) {
     req.flash('info', "Grader notification is not sent because option flag is off.");
@@ -490,33 +522,70 @@ function sendGraderNotification(req, next) {
            +  String(new Date())
            + ". If you received this email in error, please discard it immediately.";
 
-  nodemailer.send_mail({
+  var email = {
     sender: 'astudent@somewhere.com',
     to: req.currentUser.grader.email,
-    subject: '[CS61AS] Grade request from student: ' + req.currentUser.username,
+    subject: '[CS61AS] Grade request (homework) from student: ' + req.currentUser.username,
     html: html,
     body: body
-  }, function(err, success) {
+  };
+  sendMail(email, next);
+}
+/** Email confirmation. */
+function sendEmailConfirmation(req, token, next) {
+  if (!ENABLE_EMAIL_CONFIRMATION) {
+    req.flash('info', "Email notification is not sent because option flag is off.");
+    next();
+    return;
+  }
+  var html = "<p>You have requested an email change for class CS61AS at Berkely. "
+           + "Please confirm this is your email by clicking at the following link.<br />"
+           + "<a href='http://" + req.headers.host + "/activate/" + token.id + "/" + token.token + "'" + ">Activate</a>"
+           + "<br />If you received this email in error, please discard it immediately.</p>";
+  var body = "You have requested an email change for class CS61AS at Berkely. "
+           + "Please confirm this is your email by clicking at the following link.\n"
+           + "http://" + req.headers.host + "/activate/" + token.id + "/" + token.token
+           + "\nIf you received this email in error, please discard it immediately.";
+
+  var email = {
+    sender: 'astudent@somewhere.com',
+    to: req.currentUser.email,
+    subject: '[CS61AS] Email confirmation: ' + req.currentUser.username,
+    html: html,
+    body: body
+  };
+  sendMail(email, next);
+}
+/** Generic mailer .*/
+function sendMail(mail, next) {
+  nodemailer.send_mail(mail, function(err, success) {
     if(err) {
-      log(err)
-      req.flash('error', "ERROR 103: Email to grader not sent! Please contact administrators.");
+      log(err);
       next(new Error("wrong smtp information"));
       return;
     }
     if(success) {
-      req.flash('info', "Your grader is notified of your submission. Any submission after this period is discarded.");
       next();
     } else {
-      req.flash('error', "ERROR 104: Email to grader not sent! Please contact administrators.");
       next(new Error("smtp server downs, or refuse to take our email."));
     }
   });
-
 }
 /** Pre condition param userId into req.user. */
 app.param('userId', function(req, res, next, userId) {
   trace('param userId');
   User.findById(userId).populate('grader').run(function(err, user) {
+    log(err);
+    req.user = !err && user;
+    next();
+  });
+});
+/** Pre condition param username into req.user. */
+app.param('username', function(req, res, next, username) {
+  trace('param username');
+  User.findOne({
+    username: username
+  }, function(err, user) {
     log(err);
     req.user = !err && user;
     next();
@@ -531,16 +600,16 @@ app.param('ticketId', function(req, res, next, ticketId) {
     next();
   });
 });
-/** Pre condition param username into req.user. */
-app.param('username', function(req, res, next, username) {
-  trace('param username');
-  User.findOne({
-    username: username
-  }, function(err, user) {
-    log(err);
-    req.user = !err && user;
-    next();
-  });
+/** Pre condition param tokenId into req.token. */
+app.param('tokenId', function(req, res, next, tokenId) {
+  trace('param tokenId');
+  ConfirmationToken.findById(tokenId)
+    .populate('user')
+    .run(function(err, token) {
+      log(err);
+      req.token = !err && token;
+      next();
+    });
 });
 /** Pre condition param noteId into req.note. */
 app.param('noteId', function(req, res, next, noteId) {
@@ -1921,7 +1990,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
       }
     }
 
-    if (req.currentUser.email != req.body.user.email) {
+    if (req.currentUser.email != req.body.user.email || !req.currentUser.isActivated) {
       req.currentUser.email = req.body.user.email;
       req.currentUser.isActivated = false;
       var token = new ConfirmationToken({
@@ -1944,7 +2013,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
             log(err);
             token.save(function(err) {
               log(err);
-              sendConfirmationEmail(token, function(eer) {
+              sendEmailConfirmation(req, token, function(err) {
                 log(err);
                 if (err) {
                   req.flash('error', 'There is an error sending your confirmation email. Please contact administrator.');
@@ -1982,18 +2051,22 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   }
 });
 /** Activate. */
-app.get('/activate/:tokenId/:tokenToken', function(req, res) {
+app.get('/activate/:tokenId/:tokenNumber', function(req, res) {
   trace('GET /lessons');
-  if (req.token && req.token.token == req.tokenToken) {
-    req.currentUser.isValidated = true;
-    req.currentUser.save(function(err) {
+  if (req.token && (req.token.token == req.params.tokenNumber)) {
+    req.token.user.isActivated = true;
+    req.token.user.save(function(err) {
       if (err) {
         log(err);
-        req.flash('error', 'User %s was not activated successfully.', req.currentUser.username);
+        req.flash('error', 'User %s was not activated successfully.', req.token.user.username);
+        res.redirect('/home');
       } else {
-        req.flash('info', 'User %s was activated successfully.', req.currentUser.username);
+        ConfirmationToken.remove({ user: req.token.user }, function(err) {
+          log(err);
+          req.flash('info', 'User %s was activated successfully. Please login to begin to use your account.', req.token.user.username);
+          res.redirect('/home');
+        });
       }
-      res.redirect('/default');
     });
   } else {
     req.flash('error', 'Invalid activation code');
@@ -2212,6 +2285,10 @@ app.post('/homework/:lessonId', checkPermit('canWriteProgress'), loadProgress, f
       sendGraderNotification(req, function(err){
         if (!err) {
           req.currentLesson.homework.isCompleted = true;
+          req.flash('info', "Your grader is notified of your submission. Any submission after this period is discarded.");
+        } else {
+          req.flash(err);
+          req.flash('error', "Cannot send email to grader. Please see administration.");
         }
         res.redirect('/homework/' + req.params.lessonId);
       });
@@ -2230,7 +2307,7 @@ app.post('/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadP
   trace('POST /project/:lessonId/:projectId');
   if(req.currentLesson && req.project) {
     if (req.body.confirm) {
-      sendGraderProjNotification(req, function(err){
+      sendGraderProjectNotification(req, function(err){
         if (!err) {
           req.project.isCompleted = true;
         }

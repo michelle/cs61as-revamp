@@ -587,7 +587,7 @@ function defineModels(mongoose, fn) {
   mongoose.model('User', User);
   mongoose.model('Grade', Grade);
   mongoose.model('LoginToken', LoginToken);
-  mongoose.model('ConfirmationToken', LoginToken);
+  mongoose.model('ConfirmationToken', ConfirmationToken);
   mongoose.model('Announcement', Announcement);
   mongoose.model('Ticket', Ticket);
   mongoose.model('Unit', Unit);
