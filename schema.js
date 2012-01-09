@@ -316,6 +316,7 @@ function defineModels(mongoose, fn) {
       type: String,
       required: true
     },
+    // TODO: change to objectId
     complainer: {
       type: String,
       required: true
