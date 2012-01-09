@@ -858,7 +858,7 @@ app.get('/admin', checkPermit('canAccessAdminPanel'), function(req, res) {
 /** Announcements panel */
 app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/announcements');
-  Announcement.find({}).sort('date', 1).run(function(err, news) {
+  Announcement.find({}).sort('date', -1).run(function(err, news) {
     log(err);
     res.render('admin/announcements', {
       page: 'admin/announcements',
@@ -1879,7 +1879,7 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
 /** Feedback for admins. */
 app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin/feedback');
-  Ticket.find({ responder : req.currentUser.email }).sort('date', 1).run(function(err, tickets) {
+  Ticket.find({ responder : req.currentUser.email }).sort('date', -1).run(function(err, tickets) {
     log(err);
     res.render('admin/feedback', {
       page: 'admin/feedback',
@@ -1890,7 +1890,7 @@ app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res
 /** All feedback for admins. */
 app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin/feedback/all');
-  Ticket.find({}).sort('date', 1).run(function(err, tickets) {
+  Ticket.find({}).sort('date', -1).run(function(err, tickets) {
     log(err);
     res.render('admin/feedback/all', {
       page: 'admin/feedback/all',
@@ -1918,7 +1918,7 @@ app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), 
 app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
   if (req.currentLesson && req.currentLesson.unit) {
-    Announcement.find({}).sort('date', 1).limit(3).run(function(err, news) {
+    Announcement.find({}).sort('date', -1).limit(3).run(function(err, news) {
       log(err);
       res.render('dashboard', {
         page: 'dashboard',
@@ -2387,7 +2387,7 @@ app.get('/administration', checkPermit('canReadLesson'), function(req, res) {
 /** All announcements. */
 app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /announcements');
-  Announcement.find({}).sort('date', 1).run(function(err, news) {
+  Announcement.find({}).sort('date', -1).run(function(err, news) {
     log(err);
     res.render('announcements', {
       page: 'announcements',
@@ -2400,7 +2400,7 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
 // TODO: Make Google doc for general feedback.
 app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
   trace('GET /feedback');
-  Ticket.find({ complainer : req.currentUser.email }).sort('date', 1).run(function(err, tickets) {
+  Ticket.find({ complainer : req.currentUser.email }).sort('date', -1).run(function(err, tickets) {
     log(err);
     res.render('feedback', {
       page: 'feedback',
