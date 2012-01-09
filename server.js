@@ -274,6 +274,7 @@ function loadLesson(req, res, next) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
+      res.local('currentLesson', req.currentLesson);
       if (req.currentLesson) {
         Unit.findById(
           req.currentLesson.unit.id
@@ -281,6 +282,7 @@ function loadLesson(req, res, next) {
           .run(function(err, unit) {
             log(err);
             req.currentUnit = !err && unit;
+            res.local('currentUnit', req.currentUnit);
             next();
           });
       } else {
@@ -646,6 +648,7 @@ app.param('lessonId', function(req, res, next, lessonId) {
     .run(function(err, lesson) {
       log(err);
       req.currentLesson = !err && lesson;
+      res.local('currentLesson', req.currentLesson);
       if (req.currentLesson) {
         Unit.findById(
           req.currentLesson.unit.id
@@ -653,6 +656,7 @@ app.param('lessonId', function(req, res, next, lessonId) {
           .run(function(err, unit) {
             log(err);
             req.currentUnit = !err && unit;
+            res.local('currentUnit', req.currentUnit);
             next();
           });
       } else {
@@ -1905,8 +1909,6 @@ app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgres
       news.sort(function(b, a) { return a.date - b.date });
       res.render('dashboard', {
         page: 'dashboard',
-        currentUnit: req.currentUnit,
-        currentLesson: req.currentLesson,
         news: news
       });
     });
@@ -1927,8 +1929,6 @@ app.get('/dashboard/:lessonId', checkPermit('canAccessDashboard'), loadProgress,
         news.sort(function(b, a) { return a.date - b.date } );
         res.render('dashboard', {
           page: 'dashboard',
-          currentLesson: req.currentLesson,
-          currentUnit: req.currentUnit,
           news: news
         });
       });
@@ -2088,7 +2088,6 @@ app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgres
         log(err);
         res.render('video', {
           page: 'webcast',
-          currentLesson: req.currentLesson,
           videoId: req.params.videoId,
           videos: [req.video],
           showControls: req.currentUser.canWriteProgress()
@@ -2097,7 +2096,6 @@ app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgres
     } else {
       res.render('video', {
         page: 'webcast',
-        currentLesson: req.currentLesson,
         videoId: req.params.videoId,
         videos: [req.video],
         showControls: req.currentUser.canWriteProgress()
@@ -2130,7 +2128,6 @@ app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgr
         log(err);
         res.render('reading', {
           page: 'reading',
-          currentLesson: req.currentLesson,
           reading: req.reading,
           readingId: req.params.readingId,
           showControls: req.currentUser.canWriteProgress()
@@ -2139,7 +2136,6 @@ app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgr
     } else {
       res.render('reading', {
         page: 'reading',
-        currentLesson: req.currentLesson,
         reading: req.reading,
         readingId: req.params.readingId,
         showControls: req.currentUser.canWriteProgress()
@@ -2161,7 +2157,6 @@ app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress,
         log(err);
         res.render('extra', {
           page: 'extra',
-          currentLesson: req.currentLesson,
           extra: req.extra,
           extraId: req.params.extraId,
           showControls: req.currentUser.canWriteProgress()
@@ -2170,7 +2165,6 @@ app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress,
     } else {
       res.render('extra', {
         page: 'extra',
-        currentLesson: req.currentLesson,
         extra: req.extra,
         extraId: req.params.extraId,
         showControls: req.currentUser.canWriteProgress()
@@ -2211,7 +2205,6 @@ app.get('/homework', loadLesson, checkPermit('canReadLesson'), loadProgress, fun
   if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
       page: 'homework',
-      currentLesson: req.currentLesson,
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
@@ -2230,14 +2223,12 @@ app.get('/homework/:lessonId', checkPermit('canReadLesson'), loadProgress, funct
         log(err);
         res.render('homework', {
           page: 'homework',
-          currentLesson: req.currentLesson,
           showControls: req.currentUser.canWriteProgress()
         });
       });
     } else {
       res.render('homework', {
         page: 'homework',
-        currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
       });
     }
@@ -2300,7 +2291,6 @@ app.get('/solutions/project/:lessonId/:projectId', checkPermit('canWriteProgress
         page: 'solution',
         type: 'project',
         name: req.project.name,
-        currentLesson: req.currentLesson,
         projectId: req.params.projectId,
         showControls: req.currentUser.canWriteProgress()
       });
@@ -2338,7 +2328,6 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
             page: 'solution',
             name: req.currentLesson[checktype].name,
             type: type,
-            currentLesson: req.currentLesson,
             showControls: req.currentUser.canWriteProgress()
           });
         } else {
@@ -2350,7 +2339,6 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
       res.render('solution', {
         page: 'solution',
         type: req.params.type,
-        currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
       });
     }
@@ -2369,8 +2357,6 @@ app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgr
       page: 'project',
       project: req.project,
       projectId: req.params.projectId,
-      currentLesson: req.currentLesson,
-      currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
     });
   } else {
