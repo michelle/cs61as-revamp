@@ -269,11 +269,20 @@ function defineModels(mongoose, fn) {
       ref: 'User',
       required: true
     },
+    token: {
+      type: String,
+    },
     date: {
       type: Date,
       default: new Date(),
       required: true
     }
+  });
+  /** Automatically create the series when this is first created.
+   *  Regenerate token every time user visits. */
+  ConfirmationToken.pre('save', function(next) {
+    this.token = randomToken();
+    next();
   });
 
   /** An announcement. */

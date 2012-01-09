@@ -1907,6 +1907,9 @@ app.get('/settings', checkPermit('canReadUserInfo'), function(req, res) {
 app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   trace('POST /settings');
   if (req.currentUser.authenticate(req.body.user.password)) {
+    req.currentUser.fullname = req.body.user.fullname;
+    req.currentUser.units = req.body.user.units;
+
     if (req.body.user.newpassword != '') {
       if (req.body.user.newpassword === req.body.user.confirm) {
         req.currentUser.password = req.body.user.newpassword;
@@ -1916,31 +1919,86 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
         return;
       }
     }
-    req.currentUser.fullname = req.body.user.fullname;
-    req.currentUser.email = req.body.user.email;
-    req.currentUser.units = req.body.user.units;
-    req.currentUser.isActivated = true;
 
-    req.currentUser.save(function(err) {
-      if (err) {
-        log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
+    if (req.currentUser.email != req.body.user.email) {
+      req.currentUser.email = req.body.user.email;
+      req.currentUser.isActivated = false;
+      var token = new ConfirmationToken({
+        user: req.currentUser
+      });
+      // TODO: implement this
+      req.currentUser.save(function(err) {
+        if (err) {
+          log(err);
+          for (var e in err.errors) {
+            req.flash('error', err.errors[e].message);
+          }
+          if (err.err) {
+            req.flash('error', 'Email is registered. Please use your email.');
+          }
+          req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
+          res.redirect('/default');
+        } else {
+          ConfirmationToken.remove({ user: req.currentUser }, function(err) {
+            log(err);
+            token.save(function(err) {
+              log(err);
+              sendConfirmationEmail(token, function(eer) {
+                log(err);
+                if (err) {
+                  req.flash('error', 'There is an error sending your confirmation email. Please contact administrator.');
+                  res.redirect('/default');
+                } else {
+                  req.flash('info', 'An confirmation email has been sent to you. Please check your email.');
+                  res.redirect('/default');
+                }
+              });
+            });
+          });
         }
-        if (err.err) {
-          req.flash('error', 'Email is registered. Please use your email.');
+      });
+    } else {
+      req.currentUser.email = req.body.user.email;
+      req.currentUser.save(function(err) {
+        if (err) {
+          log(err);
+          for (var e in err.errors) {
+            req.flash('error', err.errors[e].message);
+          }
+          if (err.err) {
+            req.flash('error', 'Email is registered. Please use your email.');
+          }
+          req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
+        } else {
+          req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
         }
-        req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
-      } else {
-        req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
-      }
-      res.redirect('/default');
-    });
+        res.redirect('/default');
+      });
+    }
   } else {
     req.flash('error', 'Please enter your current password to make any changes.');
     res.redirect('/settings');
   }
 });
+/** Activate. */
+app.get('/activate/:tokenId/:tokenToken', function(req, res) {
+  trace('GET /lessons');
+  if (req.token && req.token.token == req.tokenToken) {
+    req.currentUser.isValidated = true;
+    req.currentUser.save(function(err) {
+      if (err) {
+        log(err);
+        req.flash('error', 'User %s was not activated successfully.', req.currentUser.username);
+      } else {
+        req.flash('info', 'User %s was activated successfully.', req.currentUser.username);
+      }
+      res.redirect('/default');
+    });
+  } else {
+    req.flash('error', 'Invalid activation code');
+    res.redirect('/home');
+  }
+}
 /** Collective lessons. */
 app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /lessons');
