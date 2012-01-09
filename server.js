@@ -25,7 +25,7 @@ var mongoStore = require('connect-mongodb');
 var schema = require('./schema.js');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
-var expressValidator = require('express-validator');
+var expressValidator = require('./express_validator.js');
 
 /** Database. */
 var db;
