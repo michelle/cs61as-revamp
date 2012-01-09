@@ -238,9 +238,13 @@ function checkUser(req, res, next) {
 
   res.local('currentUser', req.currentUser);
 
-  if (!(/^(\/home|\/settings|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
+  console.log(req.url);
+  if (!(/^(\/home|\/settings|\/login|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
+    console.log('__________________begin check');
     if (!req.currentUser.isEnable) {
       req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
+      res.clearCookie('rememberme');
+      delete req.session.user_id;
       res.redirect('/home');
     } else if(!req.currentUser.isActivated) {
       req.flash('info', "It looks like you has not activated your account. Please enter your information below.");
