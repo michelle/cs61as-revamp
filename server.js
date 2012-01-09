@@ -25,7 +25,7 @@ var mongoStore = require('connect-mongodb');
 var schema = require('./schema.js');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
-var expressValidator = require('./express_validator.js');
+var sanitizer = require('validator').sanitize;
 
 /** Database. */
 var db;
@@ -62,7 +62,6 @@ app.use(express.favicon(__dirname + '/public/favicon.ico', {
   maxAge: FAVICON_LIFETIME
 }));
 app.use(express.bodyParser());
-app.use(expressValidator);
 app.use(express.cookieParser());
 app.use(express.session({
   secret: 'this sucks',
@@ -75,6 +74,7 @@ if (DEBUG_USER) {
   app.use(logUser);
 }
 app.use(checkUser);
+app.use(validator);
 
 app.use(app.router);
 app.use(express.errorHandler({
@@ -134,13 +134,12 @@ function trace(msg) {
   }
 }
 
-function validateInput(req, res, next) {
-  var errors = [];
-  req.onValidationError(function(msg) {
-    console.log('Validation error: ' + msg);
-    errors.push(msg);
-    return this;
-  });
+/** My own middleware validator because express validator is so badly designed .*/
+function validator(req, res, next) {
+  req.sanitize = function(obj, prop, op) {
+    req.body[obj][prop] = sanitizer(req.body[obj][prop])[op]().trim();
+  };
+  next();
 }
 
 /** Determine permissions. */
@@ -813,8 +812,8 @@ app.get('/home', function(req, res) {
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   trace('POST /login');
-  req.sanitize('user', 'username').entityEncode().trim();
-  req.sanitize('user', 'password').entityEncode().trim();
+  req.sanitize('user', 'username', 'entityEncode');
+  req.sanitize('user', 'password', 'entityEncode');
   User.findOne({
     username: req.body.user.username
   }, function(err, user) {
@@ -873,8 +872,8 @@ app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit(
 /** Post new announcement */
 app.post('/admin/announcements/new', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcement/new');
-  req.sanitize('announcement', 'title').entityEncode().trim();
-  req.sanitize('announcement', 'content').xss().trim();
+  req.sanitize('announcement', 'title', 'entityEncode');
+  req.sanitize('announcement', 'content', 'xss');
   var announcement = new Announcement({
     title: req.body.announcement.title,
     content: req.body.announcement.content,
@@ -910,8 +909,8 @@ app.get('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'),
 /** Save edit a note. */
 app.post('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcements/edit/:noteId');
-  req.sanitize('note', 'title').entityEncode().trim();
-  req.sanitize('note', 'content').xss().trim();
+  req.sanitize('note', 'title', 'entityEncode');
+  req.sanitize('note', 'content', 'xss');
   if (req.note) {
     req.note.title = req.body.note.title;
     if (req.body.note.content != '') {
@@ -972,7 +971,7 @@ app.get('/admin/units', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
 /** Post new unit */
 app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/add');
-  req.sanitize('unit', 'name').entityEncode().trim();
+  req.sanitize('unit', 'name', 'entityEncode');
   var unit = new Unit({
     number: req.body.unit.number,
     name: req.body.unit.name,
@@ -1022,7 +1021,7 @@ app.get('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPerm
 /** Save edit a unit. */
 app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/edit/:unit');
-  req.sanitize('unit', 'name').entityEncode().trim();
+  req.sanitize('unit', 'name', 'entityEncode');
   if (req.unit) {
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
@@ -1105,7 +1104,7 @@ app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWr
 /** Post new lesson */
 app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/add');
-  req.sanitize('lesson', 'name').entityEncode().trim();
+  req.sanitize('lesson', 'name', 'entityEncode');
   var lesson = new Lesson({
     number: req.body.lesson.number,
     name: req.body.lesson.name,
@@ -1170,7 +1169,7 @@ app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), check
 /** Save edit a lesson. */
 app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/edit/:lesson');
-  req.sanitize('lesson', 'name').entityEncode().trim();
+  req.sanitize('lesson', 'name', 'entityEncode');
   if (req.lesson) {
     req.lesson.number = req.body.lesson.number;
     req.lesson.name = req.body.lesson.name;
@@ -1227,7 +1226,7 @@ app.get('/admin/homework', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new homework */
 app.post('/admin/homework/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/add');
-  req.sanitize('homework', 'name').entityEncode().trim();
+  req.sanitize('homework', 'name', 'entityEncode');
   var homework = new Homework({
     name: req.body.homework.name
   });
@@ -1261,7 +1260,7 @@ app.get('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), ch
 /** Save edit a homework. */
 app.post('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/edit/:homework');
-  req.sanitize('homework', 'name').entityEncode().trim();
+  req.sanitize('homework', 'name', 'entityEncode');
   if (req.homework) {
     req.homework.name = req.body.homework.name;
 
@@ -1311,7 +1310,7 @@ app.get('/admin/projects', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new project */
 app.post('/admin/projects/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/add');
-  req.sanitize('project', 'name').entityEncode().trim();
+  req.sanitize('project', 'name', 'entityEncode');
   var project = new Project({
     name: req.body.project.name,
     projectLessonNumber: req.body.project.projectLessonNumber
@@ -1346,7 +1345,7 @@ app.get('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), che
 /** Save edit a project. */
 app.post('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/edit/:project');
-  req.sanitize('project', 'name').entityEncode().trim();
+  req.sanitize('project', 'name', 'entityEncode');
   if (req.project) {
     req.project.name = req.body.project.name;
     req.project.projectLessonNumber = req.body.project.projectLessonNumber;
@@ -1397,7 +1396,7 @@ app.get('/admin/extra', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
 /** Post new extra */
 app.post('/admin/extra/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/add');
-  req.sanitize('extra', 'name').entityEncode().trim();
+  req.sanitize('extra', 'name', 'entityEncode');
   var extra = new Extra({
     name: req.body.extra.name
   });
@@ -1431,7 +1430,7 @@ app.get('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPer
 /** Save edit a extra. */
 app.post('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/edit/:extra');
-  req.sanitize('extra', 'name').entityEncode().trim();
+  req.sanitize('extra', 'name', 'entityEncode');
   if (req.extra) {
     req.extra.name = req.body.extra.name;
 
@@ -1481,8 +1480,8 @@ app.get('/admin/videos', checkPermit('canAccessAdminPanel'), checkPermit('canWri
 /** Post new video */
 app.post('/admin/videos/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/add');
-  req.sanitize('video', 'name').entityEncode().trim();
-  req.sanitize('video', 'url').entityEncode().trim();
+  req.sanitize('video', 'name', 'entityEncode');
+  req.sanitize('video', 'url', 'entityEncode');
   var video = new Video({
     name: req.body.video.name,
     url: req.body.video.url
@@ -1517,8 +1516,8 @@ app.get('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPe
 /** Save edit a video. */
 app.post('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/edit/:video');
-  req.sanitize('video', 'name').entityEncode().trim();
-  req.sanitize('video', 'url').entityEncode().trim();
+  req.sanitize('video', 'name', 'entityEncode');
+  req.sanitize('video', 'url', 'entityEncode');
   if (req.video) {
     req.video.name = req.body.video.name;
     req.video.url = req.body.video.url;
@@ -1569,8 +1568,8 @@ app.get('/admin/readings', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new reading */
 app.post('/admin/readings/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/add');
-  req.sanitize('reading', 'name').entityEncode().trim();
-  req.sanitize('reading', 'location').entityEncode().trim();
+  req.sanitize('reading', 'name', 'entityEncode');
+  req.sanitize('reading', 'location', 'entityEncode');
   var reading = new Reading({
     name: req.body.reading.name,
     location: req.body.reading.location,
@@ -1606,8 +1605,8 @@ app.get('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), che
 /** Save edit a reading. */
 app.post('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/edit/:reading');
-  req.sanitize('reading', 'name').entityEncode().trim();
-  req.sanitize('reading', 'location').entityEncode().trim();
+  req.sanitize('reading', 'name', 'entityEncode');
+  req.sanitize('reading', 'location', 'entityEncode');
   if (req.reading) {
     req.reading.name = req.body.reading.name;
     req.reading.location = req.body.reading.location;
@@ -1663,10 +1662,10 @@ app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canRead
 /** Add an user. */
 app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
-  req.sanitize('user', 'username').entityEncode().trim();
-  req.sanitize('user', 'password').entityEncode().trim();
-  req.sanitize('user', 'fullname').entityEncode().trim();
-  req.sanitize('user', 'email').entityEncode().trim();
+  req.sanitize('user', 'username', 'entityEncode');
+  req.sanitize('user', 'password', 'entityEncode');
+  req.sanitize('user', 'fullname', 'entityEncode');
+  req.sanitize('user', 'email', 'entityEncode');
   var user = new User({
     username: req.body.user.username,
     fullname: req.body.user.fullname,
@@ -1726,10 +1725,10 @@ app.get('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPe
 /** Save edit an user. */
 app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
-  req.sanitize('user', 'username').entityEncode().trim();
-  req.sanitize('user', 'password').entityEncode().trim();
-  req.sanitize('user', 'fullname').entityEncode().trim();
-  req.sanitize('user', 'email').entityEncode().trim();
+  req.sanitize('user', 'username', 'entityEncode');
+  req.sanitize('user', 'password', 'entityEncode');
+  req.sanitize('user', 'fullname', 'entityEncode');
+  req.sanitize('user', 'email', 'entityEncode');
   if (req.user) {
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
@@ -1817,8 +1816,8 @@ app.get('/admin/grades/:username', checkPermit('canAccessAdminPanel'), checkPerm
 /** Add a grade. */
 app.post('/admin/grades/:username/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/add');
-  req.sanitize('grade', 'name').entityEncode().trim();
-  req.sanitize('grade', 'grade').entityEncode().trim();
+  req.sanitize('grade', 'name', 'entityEncode');
+  req.sanitize('grade', 'grade', 'entityEncode');
   req.user.grades.push({
     name: req.body.grade.name,
     order: req.body.grade.order,
@@ -1856,8 +1855,8 @@ app.get('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), 
 /** Edit a grade. */
 app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/:gradeId');
-  req.sanitize('grade', 'name').entityEncode().trim();
-  req.sanitize('grade', 'grade').entityEncode().trim();
+  req.sanitize('grade', 'name', 'entityEncode');
+  req.sanitize('grade', 'grade', 'entityEncode');
   if (req.user && req.grade) {
     req.grade.name = req.body.grade.name;
     req.grade.order = req.body.grade.order;
@@ -1908,7 +1907,7 @@ app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req,
 // TODO: error checking
 app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('POST /admin/feedback/reply/:ticketId');
-  req.sanitize('ticket', 'response').entityEncode().trim();
+  req.sanitize('ticket', 'response', 'entityEncode');
   sendResponseEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
@@ -1976,12 +1975,12 @@ app.get('/settings', checkPermit('canReadUserInfo'), function(req, res) {
 /** Save edit an user. */
 app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   trace('POST /settings');
-  req.sanitize('user', 'username').entityEncode().trim();
-  req.sanitize('user', 'fullname').entityEncode().trim();
-  req.sanitize('user', 'password').entityEncode().trim();
-  req.sanitize('user', 'newpassword').entityEncode().trim();
-  req.sanitize('user', 'confirm').entityEncode().trim();
-  req.sanitize('user', 'email').entityEncode().trim();
+  req.sanitize('user', 'username', 'entityEncode');
+  req.sanitize('user', 'fullname', 'entityEncode');
+  req.sanitize('user', 'password', 'entityEncode');
+  req.sanitize('user', 'newpassword', 'entityEncode');
+  req.sanitize('user', 'confirm', 'entityEncode');
+  req.sanitize('user', 'email', 'entityEncode');
   if (req.currentUser.authenticate(req.body.user.password)) {
     req.currentUser.fullname = req.body.user.fullname;
     req.currentUser.units = req.body.user.units;
@@ -2422,8 +2421,8 @@ app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
 // TODO: Error checking
 app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST /feedback/new');
-  req.sanitize('ticket', 'subject').entityEncode().trim();
-  req.sanitize('ticket', 'complaint').entityEncode().trim();
+  req.sanitize('ticket', 'subject', 'entityEncode');
+  req.sanitize('ticket', 'complaint', 'entityEncode');
   sendFeedbackEmail(req, function(err){
     if (!err) {
       ticket = new Ticket({
@@ -2445,7 +2444,7 @@ app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) 
 // TODO: error checking
 app.post('/feedback/appeal/:ticketId', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST /feedback/appeal/:ticketId');
-  req.sanitize('ticket', 'complaint').entityEncode().trim();
+  req.sanitize('ticket', 'complaint', 'entityEncode');
   sendFeedbackEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
