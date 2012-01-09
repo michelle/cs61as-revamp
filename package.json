@@ -17,7 +17,7 @@
     "connect-mongodb": "",
     "connect": "",
     "nodemailer": "",
-    "private-repo": "git+ssh://git@github.com:thanhhaimai/express-validator.git"
+    "private-repo": "https://github.com/thanhhaimai/express-validator/tarball/master"
   },
   "devDependencies": {}
 }
