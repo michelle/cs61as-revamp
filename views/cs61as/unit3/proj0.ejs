@@ -226,111 +226,164 @@ messages back and forth as they do their work.
 an aid in debugging your work.  You can use it to move a person repeatedly.]
 </p>
 
+<p>
 2.  It is very important that you think about and understand the kinds of
 objects involved in the adventure game.  Please answer the following questions:
+</p>
 
+<p>
 2A.  What kind of thing is the value of variable BRIAN?
+</p>
 
+<p>
 Hint:  What is returned by scheme in the following situation:
+</p>
+
+<pre>
      You type:     > BRIAN
+</pre>
 
-
+<p>
 2B.   List all the messages that a PLACE understands.  (You might want to
 maintain such a list for your own use, for every type of object, to help
 in the debugging effort.)
+</p>
 
-
+<p>
 2C.   We have been defining a variable to hold each object in our world.
 For example, we defined bagel by saying:
+</p>
 
+<pre>
      (define bagel (instantiate thing 'bagel))
+</pre>
 
+<p>
 This is just for convenience.  Every object does not have to have a
 top-level definition.  Every object DOES have to be constructed and
 connected to the world.  For instance, suppose we did this:
+</p>
 
+<pre>
 > (can-go Telegraph-Ave 'east (instantiate place 'Peoples-Park))
 
 ;;; assume BRIAN is at Telegraph
 > (ask Brian 'go 'east)
+</pre>
 
+<p>
 What is returned by the following expressions and WHY?
+</p>
 
+<pre>
 > (ask Brian 'place)
 
 > (let ((where (ask Brian 'place)))
        (ask where 'name))
 
 >  (ask Peoples-park 'appear bagel)
+</pre>
 
-
-
+<p>
 2D.  The implication of all this is that there can be multiple names for
 objects.  One name is the value of the object's internal NAME variable. In
 addition, we can define a variable at the top-level to refer to an object.
 Moreover, one object can have a private name for another object.  For
 example, BRIAN has a variable PLACE which is currently bound to the object
 that represents People's Park.  Some examples to think about:
+</p>
 
+<pre>
       > (eq? (ask Telegraph-Ave 'look-in 'east) (ask Brian 'place))
 
       > (eq? (ask Brian 'place) 'Peoples-Park)
 
       > (eq? (ask (ask Brian 'place) 'name) 'Peoples-Park)
+</pre>
 
-
+<p>
 OK.  Suppose we type the following into scheme:
+</p>
 
+<pre>
 >  (define computer (instantiate thing 'Durer))
+</pre>
 
-
+<p>
 Which of the following is correct?  Why?
+</p>
 
+<pre>
 (ask 61a-lab 'appear computer)
+</pre>
 
+<p>
 or
+</p>
 
+<pre>
 (ask 61a-lab 'appear Durer)
+</pre>
 
-or 
+<p>
+or
+</P
 
+<pre>
 (ask 61a-lab 'appear 'Durer)
+</pre>
 
-What is returned by (computer 'name)?  Why?
+<p>
+What is returned by <tt>(computer 'name)</tt>?  Why?
+</p>
 
-
+<p>
 2E.  We have provided a definition of the THING class that does not use
 the object-oriented programming syntax described in the handout.  Translate
 it into the new notation.
+</p>
 
+<p>
 2F.  Sometimes it's inconvenient to debug an object interactively because
 its methods return objects and we want to see the names of the objects.  You
 can create auxiliary procedures for interactive use (as opposed to use
 inside object methods) that provide the desired information in printable
 form.  For example:
+</p>
 
+<pre>
 (define (name obj) (ask obj 'name))
 (define (inventory obj)
   (if (person? obj)
       (map name (ask obj 'possessions))
       (map name (ask obj 'things))))
+</pre>
 
-Write a procedure WHEREIS that takes a person as its argument and returns
+<p>
+Write a procedure <tt>WHEREIS</tt> that takes a person as its argument and returns
 the name of the place where that person is.
+</p>
 
-Write a procedure OWNER that takes a thing as its argument and returns the
+<p>
+Write a procedure <tt>OWNER</tt> that takes a thing as its argument and returns the
 name of the person who owns it.  (Make sure it works for things that aren't
 owned by anyone.)
+</p>
 
+<p>
 Procedures like this can be very helpful in debugging the later parts of the
 project, so feel free to write more of them for your own use.
+</p>
 
-
+<p>
 Now it's time for you to make your first modifications to the adventure
 game.  This is where you split the work individually.
+</p>
 
-PART I -- PERSON A:
+<br />
+<h2>PART I -- PERSON A:</h2>
 
+<p>
 A3.  You will notice that whenever a person goes to a new place, the place
 gets an 'ENTER message.  In addition, the place the person previously
 inhabited gets an 'EXIT message.  When the place gets the message, it calls
@@ -340,19 +393,23 @@ these lists of procedures:  ADD-ENTRY-PROCEDURE, ADD-EXIT-PROCEDURE,
 REMOVE-ENTRY-PROCEDURE,
 REMOVE-EXIT-PROCEDURE, CLEAR-ALL-PROCS.  You can read their definitions in the
 code.
+</p>
 
+<p>
 Sproul Hall has a particularly obnoxious exit procedure attached to it.  Fix
 SPROUL-HALL-EXIT so that it counts how many times it gets called, and stops
 being obnoxious after the third time.
+</p>
 
+<p>
 Remember that the EXIT-PROCS list contains procedures, not names of
 procedures!  It's not good enough to redefine SPROUL-HALL-EXIT, since Sproul
 Hall's list of exit procedures still contains the old procedure.  The best
 thing to do is just to load adv-world.scm again, which will define a new
 sproul hall and add the new exit procedure.
+</p>
 
-
-
+<p>
 A4a.  We've provided people with the ability to say something using the
 messages 'TALK and 'SET-TALK.  As you may have noticed, some people around
 this campus start talking whenever anyone walks by.  We want to simulate this
@@ -365,15 +422,21 @@ that the person should notice that someone new has come.  The talker should
 get a NOTICE message, and will then talk, because we've made a person's
 NOTICE method send itself a TALK message.  (Later we'll see that some special
 kinds of people have different NOTICE methods.)
+</p>
 
+<p>
 Your job is to modify the ENTER method for places, so that in addition to
 what that method already does, it sends a NOTICE message to each person in
 that place other than the person who is entering.  The NOTICE message should
 have the newly-entered person as an argument.  (You won't do anything with
 that argument now, but you'll need it later.)
+</p>
 
+<p>
 Test your implementation with the following:
+</p>
 
+<pre>
 (define singer (instantiate person 'rick sproul-plaza))
 
 (ask singer 'set-talk "My funny valentine, sweet comic valentine")
@@ -385,14 +448,19 @@ Test your implementation with the following:
 (define street-person (instantiate person 'harry telegraph-ave))
 
 (ask street-person 'set-talk "Brother, can you spare a buck")
+</pre>
 
+<p>
 YOU MUST INCLUDE A TRANSCRIPT IN WHICH YOUR CHARACTER WALKS AROUND AND
 TRIGGERS THESE MESSAGES.
+</p>
 
-
+<p>
 A4b.  So far the program assumes that anyone can go anywhere they want.
 In real life, many places have locked doors.
+</p>
 
+<p>
 Invent a MAY-ENTER? message for places that takes a person as an argument and
 always returns #T.  Then invent a LOCKED-PLACE class in which the MAY-ENTER?
 method returns #T if the place is unlocked, or #F if it's locked.  (It should
@@ -401,19 +469,24 @@ message.  For simplicity, write this method with no arguments and have it
 always succeed.  In a real game, we would also invent keys, and a mechanism
 requiring that the person have the correct key in order to unlock the door.
 (That's why MAY-ENTER? takes the person as an argument.)
+</p>
 
+<p>
 Modify the person class so that it checks for permission to enter before
 moving from one place to another.  Then create a locked place and test
 it out.
+</p>
 
-
+<p>
 A5.  Walking around is great, but some people commute from far away, so
 they need to park their cars in garages.  A car is just a THING, but you'll
 have to invent a special kind of place called a GARAGE.  Garages have two
 methods (besides the ones all places have): PARK and UNPARK.  You'll also
 need a special kind of THING called a TICKET; what's special about it is
 that it has a NUMBER as an instantiation variable.
+</p>
 
+<p>
 The PARK method takes a car (a THING) as its argument.  First check to be sure
 that the car is actually in the garage.  (The person who possesses the car
 will enter the garage, then ask to park it, so the car should have entered the
@@ -422,52 +495,69 @@ a TICKET with a unique serial number.  (The counter for serial numbers should
 be shared among all garages, so that we don't get in trouble later trying to
 UNPARK a car from one garage that was parked in a different garage.)  Every
 ticket should have the name TICKET.
+</p>
 
+<p>
 You'll associate the ticket number with the car in a key-value table like the
 one that we used with GET and PUT in 2.3.3.  However, GET and PUT refer to a
 single, fixed table for all operations; in this situation we need a separate
 table for every garage.  The file tables.scm contains an implementation of the
 table Abstract Data Type:
+</p>
 
+<pre>
 constructor: (make-table) returns a new, empty table.
 
 mutator: (insert! key value table) adds a new key-value pair to a table.
 
 selector: (lookup key table) returns the corresponding value, or #F if
 				the key is not in the table.
+</pre>
 
+<p>
 You'll learn how tables are implemented in 3.3.3 (pp. 266-268).
 For now, just take them as primitive.
+</p>
 
+<p>
 Make a table entry with the ticket number as the key, and the car as the
 value.  Then ask the car's owner to lose the car and take the ticket.
+</p>
 
+<p>
 The UNPARK method takes a ticket as argument.  First make sure the object
 you got is actually a ticket (by checking the name).  Then look up the
 ticket number in the garage's table.  If you find a car, ask the ticket's
 owner to lose the ticket and take the car.  Also, insert #F in the table for
 that ticket number, so that people can't unpark the car twice.
+</p>
 
+<p>
 A real-life garage would have a limited capacity, and would charge money
 for parking, but to simplify the project you don't have to simulate those
 aspects of garages.
+</p>
 
-
+<p>
 --- End of Part I for Person A
+</p>
 
+<br />
+<h2>PART I, PERSON B:</h2>
 
-PART I, PERSON B:
-
-
+<p>
 B3.  Define a method TAKE-ALL for people.  If given that message, a person
 should TAKE all the things at the current location that are not already
 owned by someone.
+</p>
 
-
+<p>
 B4a.  It's unrealistic that anyone can take anything from anyone.  We want to
 give our characters a STRENGTH, and then one person can take something from
 another only if the first has greater STRENGTH than the second.
+</p>
 
+<p>
 However, we aren't going to clutter up the person class by adding a local
 STRENGTH variable.  That's because we can anticipate wanting to add lots
 more attributes as we develop the program further.  People can have CHARISMA
@@ -478,17 +568,23 @@ one that we used with GET and PUT in 2.3.3.  However, GET and PUT refer to
 a single, fixed table for all operations; in this situation we need a
 separate table for every object.  The file tables.scm contains an
 implementation of the table Abstract Data Type:
+</p>
 
+<pre>
 constructor: (make-table) returns a new, empty table.
 
 mutator: (insert! key value table) adds a new key-value pair to a table.
 
 selector: (lookup key table) returns the corresponding value, or #F if
 				the key is not in the table.
+</pre>
 
+<p>
 You'll learn how tables are implemented in 3.3.3 (pp. 266-268).
 For now, just take them as primitive.
+</p>
 
+<p>
 You'll modify the person, place and thing classes so that they will inherit
 from basic-object.  This object will accept a message PUT so that
 	> (ask Brian 'put 'strength 100)
@@ -498,7 +594,9 @@ otherwise recognized as a request for the attribute of that name, so
 	100
 should work WITHOUT having to write an explicit STRENGTH method in the
 class definition.
+</p>
 
+<p>
 Don't forget that the property list mechanism in 3.3.3 returns #F if you ask
 for a property that isn't in the list.  This means that
 	> (ask Brian 'charisma)
@@ -506,28 +604,39 @@ should never give an error message, even if we haven't PUT that property in
 that object.  This is important for true-or-false properties, which will
 automatically be #F (but not an error) unless we explicitly PUT a #T
 value for them.
+</p>
 
+<p>
 Give people some reasonable (same for everyone) initial strength.  Next
 week they'll be able to get stronger by eating.
+</p>
 
+<p>
 B4b.  You'll notice that the type predicate PERSON? checks to see if the type
 of the argument is a member of the list '(person police thief).  This means
 that the PERSON? procedure has to keep a list of all the classes that
 inherit from PERSON, which is a pain if we make a new subclass.
+</p>
 
+<p>
 We'll take advantage of the property list to implement a better system for
 type checking.  If we add a method named PERSON? to the person class, and
 have it always return #T, then any object that's a type of person will
 automatically inherit this method.  Objects that don't inherit from person
 won't find a PERSON? method and won't find an entry for person? in their
 property table, so they'll return #F.
+</p>
 
+<p>
 Similarly, places should have a PLACE? method, and things a THING? method.
+</p>
 
+<p>
 Add these type methods and change the implementation of the type predicate
 procedures to this new implementation.
+</p>
 
-
+<p>
 B5.  In the modern era, many places allow you to get connected to the net.
 Define a HOTSPOT as a kind of place that allows network connectivity.  Each
 hotspot should have a PASSWORD (an instantiation variable) that you must know
@@ -537,18 +646,30 @@ arguments, a LAPTOP (a kind of thing, to be invented in a moment) and a
 password.  If the password is correct, and the laptop is in the hotspot, add
 it to a list of connected laptops.  When the laptop leaves the hotspot, remove
 it from the list.
+</p>
 
+<p>
 Hotspots also have a SURF method with two arguments, a laptop and a text
 string, such as
+</p>
 
+<pre>
 		"http://www.cs.berkeley.edu"
+</pre>
 
+<p>
 If the laptop is connected to the network, then the surf method should
+</p>
 
+<pre>
 	(system (string-append "lynx " url))
+</pre>
 
+<p>
 where URL is the text string argument.
+</p>
 
+<p>
 Now invent laptops.  A laptop is a thing that has two extra methods:  CONNECT,
 with a password as argument, sends a CONNECT message to the place where the
 laptop is.  SURF, with a URL text string as argument, sends a SURF message to
@@ -557,7 +678,8 @@ must ask to CONNECT to that hotspot's network; when the laptop leaves the
 hotspot, it must automatically be disconnected from the network.  (If it's in
 a place other than a hotspot, the SURF message won't be understood; if it's in
 a hotspot but not connected, the hotspot won't do anything.)
+</p>
 
-
+<p>
 --- End of Part I, PERSON B.
-
+</p>
