@@ -6,7 +6,7 @@ var DEBUG_WARNING = true;
 var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
-var ENABLE_SENDMAIL = true;
+var ENABLE_SENDMAIL = false;
 var ENABLE_GRADER_NOTIFICATION = false;
 var ENABLE_FEEDBACK_NOTIFICATION = false;
 var ENABLE_EMAIL_CONFIRMATION = true;
