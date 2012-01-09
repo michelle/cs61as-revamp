@@ -293,34 +293,49 @@ a {
   text-decoration: none;
 }
 
-#profile {
-  width: 72%;
+#administration {
+  width: 70%;
   min-height: 520px;
   margin: 0 auto;
   padding: 20px;
   background-color: rgba(242,245,246,1);
-  margin-top: 80px;
   font-weight: 400;
   color: #333;
-  position: relative;
+  position: relative;  
+  font-family: 'Open Sans', arial;
+  letter-spacing: 0px;
+  font-size: 14px;
+  line-height: 25px;
   z-index: 0;
   border-radius: 10px;
-  padding-left: 20%;
+  margin-bottom: 40px;
+  padding-left: 250px;
 }
 
 #sidebar {
   background-color:rgba(200,215,220,1);
+  text-align: left;
+  font-size: 13px;
   z-index: 99;
   left: 0px;
   top: 0px;
   height: 100%;
-  width: 20%;
+  width: 250px;
   position: absolute;
   border-right: 1px solid #fff;
   border-radius: 10px 0px 0px 10px;
   box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
   -webkit-box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
   -moz-box-shadow: 1px 0px 1px rgba(200,215,220,0.7);
+}
+
+#sidebar a {
+  color: #4D5A63;
+  font-size: 12px;
+}
+
+#sidebar a:hover {
+  color: #394349;
 }
 
 #dash, #content, #nocenter, #centered {
@@ -548,6 +563,10 @@ h1 {
   margin: 10px;
   text-transform: uppercase;
   line-height: 40px;
+}
+
+#administration h1 {
+  margin: 20px 0px;
 }
 
 .num {
@@ -1177,6 +1196,13 @@ h3.projectHeader {
   padding: 10px 20px;
   cursor: pointer;
   outline: none;
+}
+
+.alotofpadding {
+  padding: 25px;
+  padding-top: 50px;
+  position: fixed;
+  width: 100%;
 }
 
 .complain, .response {
