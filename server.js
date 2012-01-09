@@ -6,6 +6,7 @@ var DEBUG_WARNING = true;
 var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
+var ENABLE_FLASH_ERR = true;
 var ENABLE_SENDMAIL = true;
 var ENABLE_GRADER_NOTIFICATION = false;
 var ENABLE_FEEDBACK_NOTIFICATION = false;
@@ -104,13 +105,21 @@ function log(obj) {
       if (DEBUG_ERR) {
         console.log(obj);
         if (FORCE_CRASH_ON_ERR) {
-          app.exit();
+          app.exit(1);
         }
       }
     } else {
       if (DEBUG_WARNING) {
         console.log(obj);
       }
+    }
+  }
+}
+
+function flashErr(req, err) {
+  if (ENABLE_FLASH_ERR) {
+    for (var e in err.errors) {
+      req.flash('error', err.errors[e].message);
     }
   }
 }
@@ -861,9 +870,7 @@ app.post('/admin/announcements/new', checkPermit('canAccessAdminPanel'), checkPe
   announcement.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -899,9 +906,7 @@ app.post('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel')
     req.note.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -967,9 +972,7 @@ app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
   unit.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1018,9 +1021,7 @@ app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPer
     req.unit.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1113,9 +1114,7 @@ app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('
   lesson.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1179,9 +1178,7 @@ app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), chec
     req.lesson.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1216,9 +1213,7 @@ app.post('/admin/homework/add', checkPermit('canAccessAdminPanel'), checkPermit(
   homework.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1251,9 +1246,7 @@ app.post('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), c
     req.homework.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1303,9 +1296,7 @@ app.post('/admin/projects/add', checkPermit('canAccessAdminPanel'), checkPermit(
   project.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1339,9 +1330,7 @@ app.post('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), ch
     req.project.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1390,9 +1379,7 @@ app.post('/admin/extra/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
   extra.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1425,9 +1412,7 @@ app.post('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPe
     req.extra.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1477,9 +1462,7 @@ app.post('/admin/videos/add', checkPermit('canAccessAdminPanel'), checkPermit('c
   video.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1513,9 +1496,7 @@ app.post('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkP
     req.video.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1566,9 +1547,7 @@ app.post('/admin/readings/add', checkPermit('canAccessAdminPanel'), checkPermit(
   reading.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1603,9 +1582,7 @@ app.post('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), ch
     req.reading.save(function(err){
       if (err) {
         log(err);
-        for (var e in err.errors) {
-          req.flash('error', err.errors[e].message);
-        }
+        flashErr(req, err);
         if (err.err) {
           req.flash('error', err.err);
         }
@@ -1673,9 +1650,7 @@ app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
       user.save(function(err){
         if (err) {
           log(err);
-          for (var e in err.errors) {
-            req.flash('error', err.errors[e].message);
-          }
+          flashErr(req, err);
           if (err.err) {
             req.flash('error', err.err);
           }
@@ -1737,9 +1712,7 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
         req.user.save(function(err){
           if (err) {
             log(err);
-            for (var e in err.errors) {
-              req.flash('error', err.errors[e].message);
-            }
+            flashErr(req, err);
             if (err.err) {
               req.flash('error', err.err);
             }
@@ -1811,9 +1784,7 @@ app.post('/admin/grades/:username/add', checkPermit('canAccessAdminPanel'), chec
   req.user.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1848,9 +1819,7 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
   req.user.save(function(err) {
     if (err) {
       log(err);
-      for (var e in err.errors) {
-        req.flash('error', err.errors[e].message);
-      }
+      flashErr(req, err);
       if (err.err) {
         req.flash('error', err.err);
       }
@@ -1979,9 +1948,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
       req.currentUser.save(function(err) {
         if (err) {
           log(err);
-          for (var e in err.errors) {
-            req.flash('error', err.errors[e].message);
-          }
+          flashErr(req, err);
           if (err.err) {
             req.flash('error', 'Email is registered. Please use your email.');
           }
@@ -2011,9 +1978,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
       req.currentUser.save(function(err) {
         if (err) {
           log(err);
-          for (var e in err.errors) {
-            req.flash('error', err.errors[e].message);
-          }
+          flashErr(req, err);
           if (err.err) {
             req.flash('error', 'Email is registered. Please use your email.');
           }
