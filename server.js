@@ -1065,7 +1065,6 @@ app.get('/admin/units/delete/:unit', checkPermit('canAccessAdminPanel'), checkPe
 /** Lessons panel */
 app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons');
-  // TODO: Sort
   Unit.find({}).sort('number', 1).run(function(err, units) {
     log(err);
     Lesson.find({}).sort('number', 1).run(function(err, lessons) {
@@ -1898,7 +1897,6 @@ app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req,
     });
   });
 });
-// TODO: error checking
 app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('POST /admin/feedback/reply/:ticketId');
   req.sanitize('ticket', 'response', 'entityEncode');
@@ -2431,7 +2429,6 @@ app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) 
     }
   });
 });
-// TODO: error checking
 app.post('/feedback/appeal/:ticketId', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST /feedback/appeal/:ticketId');
   req.sanitize('ticket', 'complaint', 'entityEncode');
