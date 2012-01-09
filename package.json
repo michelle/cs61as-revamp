@@ -17,7 +17,7 @@
     "connect-mongodb": "",
     "connect": "",
     "nodemailer": "",
-    "express-validator": ""
+    "private-repo": "git+ssh://git@github.com:thanhhaimai/express-validator.git"
   },
   "devDependencies": {}
 }
