@@ -8,9 +8,9 @@
   <div id="openticket">
     <form method="post" action="/feedback/new">
         <label>Subject</label><br>
-        <input type="text" name="subject" required><br>
+        <input type="text" name="ticket[subject]" required><br>
         <label>Complaint (please be specific)</label><br>
-        <textarea name="complaint" required></textarea><br>
+        <textarea name="ticket[complaint]" required></textarea><br>
         <button>Submit</button>
     </form>
   </div>
@@ -57,7 +57,7 @@
       <div class="appeal">
         <form method="post" action="/feedback/appeal/<%-ticket.id%>">
           <label>More details</label><br>
-          <textarea name="complaint" required></textarea>
+          <textarea name="ticket[complaint]" required></textarea>
           <br>
           <button>Appeal</button>
         </form>
