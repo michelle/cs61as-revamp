@@ -1092,6 +1092,7 @@ app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('
   var lesson = new Lesson({
     number: req.body.lesson.number,
     name: req.body.lesson.name,
+    unit: req.body.lesson.unit,
     homework: req.body.lesson.homework,
     project: req.body.lesson.project,
     extra: req.body.lesson.extra,
