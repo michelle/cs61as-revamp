@@ -461,7 +461,6 @@ function sameUser(permit, identification) {
 }
 
 /** Feedback email. */
-// TODO: implement email
 function sendFeedbackEmail(req, next) {
   if (!ENABLE_FEEDBACK_NOTIFICATION) {
     req.flash('info', "Feedback notification is not sent because option flag is off.");
@@ -481,7 +480,6 @@ function sendFeedbackEmail(req, next) {
 }
 
 /** Response to feedback email. */
-// TODO: implement email
 function sendResponseEmail(req, next) {
   if (!ENABLE_FEEDBACK_NOTIFICATION) {
     req.flash('info', "Feedback notification is not sent because option flag is off.");
@@ -1944,7 +1942,6 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
       var token = new ConfirmationToken({
         user: req.currentUser
       });
-      // TODO: implement this
       req.currentUser.save(function(err) {
         if (err) {
           log(err);
@@ -2330,7 +2327,6 @@ app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgr
   }
 });
 /** Administration. */
-// TODO: Compile administrative documents onto a static page.
 app.get('/administration', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /administration');
   res.render('administration', {
@@ -2407,10 +2403,6 @@ app.get('*', function(req, res) {
 });
 
 // TODO: Search function
-
-// TODO: Feedback
-
-// TODO: Add labs and projects to schema
 
 /** Start server. */
 var port = process.env.PORT || 8086;
