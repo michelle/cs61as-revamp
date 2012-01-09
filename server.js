@@ -423,7 +423,7 @@ function checkPermit(permit, sameuser) {
     if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
-      req.flash('error', "Looks like you don't have the required permissions to access " + req.url);
+      req.flash('error', 'Looks like you don\'t have the required permissions to access %s', req.url);
       res.redirect('/default');
     }
   }
@@ -796,12 +796,12 @@ app.post('/login', function(req, res) {
           token.save(function(err){
             log(err);
             res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
-            req.flash('info', 'Logged in successfully as ' + user.username);
+            req.flash('info', 'Logged in successfully as %s', user.username);
             res.redirect('/default');
           });
         });
       } else {
-        req.flash('info', 'Logged in successfully as ' + user.username);
+        req.flash('info', 'Logged in successfully as %s', user.username);
         res.redirect('/default');
       }
     } else {
