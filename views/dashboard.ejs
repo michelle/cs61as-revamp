@@ -124,7 +124,7 @@ completedness of each section for class="completed" li elements. -->
   </div>
   <div class="triangle"></div>
   <div class="clear"></div>
-  <% for (var i = 0; i < Math.min(news.length, 3); i += 1) { var article = news[i];%>
+  <% for (var i = 0; i < news.length; i += 1) { var article = news[i];%>
   <div class="announcement">
     <h3><%-article.title%></h3>
     <div class="morepadding">

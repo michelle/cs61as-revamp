@@ -6,27 +6,27 @@
   <div class="contentpadding">
     <div id="accordion">
       <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
-      
         <% if (projectLessons.indexOf(n.toString()) !== -1) {  %>
           <% for (var p = 0; p < projects.length; p += 1) { var project = projects[p]; %>
             <% if (project.projectLessonNumber.toString() == n.toString()) { %>
               <h3 class="noselect projectHeader"><%-project.name%></h3>
-              <div class="links"><a href="/project/<%-n%>/<%-p%>"><strong>Go to Project</strong></a></div>
+              <div class="links">
+                <a href="/project/<%-n%>/<%-p%>"><strong>Go to Project</strong></a>
+              </div>
             <% } %>
           <% } %>
         <% } %>
-      
         <h3 class="noselect boring" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
             <a href="/dashboard/<%-n%>"><strong>View on dashboard.</strong></a>
             <br>
           <% } %>
-          <% if (lesson.videos.length > 0) { %>
-            <strong>Webcasts</strong>:
-              <% for (var j = 0; j < lesson.videos.length; j += 1) { var vid = lesson.videos[j]; %>
-                <br><span class="indent">- <a href="/webcast/<%-n%>/<%-j%>"><%-vid.name%></a></span>
-              <% } %>
+          <% if (lesson.videos.length > 0) { %> <strong>Webcasts</strong>:
+            <% for (var j = 0; j < lesson.videos.length; j += 1) { var vid = lesson.videos[j]; %>
+              <br>
+              <span class="indent">- <a href="/webcast/<%-n%>/<%-j%>"><%-vid.name%></a></span>
+            <% } %>
             <br>
           <% } %>
           <% if (lesson.readings.length > 0) { %> <strong>Readings:</strong>

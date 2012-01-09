@@ -1,121 +1,113 @@
-  <div id="topbar" class="noselect">
-    <div id="topcontainer">
-      <div id="cs61as" class="left">
-        CS61<span id="color">AS</span>
-      </div>
-      <ul id="topfloater" class="right">
-          <li class="topnav left">
-            <a href="http://mitpress.mit.edu/sicp/full-text/book/book.html">
-              <div class="smallwidth left"><span class="iconic book"></span></div>
-            </a>
-            
-            <ul>
-              SICP
-            </ul>
-          </li>
-          <li class="topnav left">
-            <a href="/administration">
-              <div class="smallwidth left"><span class="iconic info"></span></div>
-            </a>
-            
-            <ul>
-              Info
-            </ul>
-          </li>
-        <% if (!currentUser.canAccessDashboard()) { %>
-        
-          <li class="topnav left">
+<div id="topbar" class="noselect">
+  <div id="topcontainer">
+    <div id="cs61as" class="left">
+      CS61<span id="color">AS</span>
+    </div>
+    <ul id="topfloater" class="right">
+      <li class="topnav left">
+        <a href="http://mitpress.mit.edu/sicp/full-text/book/book.html">
+        <div class="smallwidth left">
+          <span class="iconic book"></span>
+        </div> </a>
+        <ul>
+          SICP
+        </ul>
+      </li>
+      <li class="topnav left">
+        <a href="/administration">
+        <div class="smallwidth left">
+          <span class="iconic info"></span>
+        </div> </a>
+        <ul>
+          Info
+        </ul>
+      </li>
+      <% if (!currentUser.canAccessDashboard()) { %>
+        <li class="topnav left">
           <form method="post" action="/login">
-            <div class="left small logtop" id="signal">username
-            <input type="text" class="field" name='user[username]'% /></div>
-            <div class="left small logtop">password
-            <input type="password" class="field" name='user[password]'% /></div>
-            <div class="left small logtop">remember me
-            <input type="checkbox" id="othercheckbox" name="user[rememberme]"/></div>
+            <div class="left small logtop" id="signal">
+              username
+              <input type="text" class="field" name='user[username]'% />
+            </div>
+            <div class="left small logtop">
+              password
+              <input type="password" class="field" name='user[password]'% />
+            </div>
+            <div class="left small logtop">
+              remember me
+              <input type="checkbox" id="othercheckbox" name="user[rememberme]"/>
+            </div>
             <button class="left" id="submitlogin">
               Login
             </button>
           </form>
-          </li>
-        <% } else { %>
-        
-          <li class="topnav left">
-            <a href="http://piazza.com/class#fall2011/cs61as/">
-              <div class="smallwidth left" id="signal"><span class="iconic chat-alt"></span></div>
-            </a>
-            
-            <ul>
-              Piazza
-            </ul>
-          </li>
-          
-          <li class="topnav left">
-            <a href="/feedback">
-              <div class="smallwidth left"><span class="iconic comment"></span></div>
-            </a>
-            
-            <ul>
-              Feedback
-            </ul>
-          </li>
-          <li class="topnav left">
-            <a href="/settings" id="settingstop">
-              <div class="smallwidth left"><span class="iconic cog"></span></div>
-            </a>
-            
-            <ul>
-              Settings
-            </ul>
-          </li>
-          <li class="topnav left">
-            <a href="/logout">
-              <div class="smallwidth left"><span class="iconic unlocked"></span></div>
-              <div class="left up">Logout (<%-currentUser.username%>)</div>
-            </a>
-          </li>
-        
-        <% } %>
-
-      </ul>
-    </div>
+        </li>
+      <% } else { %>
+        <li class="topnav left">
+          <a href="http://piazza.com/class#fall2011/cs61as/">
+          <div class="smallwidth left" id="signal">
+            <span class="iconic chat-alt"></span>
+          </div> </a>
+          <ul>
+            Piazza
+          </ul>
+        </li>
+        <li class="topnav left">
+          <a href="/feedback">
+          <div class="smallwidth left">
+            <span class="iconic comment"></span>
+          </div> </a>
+          <ul>
+            Feedback
+          </ul>
+        </li>
+        <li class="topnav left">
+          <a href="/settings" id="settingstop">
+          <div class="smallwidth left">
+            <span class="iconic cog"></span>
+          </div> </a>
+          <ul>
+            Settings
+          </ul>
+        </li>
+        <li class="topnav left">
+          <a href="/logout">
+          <div class="smallwidth left">
+            <span class="iconic unlocked"></span>
+          </div>
+          <div class="left up">
+            Logout (<%-currentUser.username%>)
+          </div> </a>
+        </li>
+      <% } %>
+    </ul>
   </div>
-
+</div>
 <ul id="nav">
-  <% if (page != 'lessons') { %>
-    <a href="/lessons">
-      <li id="alllessons">
-        <span class="iconic article"></span>
-        
-        <ul>
-          All Lessons
-        </ul>
-      </li>
-    </a>
+  <% if (page != 'lessons') { %> <a href="/lessons">
+    <li id="alllessons">
+      <span class="iconic article"></span>
+      <ul>
+        All Lessons
+      </ul>
+    </li> </a>
   <% } %>
-  <% if (page !== 'dashboard' && currentUser.canAccessDashboard()) { %>
-    <a href="/dashboard">
-      <li id="dashboard">
-        <span class="iconic home"></span>
-        
-        <ul>
-          Dashboard
-        </ul>
-      </li>
-    </a>
+  <% if (page !== 'dashboard' && currentUser.canAccessDashboard()) { %> <a href="/dashboard">
+    <li id="dashboard">
+      <span class="iconic home"></span>
+      <ul>
+        Dashboard
+      </ul>
+    </li> </a>
   <% } %>
-  <% if (page !== 'admin/index' && currentUser.canAccessAdminPanel()) { %>
-    <a href="/admin">
-      <li id="admin">
-        <span class="iconic pencil"></span>
-        
-        <ul>
-          Admin Panel
-        </ul>
-      </li>
-    </a>
+  <% if (page !== 'admin/index' && currentUser.canAccessAdminPanel()) { %> <a href="/admin">
+    <li id="admin">
+      <span class="iconic pencil"></span>
+      <ul>
+        Admin Panel
+      </ul>
+    </li> </a>
   <% } %>
 </ul>
-  
-  <div id="pusher"></div><%-flashMessages%>
-  
-  
+<div id="pusher"></div>
+<%-flashMessages%> 
