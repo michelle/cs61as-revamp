@@ -235,6 +235,9 @@ function logUser(req, res, next) {
 /** Check if the user has valid information. */
 function checkUser(req, res, next) {
   trace('checkUser');
+
+  res.local('currentUser', req.currentUser);
+
   if (!(/^(\/home|\/settings|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
     if (!req.currentUser.isEnable) {
       req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
@@ -825,8 +828,7 @@ app.get('/logout', function(req, res) {
 app.get('/admin', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin');
   res.render('admin', {
-    page: 'admin/index',
-    currentUser: req.currentUser
+    page: 'admin/index'
   });
 });
 /** Announcements panel */
@@ -836,7 +838,6 @@ app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit(
     log(err);
     res.render('admin/announcements', {
       page: 'admin/announcements',
-      currentUser: req.currentUser,
       news: news
     });
   });
@@ -871,7 +872,6 @@ app.get('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'),
   if (req.note) {
     res.render('admin/announcements/edit', {
       page: 'admin/announcements/edit',
-      currentUser: req.currentUser,
       note: req.note
     });
   } else {
@@ -933,7 +933,6 @@ app.get('/admin/units', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
         log(err);
         res.render('admin/units', {
           page: 'admin/units',
-          currentUser: req.currentUser,
           units: units,
           lessons: lessons,
           projects: projects
@@ -983,7 +982,6 @@ app.get('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPerm
         log(err);
         res.render('admin/units/edit', {
           page: 'admin/units/edit',
-          currentUser: req.currentUser,
           unit: req.unit,
           lessons: lessons,
           projects: projects
@@ -1076,7 +1074,6 @@ app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWr
                 log(err);
                 res.render('admin/lessons', {
                   page: 'admin/lessons/index',
-                  currentUser: req.currentUser,
                   units: units,
                   lessons: lessons,
                   homeworks: homeworks,
@@ -1139,7 +1136,6 @@ app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), check
                 log(err);
                 res.render('admin/lessons/edit', {
                   page: 'admin/lessons/edit',
-                  currentUser: req.currentUser,
                   units: units,
                   lesson: req.lesson,
                   homeworks: homeworks,
@@ -1199,7 +1195,6 @@ app.get('/admin/homework', checkPermit('canAccessAdminPanel'), checkPermit('canW
     log(err);
     res.render('admin/homework', {
       page: 'admin/homework',
-      currentUser: req.currentUser,
       homeworks: homeworks
     });
   });
@@ -1232,7 +1227,6 @@ app.get('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), ch
   if (req.homework) {
     res.render('admin/homework/edit', {
       page: 'admin/homework/edit',
-      currentUser: req.currentUser,
       homework: req.homework
     });
   } else {
@@ -1287,7 +1281,6 @@ app.get('/admin/projects', checkPermit('canAccessAdminPanel'), checkPermit('canW
     log(err);
     res.render('admin/projects', {
       page: 'admin/projects',
-      currentUser: req.currentUser,
       projects: projects
     });
   });
@@ -1321,7 +1314,6 @@ app.get('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), che
   if (req.project) {
     res.render('admin/projects/edit', {
       page: 'admin/projects/edit',
-      currentUser: req.currentUser,
       project: req.project
     });
   } else {
@@ -1377,7 +1369,6 @@ app.get('/admin/extra', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
     log(err);
     res.render('admin/extra', {
       page: 'admin/extra',
-      currentUser: req.currentUser,
       extras: extras
     });
   });
@@ -1410,7 +1401,6 @@ app.get('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPer
   if (req.extra) {
     res.render('admin/extra/edit', {
       page: 'admin/extra/edit',
-      currentUser: req.currentUser,
       extra: req.extra
     });
   } else {
@@ -1465,7 +1455,6 @@ app.get('/admin/videos', checkPermit('canAccessAdminPanel'), checkPermit('canWri
     log(err);
     res.render('admin/videos', {
       page: 'admin/videos',
-      currentUser: req.currentUser,
       videos: videos
     });
   });
@@ -1499,7 +1488,6 @@ app.get('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPe
   if (req.video) {
     res.render('admin/videos/edit', {
       page: 'admin/videos/edit',
-      currentUser: req.currentUser,
       video: req.video
     });
   } else {
@@ -1555,7 +1543,6 @@ app.get('/admin/readings', checkPermit('canAccessAdminPanel'), checkPermit('canW
     log(err);
     res.render('admin/readings', {
       page: 'admin/readings',
-      currentUser: req.currentUser,
       readings: readings
     });
   });
@@ -1590,7 +1577,6 @@ app.get('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), che
   if (req.reading) {
     res.render('admin/readings/edit', {
       page: 'admin/readings/edit',
-      currentUser: req.currentUser,
       reading: req.reading
     });
   } else {
@@ -1649,7 +1635,6 @@ app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canRead
       log(err);
       res.render('admin/users', {
         page: 'admin/users/index',
-        currentUser: req.currentUser,
         users: users,
         graders: graders
       });
@@ -1708,7 +1693,6 @@ app.get('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPe
       log(err);
         res.render('admin/users/edit', {
         page: 'admin/users/edit',
-        currentUser: req.currentUser,
         user: req.user,
         graders: graders
       });
@@ -1790,7 +1774,6 @@ app.get('/admin/grades', checkPermit('canAccessAdminPanel'), checkPermit('canRea
     log(err);
     res.render('admin/grades/index', {
       page: 'admin/grades/index',
-      currentUser: req.currentUser,
       users: users
     });
   });
@@ -1801,7 +1784,6 @@ app.get('/admin/grades/:username', checkPermit('canAccessAdminPanel'), checkPerm
   if(req.user) {
     res.render('admin/grades/user', {
       page: 'admin/grades/user',
-      currentUser: req.currentUser,
       user: req.user
     });
   } else {
@@ -1840,7 +1822,6 @@ app.get('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), 
   if(req.user && req.grade) {
     res.render('admin/grades/edit', {
       page: 'admin/grades/edit',
-      currentUser: req.currentUser,
       user: req.user,
       grade: req.grade
     });
@@ -1880,7 +1861,6 @@ app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res
     tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback', {
       page: 'admin/feedback',
-      currentUser: req.currentUser,
       tickets: tickets
     });
   });
@@ -1893,7 +1873,6 @@ app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req,
     tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback/all', {
       page: 'admin/feedback/all',
-      currentUser: req.currentUser,
       tickets: tickets
     });
   });
@@ -1923,7 +1902,6 @@ app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgres
       res.render('dashboard', {
         page: 'dashboard',
         currentUnit: req.currentUnit,
-        currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         news: news
       });
@@ -1945,7 +1923,6 @@ app.get('/dashboard/:lessonId', checkPermit('canAccessDashboard'), loadProgress,
         news.sort(function(b, a) { return a.date - b.date } );
         res.render('dashboard', {
           page: 'dashboard',
-          currentUser: req.currentUser,
           currentLesson: req.currentLesson,
           currentUnit: req.currentUnit,
           news: news
@@ -1962,7 +1939,6 @@ app.get('/grades', checkPermit('canReadGrade'), function(req, res) {
   trace('GET /grades');
   res.render('grades', {
     page: 'grades',
-    currentUser: req.currentUser,
   });
 });
 /** Settings page. */
@@ -1970,7 +1946,6 @@ app.get('/settings', checkPermit('canReadUserInfo'), function(req, res) {
   trace('GET /settings');
   res.render('settings', {
     page: 'settings',
-    currentUser: req.currentUser
   });
 });
 /** Save edit an user. */
@@ -2092,7 +2067,6 @@ app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
       }
       res.render('lessons', {
         page: 'lessons',
-        currentUser: req.currentUser,
         lessons: lessons,
         projects: projects,
         projectLessons: projectLessons
@@ -2110,7 +2084,6 @@ app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgres
         log(err);
         res.render('video', {
           page: 'webcast',
-          currentUser: req.currentUser,
           currentLesson: req.currentLesson,
           videoId: req.params.videoId,
           videos: [req.video],
@@ -2120,7 +2093,6 @@ app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgres
     } else {
       res.render('video', {
         page: 'webcast',
-        currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         videoId: req.params.videoId,
         videos: [req.video],
@@ -2154,7 +2126,6 @@ app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgr
         log(err);
         res.render('reading', {
           page: 'reading',
-          currentUser: req.currentUser,
           currentLesson: req.currentLesson,
           reading: req.reading,
           readingId: req.params.readingId,
@@ -2164,7 +2135,6 @@ app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgr
     } else {
       res.render('reading', {
         page: 'reading',
-        currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         reading: req.reading,
         readingId: req.params.readingId,
@@ -2187,7 +2157,6 @@ app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress,
         log(err);
         res.render('extra', {
           page: 'extra',
-          currentUser: req.currentUser,
           currentLesson: req.currentLesson,
           extra: req.extra,
           extraId: req.params.extraId,
@@ -2197,7 +2166,6 @@ app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress,
     } else {
       res.render('extra', {
         page: 'extra',
-        currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         extra: req.extra,
         extraId: req.params.extraId,
@@ -2239,7 +2207,6 @@ app.get('/homework', loadLesson, checkPermit('canReadLesson'), loadProgress, fun
   if (req.currentLesson && req.currentLesson.homework) {
     res.render('homework', {
       page: 'homework',
-      currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       showControls: req.currentUser.canWriteProgress()
     });
@@ -2259,7 +2226,6 @@ app.get('/homework/:lessonId', checkPermit('canReadLesson'), loadProgress, funct
         log(err);
         res.render('homework', {
           page: 'homework',
-          currentUser: req.currentUser,
           currentLesson: req.currentLesson,
           showControls: req.currentUser.canWriteProgress()
         });
@@ -2267,7 +2233,6 @@ app.get('/homework/:lessonId', checkPermit('canReadLesson'), loadProgress, funct
     } else {
       res.render('homework', {
         page: 'homework',
-        currentUser: req.currentUser,
         currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
       });
@@ -2329,7 +2294,6 @@ app.get('/solutions/project/:lessonId/:projectId', checkPermit('canWriteProgress
     if (req.project.isCompleted) {
       res.render('solution', {
         page: 'solution',
-        currentUser: req.currentUser,
         type: 'project',
         name: req.project.name,
         currentLesson: req.currentLesson,
@@ -2369,7 +2333,6 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
           res.render('solution', {
             page: 'solution',
             name: req.currentLesson[checktype].name,
-            currentUser: req.currentUser,
             type: type,
             currentLesson: req.currentLesson,
             showControls: req.currentUser.canWriteProgress()
@@ -2382,7 +2345,6 @@ app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress
     } else {
       res.render('solution', {
         page: 'solution',
-        currentUser: req.currentUser,
         type: req.params.type,
         currentLesson: req.currentLesson,
         showControls: req.currentUser.canWriteProgress()
@@ -2403,7 +2365,6 @@ app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgr
       page: 'project',
       project: req.project,
       projectId: req.params.projectId,
-      currentUser: req.currentUser,
       currentLesson: req.currentLesson,
       currentUnit: req.currentUnit,
       showControls: req.currentUser.canWriteProgress()
@@ -2418,8 +2379,7 @@ app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgr
 app.get('/administration', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /administration');
   res.render('administration', {
-    page: 'administration',
-    currentUser: req.currentUser
+    page: 'administration'
   });
 });
 /** All announcements. */
@@ -2430,7 +2390,6 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
     news.sort(function(b, a) { return a.date - b.date } );
     res.render('announcements', {
       page: 'announcements',
-      currentUser: req.currentUser,
       news: news
     });
   });
@@ -2445,7 +2404,6 @@ app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
     tickets.sort(function(b, a) { return a.date - b.date });
     res.render('feedback', {
       page: 'feedback',
-      currentUser: req.currentUser,
       tickets: tickets
     });
   });
