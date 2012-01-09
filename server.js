@@ -75,6 +75,7 @@ if (DEBUG_USER) {
   app.use(logUser);
 }
 app.use(checkUser);
+app.use(validateInput);
 
 app.use(app.router);
 app.use(express.errorHandler({
@@ -131,6 +132,15 @@ function trace(msg) {
   if (DEBUG_TRACE && msg) {
     console.log('TRACE: %s', msg);
   }
+}
+
+function validateInput(req, res, next) {
+  var errors = [];
+  req.onValidationError(function(msg) {
+    console.log('Validation error: ' + msg);
+    errors.push(msg);
+    return this;
+  });
 }
 
 /** Determine permissions. */
@@ -804,6 +814,8 @@ app.get('/home', function(req, res) {
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   trace('POST /login');
+  req.sanitize('username').xss().trim();
+  req.sanitize('password').xss().trim();
   User.findOne({
     username: req.body.user.username
   }, function(err, user) {
@@ -963,7 +975,7 @@ app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
     lessons: req.body.unit.lessons,
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
-  if (req.body.unit.projects.indexOf("undefined") != -1) {
+  if (req.body.unit.projects && req.body.unit.projects.indexOf("undefined") != -1) {
     unit.projects = [];
   } else {
     unit.projects = req.body.unit.projects;

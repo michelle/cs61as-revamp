@@ -222,6 +222,7 @@ function defineModels(mongoose, fn) {
     },
     weight: {
       type: Number,
+      min: 0,
       required: true
     }
   });
@@ -448,6 +449,7 @@ function defineModels(mongoose, fn) {
     },
     projectLessonNumber: {
       type: Number,
+      min: 0,
       required: true
     }
   });
