@@ -6,7 +6,7 @@ var DEBUG_WARNING = true;
 var FORCE_CRASH_ON_ERR = false;
 
 /** option flags. */
-var ENABLE_SENDMAIL = false;
+var ENABLE_SENDMAIL = true;
 var ENABLE_GRADER_NOTIFICATION = false;
 var ENABLE_FEEDBACK_NOTIFICATION = false;
 var ENABLE_EMAIL_CONFIRMATION = true;
@@ -93,7 +93,7 @@ var GUEST = new User({
 
 /** setting up SMTP information. */
 if (ENABLE_SENDMAIL) {
-  var config = JSON.parse(fs.readFileSync('private/config.conf'));
+  var config = JSON.parse(fs.readFileSync('conf/smtp.conf'));
   nodemailer.SMTP = config.SMTP;
 }
 
