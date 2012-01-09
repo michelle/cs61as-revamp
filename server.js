@@ -118,6 +118,7 @@ function log(obj) {
   }
 }
 
+/** flash all the errors message in ERR. */
 function flashErr(req, err) {
   if (ENABLE_FLASH_ERR) {
     for (var e in err.errors) {
