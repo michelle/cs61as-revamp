@@ -25,6 +25,7 @@ var mongoStore = require('connect-mongodb');
 var schema = require('./schema.js');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
+var expressValidator = require('express-validator');
 
 /** Database. */
 var db;
@@ -61,6 +62,7 @@ app.use(express.favicon(__dirname + '/public/favicon.ico', {
   maxAge: FAVICON_LIFETIME
 }));
 app.use(express.bodyParser());
+app.use(expressValidator);
 app.use(express.cookieParser());
 app.use(express.session({
   secret: 'this sucks',
@@ -1034,20 +1036,6 @@ app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPer
     res.redirect('/admin/units');
   }
 });
-/** Delete a lesson. */
-app.get('/admin/lessons/delete/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
-  trace('DEL /admin/lessons/delete/:lesson');
-  if (req.lesson) {
-    req.lesson.remove(function(err) {
-      log(err);
-      req.flash('info', 'Lesson deleted.');
-      res.redirect('/admin/lessons');
-    });
-  } else {
-    req.flash('error', 'Malformed lessonId.');
-    res.redirect('/admin/lessons');
-  }
-});
 /** Delete a unit. */
 app.get('/admin/units/delete/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('DEL /admin/units/delete/:unit');
@@ -1065,6 +1053,7 @@ app.get('/admin/units/delete/:unit', checkPermit('canAccessAdminPanel'), checkPe
 /** Lessons panel */
 app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons');
+  // TODO: Sort
   Unit.find({}, function(err, units) {
     log(err);
     Lesson.find({}, function(err, lessons) {
@@ -1184,6 +1173,20 @@ app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), chec
       } else {
         req.flash('info', 'Lesson was saved successfully.');
       }
+      res.redirect('/admin/lessons');
+    });
+  } else {
+    req.flash('error', 'Malformed lessonId.');
+    res.redirect('/admin/lessons');
+  }
+});
+/** Delete a lesson. */
+app.get('/admin/lessons/delete/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
+  trace('DEL /admin/lessons/delete/:lesson');
+  if (req.lesson) {
+    req.lesson.remove(function(err) {
+      log(err);
+      req.flash('info', 'Lesson deleted.');
       res.redirect('/admin/lessons');
     });
   } else {

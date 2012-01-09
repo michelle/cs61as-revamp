@@ -15,7 +15,7 @@
       <div class="formbox">
         <h3>Add a new Lesson</h3>
         <span class="left boxy noselect" required>number</span>
-        <input type="number" class="right textboxy" name='lesson[number]' value='<%-lesson.number%>' required >
+        <input type="number" min="0" class="right textboxy"  name='lesson[number]' value='<%-lesson.number%>' required >
         <br>
         <span class="left boxy noselect" required>name</span>
         <input type="text" class="right textboxy" name='lesson[name]' value='<%-lesson.name%>' required >

@@ -52,11 +52,11 @@ function defineModels(mongoose, fn) {
       match: emailRegExOptional
     },
     isEnable: {
-      // TODO: required: true,
+      required: true,
       type: Boolean
     },
     isActivated: {
-      // TODO: required: true,
+      required: true,
       type: Boolean
     },
     username: {
@@ -68,7 +68,6 @@ function defineModels(mongoose, fn) {
       }
     },
     fullname: {
-      // TODO: required: true
       // TODO: pattern
       type: String
     },
