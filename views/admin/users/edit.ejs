@@ -47,10 +47,18 @@
     <input type="number" min="2" max="5" class="right textboxy" name='user[units]' value='<%-user.units%>' required>
     <br>
     <span class="left boxy noselect">is enable</span>
-    <input type="checkbox" class="right textboxy" value='<%-user.isEnable%>' name='user[isEnable]'>
+    <% if (user.isEnable) { %>
+      <input type="checkbox" class="right textboxy" checked="checked" value="true" name='user[isEnable]'>
+    <% } else { %>
+      <input type="checkbox" class="right textboxy" value="true" name='user[isEnable]'>
+    <% } %>
     <br>
     <span class="left boxy noselect">is activated</span>
-    <input type="checkbox" class="right textboxy" value='<%-user.isActivated%>' name='user[isActivated]'>
+    <% if (user.isEnable) { %>
+      <input type="checkbox" class="right textboxy" checked="checked" value="true" name='user[isActivated]'>
+    <% } else { %>
+      <input type="checkbox" class="right textboxy" value="true" name='user[isActivated]'>
+    <% } %>
     <br>
     <span class="left boxy noselect" required>permission</span>
     <input type="text" class="right textboxy" name='user[permission]' value='<%-user.permission%>' required>

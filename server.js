@@ -1593,8 +1593,8 @@ app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
   var user = new User({
     username: req.body.user.username,
     fullname: req.body.user.fullname,
-    isEnable: req.body.user.isEnable,
-    isActivated: req.body.user.isActivated
+    isEnable: req.body.user.isEnable || false,
+    isActivated: req.body.user.isActivated || false
   });
   if (req.body.user.email != "") {
     user.email = req.body.user.email;
@@ -1656,10 +1656,11 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
     }
+    console.log(req.body.user);
     req.user.username = req.body.user.username;
     req.user.fullname = req.body.user.fullname;
-    req.user.isEnable = req.body.user.isEnable;
-    req.user.isActivated = req.body.user.isActivated;
+    req.user.isEnable = req.body.user.isEnable || false;
+    req.user.isActivated = req.body.user.isActivated || false;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.currentUnit = req.body.user.currentUnit;
@@ -1998,7 +1999,7 @@ app.get('/activate/:tokenId/:tokenToken', function(req, res) {
     req.flash('error', 'Invalid activation code');
     res.redirect('/home');
   }
-}
+});
 /** Collective lessons. */
 app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /lessons');
