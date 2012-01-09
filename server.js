@@ -75,7 +75,6 @@ if (DEBUG_USER) {
   app.use(logUser);
 }
 app.use(checkUser);
-app.use(validateInput);
 
 app.use(app.router);
 app.use(express.errorHandler({
@@ -261,7 +260,6 @@ function checkUser(req, res, next) {
 
   console.log(req.url);
   if (!(/^(\/home|\/settings|\/login|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
-    console.log('__________________begin check');
     if (!req.currentUser.isEnable) {
       req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
       res.clearCookie('rememberme');
@@ -479,8 +477,8 @@ function sendFeedbackEmail(req, next) {
     next();
     return;
   }
-  var html = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":<br/>" + req.body.complaint;
-  var body = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.subject + ":\n" + req.body.complaint;
+  var html = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.ticket.subject + ":<br/>" + req.body.ticket.complaint;
+  var body = "User " + req.currentUser.username + " has submitted feedback concerning " + req.body.ticket.subject + ":\n" + req.body.ticket.complaint;
   var email = {
     sender: req.currentUser.email,
     to: req.currentUser.grader.email,
@@ -498,11 +496,11 @@ function sendResponseEmail(req, next) {
     next();
     return;
   }
-  var html = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":<br/>" + req.body.response;
-  var body = req.currentUser.username + " has responded to your feedback concerning " + req.body.subject + ":\n" + req.body.response;
+  var html = req.currentUser.username + " has responded to your feedback concerning " + req.body.ticket.subject + ":<br/>" + req.body.ticket.response;
+  var body = req.currentUser.username + " has responded to your feedback concerning " + req.body.ticket.subject + ":\n" + req.body.ticket.response;
   var emailjson = {
     sender: req.currentUser.email,
-    to: req.body.complainer,
+    to: req.body.ticket.complainer,
     subject: '[CS61AS] Response from instructor: ' + req.currentUser.username,
     html: html,
     body: body
@@ -814,8 +812,8 @@ app.get('/home', function(req, res) {
 /** A standard login post request. */
 app.post('/login', function(req, res) {
   trace('POST /login');
-  req.sanitize('username').xss().trim();
-  req.sanitize('password').xss().trim();
+  req.sanitize('user', 'username').entityEncode().trim();
+  req.sanitize('user', 'password').entityEncode().trim();
   User.findOne({
     username: req.body.user.username
   }, function(err, user) {
@@ -874,6 +872,8 @@ app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit(
 /** Post new announcement */
 app.post('/admin/announcements/new', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcement/new');
+  req.sanitize('announcement', 'title').entityEncode().trim();
+  req.sanitize('announcement', 'content').xss().trim();
   var announcement = new Announcement({
     title: req.body.announcement.title,
     content: req.body.announcement.content,
@@ -909,6 +909,8 @@ app.get('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'),
 /** Save edit a note. */
 app.post('/admin/announcements/edit/:noteId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/announcements/edit/:noteId');
+  req.sanitize('note', 'title').entityEncode().trim();
+  req.sanitize('note', 'content').xss().trim();
   if (req.note) {
     req.note.title = req.body.note.title;
     if (req.body.note.content != '') {
@@ -969,10 +971,10 @@ app.get('/admin/units', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
 /** Post new unit */
 app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/add');
+  req.sanitize('unit', 'name').entityEncode().trim();
   var unit = new Unit({
     number: req.body.unit.number,
     name: req.body.unit.name,
-    lessons: req.body.unit.lessons,
     projectLessonNumber: req.body.unit.projectLessonNumber
   });
   if (req.body.unit.projects && req.body.unit.projects.indexOf("undefined") != -1) {
@@ -1019,6 +1021,7 @@ app.get('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPerm
 /** Save edit a unit. */
 app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/units/edit/:unit');
+  req.sanitize('unit', 'name').entityEncode().trim();
   if (req.unit) {
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
@@ -1101,6 +1104,7 @@ app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWr
 /** Post new lesson */
 app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/add');
+  req.sanitize('lesson', 'name').entityEncode().trim();
   var lesson = new Lesson({
     number: req.body.lesson.number,
     name: req.body.lesson.name,
@@ -1165,6 +1169,7 @@ app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), check
 /** Save edit a lesson. */
 app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/lessons/edit/:lesson');
+  req.sanitize('lesson', 'name').entityEncode().trim();
   if (req.lesson) {
     req.lesson.number = req.body.lesson.number;
     req.lesson.name = req.body.lesson.name;
@@ -1221,6 +1226,7 @@ app.get('/admin/homework', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new homework */
 app.post('/admin/homework/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/add');
+  req.sanitize('homework', 'name').entityEncode().trim();
   var homework = new Homework({
     name: req.body.homework.name
   });
@@ -1254,6 +1260,7 @@ app.get('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), ch
 /** Save edit a homework. */
 app.post('/admin/homework/edit/:homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/homework/edit/:homework');
+  req.sanitize('homework', 'name').entityEncode().trim();
   if (req.homework) {
     req.homework.name = req.body.homework.name;
 
@@ -1303,6 +1310,7 @@ app.get('/admin/projects', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new project */
 app.post('/admin/projects/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/add');
+  req.sanitize('project', 'name').entityEncode().trim();
   var project = new Project({
     name: req.body.project.name,
     projectLessonNumber: req.body.project.projectLessonNumber
@@ -1337,6 +1345,7 @@ app.get('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), che
 /** Save edit a project. */
 app.post('/admin/projects/edit/:project', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/projects/edit/:project');
+  req.sanitize('project', 'name').entityEncode().trim();
   if (req.project) {
     req.project.name = req.body.project.name;
     req.project.projectLessonNumber = req.body.project.projectLessonNumber;
@@ -1387,6 +1396,7 @@ app.get('/admin/extra', checkPermit('canAccessAdminPanel'), checkPermit('canWrit
 /** Post new extra */
 app.post('/admin/extra/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/add');
+  req.sanitize('extra', 'name').entityEncode().trim();
   var extra = new Extra({
     name: req.body.extra.name
   });
@@ -1420,6 +1430,7 @@ app.get('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPer
 /** Save edit a extra. */
 app.post('/admin/extra/edit/:extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/extra/edit/:extra');
+  req.sanitize('extra', 'name').entityEncode().trim();
   if (req.extra) {
     req.extra.name = req.body.extra.name;
 
@@ -1469,6 +1480,8 @@ app.get('/admin/videos', checkPermit('canAccessAdminPanel'), checkPermit('canWri
 /** Post new video */
 app.post('/admin/videos/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/add');
+  req.sanitize('video', 'name').entityEncode().trim();
+  req.sanitize('video', 'url').entityEncode().trim();
   var video = new Video({
     name: req.body.video.name,
     url: req.body.video.url
@@ -1503,6 +1516,8 @@ app.get('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPe
 /** Save edit a video. */
 app.post('/admin/videos/edit/:video', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/videos/edit/:video');
+  req.sanitize('video', 'name').entityEncode().trim();
+  req.sanitize('video', 'url').entityEncode().trim();
   if (req.video) {
     req.video.name = req.body.video.name;
     req.video.url = req.body.video.url;
@@ -1553,6 +1568,8 @@ app.get('/admin/readings', checkPermit('canAccessAdminPanel'), checkPermit('canW
 /** Post new reading */
 app.post('/admin/readings/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/add');
+  req.sanitize('reading', 'name').entityEncode().trim();
+  req.sanitize('reading', 'location').entityEncode().trim();
   var reading = new Reading({
     name: req.body.reading.name,
     location: req.body.reading.location,
@@ -1588,6 +1605,8 @@ app.get('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), che
 /** Save edit a reading. */
 app.post('/admin/readings/edit/:reading', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('POST /admin/readings/edit/:reading');
+  req.sanitize('reading', 'name').entityEncode().trim();
+  req.sanitize('reading', 'location').entityEncode().trim();
   if (req.reading) {
     req.reading.name = req.body.reading.name;
     req.reading.location = req.body.reading.location;
@@ -1643,6 +1662,10 @@ app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canRead
 /** Add an user. */
 app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/add');
+  req.sanitize('user', 'username').entityEncode().trim();
+  req.sanitize('user', 'password').entityEncode().trim();
+  req.sanitize('user', 'fullname').entityEncode().trim();
+  req.sanitize('user', 'email').entityEncode().trim();
   var user = new User({
     username: req.body.user.username,
     fullname: req.body.user.fullname,
@@ -1702,6 +1725,10 @@ app.get('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPe
 /** Save edit an user. */
 app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteUserInfoEveryone'), function(req, res) {
   trace('POST /admin/users/edit/:userId');
+  req.sanitize('user', 'username').entityEncode().trim();
+  req.sanitize('user', 'password').entityEncode().trim();
+  req.sanitize('user', 'fullname').entityEncode().trim();
+  req.sanitize('user', 'email').entityEncode().trim();
   if (req.user) {
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
@@ -1789,6 +1816,8 @@ app.get('/admin/grades/:username', checkPermit('canAccessAdminPanel'), checkPerm
 /** Add a grade. */
 app.post('/admin/grades/:username/add', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/add');
+  req.sanitize('grade', 'name').entityEncode().trim();
+  req.sanitize('grade', 'grade').entityEncode().trim();
   req.user.grades.push({
     name: req.body.grade.name,
     order: req.body.grade.order,
@@ -1826,23 +1855,30 @@ app.get('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), 
 /** Edit a grade. */
 app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), checkPermit('canWriteGradeEveryone'), function(req, res) {
   trace('POST /admin/:username/:gradeId');
-  req.grade.name = req.body.grade.name;
-  req.grade.order = req.body.grade.order;
-  req.grade.grade = req.body.grade.grade;
-  req.grade.weight = req.body.grade.weight;
-  req.user.save(function(err) {
-    if (err) {
-      log(err);
-      flashErr(req, err);
-      if (err.err) {
-        req.flash('error', err.err);
+  req.sanitize('grade', 'name').entityEncode().trim();
+  req.sanitize('grade', 'grade').entityEncode().trim();
+  if (req.user && req.grade) {
+    req.grade.name = req.body.grade.name;
+    req.grade.order = req.body.grade.order;
+    req.grade.grade = req.body.grade.grade;
+    req.grade.weight = req.body.grade.weight;
+    req.user.save(function(err) {
+      if (err) {
+        log(err);
+        flashErr(req, err);
+        if (err.err) {
+          req.flash('error', err.err);
+        }
+        req.flash('error', 'Grade is not saved.');
+      } else {
+        req.flash('info', 'Grade is saved!');
       }
-      req.flash('error', 'Grade is not saved.');
-    } else {
-      req.flash('info', 'Grade is saved!');
-    }
-    res.redirect('/admin/grades/' + req.user.username);
-  });
+      res.redirect('/admin/grades/' + req.user.username);
+    });
+  } else {
+    req.flash('error', 'Whoops! Grade does not exist.');
+    res.redirect('/default');
+  }
 });
 /** Feedback for admins. */
 app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res) {
@@ -1871,10 +1907,11 @@ app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req,
 // TODO: error checking
 app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('POST /admin/feedback/reply/:ticketId');
+  req.sanitize('ticket', 'response').entityEncode().trim();
   sendResponseEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
-      req.ticket.responses.push(req.body.response);
+      req.ticket.responses.push(req.body.ticket.response);
       req.ticket.status = false;
       req.ticket.save(function(err) {
         log(err);
@@ -1938,6 +1975,12 @@ app.get('/settings', checkPermit('canReadUserInfo'), function(req, res) {
 /** Save edit an user. */
 app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   trace('POST /settings');
+  req.sanitize('user', 'username').entityEncode().trim();
+  req.sanitize('user', 'fullname').entityEncode().trim();
+  req.sanitize('user', 'password').entityEncode().trim();
+  req.sanitize('user', 'newpassword').entityEncode().trim();
+  req.sanitize('user', 'confirm').entityEncode().trim();
+  req.sanitize('user', 'email').entityEncode().trim();
   if (req.currentUser.authenticate(req.body.user.password)) {
     req.currentUser.fullname = req.body.user.fullname;
     req.currentUser.units = req.body.user.units;
@@ -2363,7 +2406,7 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
 });
 /** Feedback system. */
 // TODO: Style feedback
-// TODO: Make Google doc for general feedback. 
+// TODO: Make Google doc for general feedback.
 app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
   trace('GET /feedback');
   Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
@@ -2378,14 +2421,16 @@ app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
 // TODO: Error checking
 app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST /feedback/new');
+  req.sanitize('ticket', 'subject').entityEncode().trim();
+  req.sanitize('ticket', 'complaint').entityEncode().trim();
   sendFeedbackEmail(req, function(err){
     if (!err) {
       ticket = new Ticket({
         status: true,
-        subject: req.body.subject,
+        subject: req.body.ticket.subject,
         complainer: req.currentUser.email,
         responder: req.currentUser.grader.email,
-        complaints: [req.body.complaint],
+        complaints: [req.body.ticket.complaint],
         responses: [],
         date: new Date()
       });
@@ -2399,10 +2444,11 @@ app.post('/feedback/new', checkPermit('canAccessDashboard'), function(req, res) 
 // TODO: error checking
 app.post('/feedback/appeal/:ticketId', checkPermit('canAccessDashboard'), function(req, res) {
   trace('POST /feedback/appeal/:ticketId');
+  req.sanitize('ticket', 'complaint').entityEncode().trim();
   sendFeedbackEmail(req, function(err){
     if (!err) {
       req.ticket.date = new Date();
-      req.ticket.complaints.push(req.body.complaint);
+      req.ticket.complaints.push(req.body.ticket.complaint);
       req.ticket.status = true;
       req.ticket.save(function(err) {
         log(err);
