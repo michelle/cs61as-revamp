@@ -255,10 +255,7 @@ function logUser(req, res, next) {
 /** Check if the user has valid information. */
 function checkUser(req, res, next) {
   trace('checkUser');
-
   res.local('currentUser', req.currentUser);
-
-  console.log(req.url);
   if (!(/^(\/home|\/settings|\/login|\/logout|\/activate\/\w+\/\d+)$/.test(req.url))) {
     if (!req.currentUser.isEnable) {
       req.flash('info', "It looks like your account is disabled by an administrator. Please contact administrator.");
@@ -861,7 +858,7 @@ app.get('/admin', checkPermit('canAccessAdminPanel'), function(req, res) {
 /** Announcements panel */
 app.get('/admin/announcements', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/announcements');
-  Announcement.find({}, function(err, news) {
+  Announcement.find({}).sort('date', 1).run(function(err, news) {
     log(err);
     res.render('admin/announcements', {
       page: 'admin/announcements',
@@ -952,11 +949,11 @@ app.get('/admin/announcements/delete/:noteId', checkPermit('canAccessAdminPanel'
 /** Unit panel */
 app.get('/admin/units', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/units');
-  Unit.find({}, function(err, units) {
+  Unit.find({}).sort('number', 1).run(function(err, units) {
     log(err);
-    Lesson.find({}, function(err, lessons) {
+    Lesson.find({}).sort('number', 1).run(function(err, lessons) {
       log(err);
-      Project.find({}, function(err, projects) {
+      Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
         log(err);
         res.render('admin/units', {
           page: 'admin/units',
@@ -1001,9 +998,9 @@ app.post('/admin/units/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
 app.get('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/units/edit/:unit');
   if (req.unit) {
-    Lesson.find({}, function(err, lessons) {
+    Lesson.find({}).sort('number', 1).run(function(err, lessons) {
       log(err);
-      Project.find({}, function(err, projects) {
+      Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
         log(err);
         res.render('admin/units/edit', {
           page: 'admin/units/edit',
@@ -1069,19 +1066,19 @@ app.get('/admin/units/delete/:unit', checkPermit('canAccessAdminPanel'), checkPe
 app.get('/admin/lessons', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons');
   // TODO: Sort
-  Unit.find({}, function(err, units) {
+  Unit.find({}).sort('number', 1).run(function(err, units) {
     log(err);
-    Lesson.find({}, function(err, lessons) {
+    Lesson.find({}).sort('number', 1).run(function(err, lessons) {
       log(err);
-      Homework.find({}, function(err, homeworks) {
+      Homework.find({}).sort('name', 1).run(function(err, homeworks) {
         log(err);
-        Project.find({}, function(err, projects) {
+        Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
           log(err);
-          Extra.find({}, function(err, extras) {
+          Extra.find({}).sort('name', 1).run(function(err, extras) {
             log(err);
-            Video.find({}, function(err, videos) {
+            Video.find({}).sort('name', 1).run(function(err, videos) {
               log(err);
-              Reading.find({}, function(err, readings) {
+              Reading.find({}).sort('name', 1).run(function(err, readings) {
                 log(err);
                 res.render('admin/lessons', {
                   page: 'admin/lessons/index',
@@ -1133,17 +1130,17 @@ app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('
 app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/lessons/edit/:lesson');
   if (req.lesson) {
-    Unit.find({}, function(err, units) {
+    Unit.find({}).sort('number', 1).run(function(err, units) {
       log(err);
-      Homework.find({}, function(err, homeworks) {
+      Homework.find({}).sort('name', 1).run(function(err, homeworks) {
         log(err);
-        Project.find({}, function(err, projects) {
+        Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
           log(err);
-          Extra.find({}, function(err, extras) {
+          Extra.find({}).sort('name', 1).run(function(err, extras) {
             log(err);
-            Video.find({}, function(err, videos) {
+            Video.find({}).sort('name', 1).run(function(err, videos) {
               log(err);
-              Reading.find({}, function(err, readings) {
+              Reading.find({}).sort('name', 1).run(function(err, readings) {
                 log(err);
                 res.render('admin/lessons/edit', {
                   page: 'admin/lessons/edit',
@@ -1215,7 +1212,7 @@ app.get('/admin/lessons/delete/:lesson', checkPermit('canAccessAdminPanel'), che
 /** Homework panel */
 app.get('/admin/homework', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/homework');
-  Homework.find({}, function(err, homeworks) {
+  Homework.find({}).sort('name', 1).run(function(err, homeworks) {
     log(err);
     res.render('admin/homework', {
       page: 'admin/homework',
@@ -1299,7 +1296,7 @@ app.get('/admin/homework/delete/:homework', checkPermit('canAccessAdminPanel'), 
 /** Project panel */
 app.get('/admin/projects', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/projects');
-  Project.find({}, function(err, projects) {
+  Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
     log(err);
     res.render('admin/projects', {
       page: 'admin/projects',
@@ -1385,7 +1382,7 @@ app.get('/admin/projects/delete/:project', checkPermit('canAccessAdminPanel'), c
 /** Extra panel */
 app.get('/admin/extra', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/extra');
-  Extra.find({}, function(err, extras) {
+  Extra.find({}).sort('name', 1).run(function(err, extras) {
     log(err);
     res.render('admin/extra', {
       page: 'admin/extra',
@@ -1469,7 +1466,7 @@ app.get('/admin/extra/delete/:extra', checkPermit('canAccessAdminPanel'), checkP
 /** video panel */
 app.get('/admin/videos', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/videos');
-  Video.find({}, function(err, videos) {
+  Video.find({}).sort('name', 1).run(function(err, videos) {
     log(err);
     res.render('admin/videos', {
       page: 'admin/videos',
@@ -1557,7 +1554,7 @@ app.get('/admin/videos/delete/:video', checkPermit('canAccessAdminPanel'), check
 /** Reading panel */
 app.get('/admin/readings', checkPermit('canAccessAdminPanel'), checkPermit('canWriteLesson'), function(req, res) {
   trace('GET /admin/readings');
-  Reading.find({}, function(err, readings) {
+  Reading.find({}).sort('name', 1).run(function(err, readings) {
     log(err);
     res.render('admin/readings', {
       page: 'admin/readings',
@@ -1647,9 +1644,9 @@ app.get('/admin/readings/delete/:reading', checkPermit('canAccessAdminPanel'), c
 /** Manage users. */
 app.get('/admin/users', checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users');
-  User.find({ permission: User.Permissions.Grader }, function(err, graders) {
+  User.find({ permission: User.Permissions.Grader }).sort('username', 1).run(function(err, graders) {
     log(err);
-    User.find({}, function(err, users) {
+    User.find({}).sort('username', 1).run(function(err, users) {
       log(err);
       res.render('admin/users', {
         page: 'admin/users/index',
@@ -1709,7 +1706,7 @@ app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
 app.get('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkPermit('canReadUserInfoEveryone'), function(req, res) {
   trace('GET /admin/users/edit/:userId');
   if (req.user) {
-    User.find({ permission: User.Permissions.Grader }, function(err, graders) {
+    User.find({ permission: User.Permissions.Grader }).sort('username', 1).run(function(err, graders) {
       log(err);
         res.render('admin/users/edit', {
         page: 'admin/users/edit',
@@ -1733,7 +1730,6 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
     if (req.body.user.password != '') {
       req.user.password = req.body.user.password;
     }
-    console.log(req.body.user);
     req.user.username = req.body.user.username;
     req.user.fullname = req.body.user.fullname;
     req.user.isEnable = req.body.user.isEnable || false;
@@ -1792,7 +1788,7 @@ app.get('/admin/users/delete/:userId', checkPermit('canAccessAdminPanel'), check
 /** Manage grades. */
 app.get('/admin/grades', checkPermit('canAccessAdminPanel'), checkPermit('canReadGradeEveryone'), function(req, res) {
   trace('GET /admin/grades');
-  User.find({ permission: User.Permissions.Student }, function(err, users) {
+  User.find({ permission: User.Permissions.Student }).sort('username', 1).run(function(err, users) {
     log(err);
     res.render('admin/grades/index', {
       page: 'admin/grades/index',
@@ -1883,9 +1879,8 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
 /** Feedback for admins. */
 app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin/feedback');
-  Ticket.find({ responder : req.currentUser.email }, function(err, tickets) {
+  Ticket.find({ responder : req.currentUser.email }).sort('date', 1).run(function(err, tickets) {
     log(err);
-    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback', {
       page: 'admin/feedback',
       tickets: tickets
@@ -1895,9 +1890,8 @@ app.get('/admin/feedback', checkPermit('canAccessAdminPanel'), function(req, res
 /** All feedback for admins. */
 app.get('/admin/feedback/all', checkPermit('canAccessAdminPanel'), function(req, res) {
   trace('GET /admin/feedback/all');
-  Ticket.find({}, function(err, tickets) {
+  Ticket.find({}).sort('date', 1).run(function(err, tickets) {
     log(err);
-    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('admin/feedback/all', {
       page: 'admin/feedback/all',
       tickets: tickets
@@ -1924,9 +1918,8 @@ app.post('/admin/feedback/reply/:ticketId', checkPermit('canAccessAdminPanel'), 
 app.get('/dashboard', checkPermit('canAccessDashboard'), loadLesson, loadProgress, function(req, res) {
   trace('GET /dashboard');
   if (req.currentLesson && req.currentLesson.unit) {
-    Announcement.find({}, function(err, news) {
+    Announcement.find({}).sort('date', 1).limit(3).run(function(err, news) {
       log(err);
-      news.sort(function(b, a) { return a.date - b.date });
       res.render('dashboard', {
         page: 'dashboard',
         news: news
@@ -1944,9 +1937,8 @@ app.get('/dashboard/:lessonId', checkPermit('canAccessDashboard'), loadProgress,
     req.currentUser.currentLesson = req.currentLesson.number;
     req.currentUser.save(function(err) {
       log(err);
-      Announcement.find({}, function(err, news) {
+      Announcement.find({}).sort('name', 1).limit(3).run(function(err, news) {
         log(err);
-        news.sort(function(b, a) { return a.date - b.date } );
         res.render('dashboard', {
           page: 'dashboard',
           news: news
@@ -2395,9 +2387,8 @@ app.get('/administration', checkPermit('canReadLesson'), function(req, res) {
 /** All announcements. */
 app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /announcements');
-  Announcement.find({}, function(err, news) {
+  Announcement.find({}).sort('date', 1).run(function(err, news) {
     log(err);
-    news.sort(function(b, a) { return a.date - b.date } );
     res.render('announcements', {
       page: 'announcements',
       news: news
@@ -2409,9 +2400,8 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
 // TODO: Make Google doc for general feedback.
 app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
   trace('GET /feedback');
-  Ticket.find({ complainer : req.currentUser.email }, function(err, tickets) {
+  Ticket.find({ complainer : req.currentUser.email }).sort('date', 1).run(function(err, tickets) {
     log(err);
-    tickets.sort(function(b, a) { return a.date - b.date });
     res.render('feedback', {
       page: 'feedback',
       tickets: tickets
