@@ -242,7 +242,7 @@ variable values that satisfy some previous query.  And the result returned
 by <tt>qeval</tt> isn't a value.  It's a new collection of environments!  It's
 as if <tt>eval</tt> returned an environment instead of a value.
 
-<p><center><img width=100% src="static/course_material/121/122/15-1.jpg"></center>
+<p><center><img width=100% src="/resources/15-1.jpg"></center>
 
 <p>
 The "collection" of environments we're talking about here is represented
@@ -271,7 +271,7 @@ stream.  Then we <i>merge</i> the two result streams to get a stream of
 bindings that satisfy either <tt>p</tt> or <tt>q</tt>.
 
 <p>
-<center><img width=100% src="static/course_material/121/122/15-2.jpg"></center>
+<center><img width=100% src="/resources/15-2.jpg"></center>
 
 <p>
 If the query is <tt>(not&nbsp;q)</tt>, we can't make sense of that unless we already
@@ -289,7 +289,7 @@ That is, we keep only those environments for which we <i>can't</i> satisfy
 <tt>q</tt>.
 
 <p>
-<center><img width=100% src="static/course_material/121/122/15-3.jpg"></center>
+<center><img width=100% src="/resources/15-3.jpg"></center>
 
 <p>
 That explains how <tt>qeval</tt> reduces compound queries to simple ones. How
