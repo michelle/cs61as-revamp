@@ -2293,66 +2293,125 @@ app.post('/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadP
     res.redirect('/dashboard');
   }
 });
+/** View solution for homework at lessonId. */
+app.get('/solutions/homework/:lessonId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('GET /solutions/homework/:lessonId');
+  if (req.currentLesson && req.currentLesson.homework) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      if (req.currentLesson.homework.isCompleted) {
+        var url ='cs61as/unit' + req.currentUnit.number + "/" + req.currentLesson.number + "/hw-solutions.ejs";
+        fs.stat("views/" + url, function(err, stat) {
+          log(err);
+          if (!err && stat) {
+            res.render('solution', {
+              page: 'solutions/homework',
+              name: req.currentLesson.homework.name,
+              url: url
+            });
+          } else {
+            req.flash('error', 'Whoops! Homework solution has not been uploaded yet.');
+            res.redirect('/dashboard');
+          }
+        });
+      } else {
+        req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
+        res.redirect('/dashboard');
+      }
+    });
+  } else {
+    req.flash('error', 'Whoops! This solution does not exist.');
+    res.redirect('/default');
+  }
+});
+/** View solution for lab at lessonId. */
+app.get('/solutions/lab/:lessonId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('GET /solutions/lab/:lessonId');
+  if (req.currentLesson && req.currentLesson.homework) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    req.currentUser.save(function(err) {
+      log(err);
+      if (req.currentLesson.homework.isCompleted) {
+        var url ='cs61as/unit' + req.currentUnit.number + "/" + req.currentLesson.number + "/lab-solutions.ejs";
+        fs.stat("views/" + url, function(err, stat) {
+          log(err);
+          if (!err && stat) {
+            res.render('solution', {
+              page: 'solutions/lab',
+              name: req.currentLesson.homework.name,
+              url: url
+            });
+          } else {
+            req.flash('error', 'Whoops! Lab solution has not been uploaded yet.');
+            res.redirect('/dashboard');
+          }
+        });
+      } else {
+        req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
+        res.redirect('/dashboard');
+      }
+    });
+  } else {
+    req.flash('error', 'Whoops! This solution does not exist.');
+    res.redirect('/default');
+  }
+});
 /** View project solutions. */
 app.get('/solutions/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('GET /solutions/project/:lessonId/:projectId');
   if(req.currentLesson && req.project) {
     if (req.project.isCompleted) {
-      res.render('solution', {
-        page: 'solution',
-        type: 'project',
-        name: req.project.name,
-        projectId: req.params.projectId,
-        showControls: req.currentUser.canWriteProgress()
+      var url ='cs61as/unit' + req.currentUnit.number + "/proj" + req.params.projectId + "-solutions.ejs";
+        fs.stat("views/" + url, function(err, stat) {
+          log(err);
+        if (!err && stat) {
+          res.render('solution', {
+            page: 'solutions/project',
+            name: req.project.name,
+            url: url
+          });
+        } else {
+          req.flash('error', 'Whoops! Project solution has not been uploaded yet.');
+          res.redirect('/dashboard');
+        }
       });
     } else {
       req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
       res.redirect('/dashboard');
-    }
+      }
   } else {
     req.flash('error', 'Whoops! Project does not exist.');
     res.redirect('/dashboard');
   }
 });
-/** View solution for TYPE at lessonId.
- *  Only displays progress control when the user has permission. */
-// TODO: fix this, I removed :type in a quick fix. Add Lab Sol too.
-app.get('/solutions/:type/:lessonId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /solutions/:type/:lessonId');
-  var type = req.params.type;
-  var checktype = req.params.type;
-  if (['homework', 'extra', 'lab'].indexOf(type) === -1) {
-    req.flash('error', "Whoops! The url you just went to does not exist.");
-    res.redirect('/default');
-    return;
-  }
-  if (type === 'lab') {
-    checktype = 'homework';
-  }
-  if (req.currentLesson && req.currentLesson[checktype]) {
+/** View solution for extra at lessonId. */
+app.get('/solutions/extra/:lessonId/:extraId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('GET /solutions/extra/:lessonId/:extraId');
+  if (req.currentLesson && req.extra) {
     req.currentUser.currentLesson = req.currentLesson.number;
-    if (req.currentUser.canWriteProgress()) {
-      req.currentUser.save(function(err) {
-        log(err);
-        if (req.currentLesson[checktype].isCompleted) {
-          res.render('solution', {
-            page: 'solution',
-            name: req.currentLesson[checktype].name,
-            type: type,
-            showControls: req.currentUser.canWriteProgress()
-          });
-        } else {
-          req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
-          res.redirect('/dashboard');
-        }
-      });
-    } else {
-      res.render('solution', {
-        page: 'solution',
-        type: req.params.type,
-        showControls: req.currentUser.canWriteProgress()
-      });
-    }
+    req.currentUser.save(function(err) {
+      log(err);
+      if (req.extra.isCompleted) {
+        var url ='cs61as/unit' + req.currentUnit.number + "/" + req.currentLesson.number + "/extra" + req.params.extraId + "-solutions.ejs";
+        fs.stat("views/" + url, function(err, stat) {
+          log(err);
+          if (!err && stat) {
+            res.render('solution', {
+              page: 'solutions/extra',
+              name: req.extra.name,
+              url: url
+            });
+          } else {
+            req.flash('error', 'Whoops! Extra for expert solution has not been uploaded yet.');
+            res.redirect('/dashboard');
+          }
+        });
+      } else {
+        req.flash('error', "You haven't finished this assignment yet, so you can't look at these solutions!");
+        res.redirect('/dashboard');
+      }
+    });
   } else {
     req.flash('error', 'Whoops! This solution does not exist.');
     res.redirect('/default');
