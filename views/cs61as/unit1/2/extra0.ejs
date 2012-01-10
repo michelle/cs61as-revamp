@@ -1,0 +1,63 @@
+<!-- Extra for Experts 2: Higher-Order Procedures -->
+
+<p> 
+In principle, we could build a version of Scheme with no primitives except
+<tt>lambda</tt>.  Everything else can be defined in terms of <tt>lambda</tt>,
+although it's
+not done that way in practice because it would be so painful.  But we can
+get a sense of the flavor of such a language by eliminating one feature at
+a time from Scheme to see how to work around it.
+ 
+<p> 
+In this problem we explore a Scheme without <tt>define</tt>.  We can give things
+names by using argument binding, as <tt>let</tt> does, so instead of
+ 
+<p> 
+<tt>  <pre>(define (sumsq a b)
+  (define (square x) (* x x))
+  (+ (square a) (square b)))
+ 
+(sumsq 3 4)
+</pre></tt> 
+ 
+<p> 
+we can say
+ 
+<p> 
+<tt>  <pre>((lambda (a b)
+   ((lambda (square)
+      (+ (square a) (square b)))
+    (lambda (x) (* x x))))
+ 3 4)
+</pre></tt> 
+ 
+<p> 
+This works fine as long as we don't want to use <i>recursive</i> procedures.
+But we can't replace
+ 
+<p> 
+<tt>  <pre>(define (fact n)
+  (if (= n 0)
+      1
+      (* n (fact (- n 1)))))
+ 
+(fact 5)
+</pre></tt> 
+ 
+<p> 
+by
+ 
+<p> 
+<tt>  <pre>((lambda (n)
+   (if ...))
+ 5)
+</pre></tt> 
+ 
+<p> 
+because what do we do about the invocation of <tt>fact</tt> inside the body?
+ 
+<p> 
+Your task is to find a way to express the <tt>fact</tt> procedure in a Scheme
+without any way to define global names.
+ 
+<p>

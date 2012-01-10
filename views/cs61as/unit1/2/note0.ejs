@@ -1,0 +1,347 @@
+<!-- Lecture Notes 2: Higher-Order Procedures -->
+
+<p> 
+<b>Reading:</b> 
+<a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-12.html#%_sec_1.3" target="_blank">Abelson &amp; Sussman, Section 1.3</a>
+<p> 
+<b>Note</b> that we are skipping 1.2; we'll get to it later.
+Because of this, never mind for now the stuff about iterative versus
+recursive processes in 1.3 and in the exercises from that section.
+<br/><br/>
+ 
+<p> 
+We're all done teaching you the syntax of Scheme; from now on it's
+all big ideas!
+
+ 
+<p> 
+This week's big idea is <i>function as object </i> (that is, being able
+to manipulate functions as data) as opposed to the more familiar view
+of function as process, in which there is a sharp distinction between
+program and data.
+
+ 
+<p> 
+The usual metaphor for function as process is a recipe.  In that metaphor,
+the recipe tells you what to do, but you can't eat the recipe; the food
+ingredients are the "real things" on which the recipe operates.  But
+this week we take the position that a function is just as much a "real
+thing" as a number or text string is.
+
+ 
+<p> 
+Compare the <i>derivative </i> in calculus:  It's a function whose domain
+and range are functions, not numbers.  The derivative function treats
+ordinary functions as things, not as processes.  If an ordinary function
+is a meat grinder (put numbers in the top and turn the handle) then the
+derivative is a "metal grinder" (put meat-grinders in the top...).
+ 
+<p> &nbsp;<p><b>
+&bull; Using functions as arguments.</b>
+ 
+<p> 
+Arguments are used to generalize a pattern.  For example, here is a pattern:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/general.scm
+(define pi 3.141592654)
+ 
+(define (square-area r) (* r r))
+ 
+(define (circle-area r) (* pi r r))
+ 
+(define (sphere-area r) (* 4 pi r r))
+ 
+(define (hexagon-area r) (* (sqrt 3) 1.5 r r))
+</pre></tt> 
+ 
+<p> 
+In each of these procedures, we are taking the area of some geometric
+figure by multiplying some constant times the square of a linear dimension
+(radius or side).  Each is a function of one argument, the linear
+dimension.  We can generalize these four functions into a single function
+by adding an argument for the shape:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/general.scm
+(define (area shape r) (* shape r r))
+ 
+(define square 1)
+(define circle pi)
+(define sphere (* 4 pi))
+(define hexagon (* (sqrt 3) 1.5))
+</pre></tt> 
+ 
+<p> 
+We define names for shapes; each name represents a constant number that
+is multiplied by the square of the radius.
+ 
+<p> 
+ 
+<p> 
+In the example about areas, we are generalizing a pattern by using a
+variable <i>number </i> instead of a constant number.  But we can also
+generalize a pattern in which it's a <i>function </i> that we want to
+be able to vary:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/general.scm
+(define (sumsquare a b)
+  (if (&#62; a b)
+      0
+      (+ (* a a) (sumsquare (+ a 1) b)) ))
+ 
+(define (sumcube a b)
+  (if (&#62; a b)
+      0
+      (+ (* a a a) (sumcube (+ a 1) b)) ))
+</pre></tt> 
+ 
+<p> 
+Each of these functions computes the sum of a series.  For example,
+<tt>(sumsquare 5 8)</tt> computes 5<sup>2</sup>+6<sup>2</sup>+7<sup>2</sup>+8<sup>2</sup>.  The process of
+computing each individual term, and of adding the terms together,
+and of knowing where to stop, are the same whether we are adding
+squares of numbers or cubes of numbers.  The only difference is in
+deciding which function of <tt>a</tt> to compute for each term.  We
+can generalize this pattern by making <i>the function </i> be an
+additional argument, just as the shape number was an additional argument to
+the area function:
+ 
+<p> 
+<tt>  <pre>(define (sum fn a b)
+  (if (&#62; a b)
+      0
+      (+ (fn a) (sum fn (+ a 1) b)) ))
+ 
+</pre></tt> 
+ 
+<p> 
+Here is one more example of generalizing a pattern involving functions:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/keep.scm
+(define (evens nums)
+  (cond ((empty? nums) '())
+        ((= (remainder (first nums) 2) 0)
+         (se (first nums) (evens (bf nums))) )
+        (else (evens (bf nums))) ))
+ 
+(define (ewords sent)
+  (cond ((empty? sent) '())
+        ((member? 'e (first sent))
+         (se (first sent) (ewords (bf sent))) )
+        (else (ewords (bf sent))) ))
+ 
+(define (pronouns sent)
+  (cond ((empty? sent) '())
+        ((member? (first sent) '(I me you he she it him her we us they them))
+         (se (first sent) (pronouns (bf sent))) )
+        (else (pronouns (bf sent))) ))
+</pre></tt> 
+ 
+<p> 
+Each of these functions takes a sentence as its argument and returns a
+smaller sentence <i>keep </i>ing only some of the words
+in the original, according to a certain criterion: even numbers, words that
+contain the letter <tt>e</tt>, or pronouns.  We can generalize by writing a
+<tt>keep</tt> function that takes a predicate function as an additional
+argument.
+ 
+<p> 
+<tt>  <pre>(define (keep pred sent)
+  (cond ((empty? sent) '())
+        ((pred (first sent)) (se (first sent) (keep pred (bf sent))) )
+        (else (keep pred (bf sent))) ))
+</pre></tt> 
+ 
+<p> &nbsp; 
+<p> 
+<b>&bull; Unnamed functions.</b>
+ 
+<p> 
+Suppose we want to compute
+ 
+<br clear="all" /><table border="0" width="100%"><tr><td> 
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center"> 
+sin<sup>2</sup> 5+sin<sup>2</sup> 6+sin<sup>2</sup> 7+sin<sup>2</sup> 8</td></tr></table> 
+</td></tr></table> 
+ 
+ 
+We can use the generalized <tt>sum</tt> function this way:
+ 
+<p> 
+<tt>  <pre>&#62; (define (sinsq x) (* (sin x) (sin x)))
+&#62; (sum sinsq 5 8)
+2.408069916229755
+</pre></tt> 
+ <p> 
+But it seems a shame to have to define a named function <tt>sinsq</tt> that
+(let's say) we're only going to use this once.  We'd like to be able to
+represent the function <i>itself </i> as the argument to <tt>sum</tt>, rather
+than the function's name.  We can do this using <tt>lambda</tt>:
+ 
+<p> 
+<tt>  <pre>&#62; (sum (lambda (x) (* (sin x) (sin x))) 5 8)
+2.408069916229755
+</pre></tt> 
+ 
+<p> 
+<tt>Lambda</tt> is a special form; the formal parameter list obviously isn't
+evaluated, but the body isn't evaluated <i>when we see the </i> <tt>lambda</tt>,
+either-only when we invoke the function can we evaluate its body.
+ 
+<p> &nbsp;<p><b>&bull; First-class data types.</b>
+ 
+<p> 
+A data type is considered <i>first-class </i> in a language if it can be
+ 
+<p> 
+<ul>
+<li>the value of a variable (i.e., named)
+<li>an argument to a function
+<li>the return value from a function
+<li>a member of an aggregate
+</ul>
+
+<p>In most languages, numbers are first-class; perhaps text strings (or
+individual text characters) are first-class; but usually functions are not
+first-class.  In Scheme they are.  So far we've seen the first two
+properties; we're about to look at the third.  (We haven't really talked
+about aggregates yet, except for the special case of sentences, but we'll see
+in chapter 2 that functions can be elements of aggregates.)  It's one of the
+design principles of Scheme that everything in the language should be
+first-class.  Later, when we write a Scheme interpreter in Scheme, we'll
+see how convenient it is to be able to treat Scheme programs as data.
+ 
+<p> &nbsp;
+<p><b>&bull; Functions as return values.</b>
+ 
+<p> 
+<tt>  <pre>(define (compose f g) (lambda (x) (f (g x))))
+(define (twice f) (compose f f))
+(define (make-adder n) (lambda (x) (+ x n)))
+</pre></tt> 
+ 
+<p> 
+The derivative is a function whose domain and range are functions.
+ 
+<p> 
+People who've programmed in Pascal might note that Pascal allows functions
+as arguments, but <i>not </i> functions as return values.  That's because
+it makes the language harder to implement; you'll learn more about this
+in CS&nbsp;164.
+ 
+<p>&nbsp; 
+<p>
+<b>&bull; Let.</b>
+ 
+<p> 
+We write a function that returns a sentence containing the two roots of
+the quadratic equation ax<sup>2</sup>+bx+c=0 using the formula
+
+<table align="center"><tr><td><em>x</em>&nbsp;=&nbsp;
+<td><table><tr><td><table frame=below border="2" rules=none><tr>
+<td>&minus;<em>b</em>&plusmn;<big>&radic;</big>
+<td><table frame=above><tr><td><em>b</em>&sup2;&minus;4<em>ac</em></tr></table>
+</tr></table></tr>
+<tr align="center"><td colspan="2">2<em>a</em></tr></table></tr></table>
+ 
+<p> 
+(We assume, to simplify this presentation, that the equation has two
+real roots; a more serious program would check this.)
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/roots.scm
+(define (roots a b c)
+  (se (/ (+ (- b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a))
+      (/ (- (- b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a)) ))
+ 
+</pre></tt> 
+ 
+<p> 
+This works fine, but it's inefficient that we have to compute the square
+root twice.  We'd like to avoid that by computing it once, giving it a
+name, and using that name twice in figuring out the two solutions.  We
+know how to give something a name by using it as an argument to a function:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/roots.scm
+(define (roots a b c)
+  (define (roots1 d)
+    (se (/ (+ (- b) d) (* 2 a))
+        (/ (- (- b) d) (* 2 a)) ))
+  (roots1 (sqrt (- (* b b) (* 4 a c)))) )
+ 
+</pre></tt> 
+ 
+<p> 
+<tt>Roots1</tt> is an internal helper function that takes the value of the
+square root in the formula as its argument <tt>d</tt>.  <tt>Roots</tt> calls <tt> 
+roots1</tt>, which constructs the sentence of two numbers.
+ 
+<p> 
+This does the job, but it's awkward having to make up a name <tt>roots1</tt> 
+for this function that we'll only use once.  As in the <tt>sum</tt> example
+earlier, we can use <tt>lambda</tt> to make an unnamed function:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/roots.scm
+(define (roots a b c)
+  ((lambda (d)
+     (se (/ (+ (- b) d) (* 2 a))
+         (/ (- (- b) d) (* 2 a)) ))
+   (sqrt (- (* b b) (* 4 a c))) ))
+ 
+</pre></tt> 
+ 
+<p> 
+This does exactly what we want.  The trouble is, although it works fine
+for the computer, it's a little hard for human beings to read.  The
+connection between the name <tt>d</tt> and the <tt>sqrt</tt> expression that
+provides its value isn't obvious from their positions here, and the
+order in which things are computed isn't the top-to-bottom order of the
+expression.  Since this is something we often want to do, Scheme provides a
+more convenient notation for it:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/roots.scm
+(define (roots a b c)
+  (let ((d (sqrt (- (* b b) (* 4 a c)))))
+    (se (/ (+ (- b) d) (* 2 a))
+        (/ (- (- b) d) (* 2 a)) )))
+ 
+</pre></tt> 
+ 
+<p> 
+Now we have the name next to the value, and we have the value of <tt>d</tt> 
+being computed above the place where it's used.  But you should remember
+that <tt>let</tt> does not provide any new capabilities; it's merely an
+abbreviation for a <tt>lambda</tt> and an invocation of the unnamed function.
+ 
+<p> 
+ <p> 
+The unnamed function implied by the <tt>let</tt> can have more than one
+argument:
+ 
+<p> 
+<tt>  <pre>;;;;;                        In file cs61as/lectures/1.3/roots.scm
+(define (roots a b c)
+  (let ((d (sqrt (- (* b b) (* 4 a c))))
+        (-b (- b))
+        (2a (* 2 a)))
+    (se (/ (+ -b d) 2a)
+        (/ (- -b d) 2a) )))
+ 
+</pre></tt> 
+ 
+<p> 
+Two cautions:  (1) These are not long-term "assignment statements" such
+as you may remember from other languages.  The association between names
+and values only holds while we compute the body of the <tt>let</tt>.  (2) If
+you have more than one name-value pair, as in this last example, they are
+not computed in sequence!  Later ones can't depend on earlier ones.  They
+are all arguments to the same function; if you translate back to the
+underlying <tt>lambda</tt>-and-application form you'll understand this.
+ 
+<p></p>

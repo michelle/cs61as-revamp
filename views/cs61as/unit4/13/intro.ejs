@@ -1,1 +1,28 @@
-Filler.
+<!-- Introduction 13: Analyzing evaluator, MapReduce -->
+
+<p>
+What happens with recursion in the metacircular evaluator?  Every time
+the body is executed, the evaluator has to determine the type of
+expression and dispatch to the appropriate procedure, which itself
+does work with the body and the environment.  However, every time the
+procedure is executed, we see the same expression (the body of the
+procedure), although the environment will probably be different.  Is
+there some work that is repeated for each execution?
+
+<p>
+In fact, the <i>syntactic analysis</i> of the expression is the work that is
+repeated. This refers to the process of determining what type of
+expression was given and figuring out what changes need to occur.  The
+<i>execution</i> of the expression, which depends on the environment, is
+where the changes actually occur.  By separating syntactic analysis
+from the execution, we can save on this extra work.  This is the idea
+behind the <i>analyzing evaluator</i>.
+
+<p>
+Then we will take a look at <i>MapReduce</i>, a programming paradigm
+developed at Google which allows programmers to write functional
+programs that run in parallel without having to worry about the many
+pitfalls of parallel programming.  Functional programming has the
+advantage that the outputs only depend on the inputs, not at the time
+of evaluation. MapReduce takes advantage of this fact to split up the
+work among several processors and handles the associated problems.
