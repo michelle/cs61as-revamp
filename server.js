@@ -269,7 +269,7 @@ function checkUser(req, res, next) {
       res.redirect('/settings');
     } else if (req.currentUser != GUEST
       && !(schema.emailRegEx.test(req.currentUser.email))) {
-      req.flash('info', "It looks like you don't have a valid Berkeley email address. Please input a valid email to start.");
+      req.flash('info', "It looks like you do not have a valid Berkeley email address. Please input a valid email to start.");
       res.redirect('/settings');
     } else {
       next();
@@ -450,7 +450,7 @@ function checkPermit(permit, sameuser) {
     if (req.currentUser[permit]() || (sameuser && sameuser(req, res))) {
       next();
     } else {
-      req.flash('error', 'Looks like you don\'t have the required permissions to access %s', req.url);
+      req.flash('error', 'Looks like you do not have the required permissions to access %s', req.url.substring(1));
       res.redirect('/default');
     }
   }
