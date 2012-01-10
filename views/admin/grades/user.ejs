@@ -34,11 +34,13 @@
     <br>
     <div class="formbox">
       <h3>Edit a grade (<%-user.grades.length %> total)</h3>
-      <% user.grades.sort(function(a,b){ return a.order - b.order; })
-        for (var i = 0; i < user.grades.length; i += 1) { var grade = user.grades[i];%>
+      <% user.grades.sort(function(a,b){ return a.order - b.order; }) %>
+      <% for (var i = 0; i < user.grades.length; i += 1) { var grade = user.grades[i];%>
+        <% console.log(grade); %>
         <span class="left boxy noselect displaymargin"><%-grade.name %> (<%-grade.grade %>)</span>
-        <a class="right linkboxy displaymargin" href="/admin/grades/<%-user.username%>/<%-grade._id%>">(edit)</a>
-      <% } %> <div class="clear"></div>
+        <a class="right linkboxy displaymargin" href="/admin/grades/<%-user.username%>/<%-i%>">(edit)</a>
+      <% } %>
+      <div class="clear"></div>
     </div>
   </div>
 </div>

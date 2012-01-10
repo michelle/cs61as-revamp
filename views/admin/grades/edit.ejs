@@ -5,12 +5,12 @@
     </div>
   </div>
   <div id="lesson" class="noselect">
-    <h2>Editing grade: <strong><%-grade.id%></strong></h2>
+    <h2>Editing grade: <strong><%-gradeId%></strong></h2>
   </div>
   <div id="lefttriangle"></div>
   <br>
   <div class="contentpadding">
-    <form method="post" action="/admin/grades/<%-user.username%>/<%-grade.id%>">
+    <form method="post" action="/admin/grades/<%-user.username%>/<%-gradeId%>">
       <div class="formbox">
         <h3>Editing a grade for user: <%-user.username%></h3>
         <span class="left boxy noselect">name</span>

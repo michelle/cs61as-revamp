@@ -648,7 +648,7 @@ app.param('noteId', function(req, res, next, noteId) {
 /** Pre condition param lessonId into req.grade. */
 app.param('gradeId', function(req, res, next, gradeId) {
   trace('param gradeId');
-  req.grade = req.user.grades && req.user.grades.id(gradeId)
+  req.grade = req.user.grades && req.user.grades[gradeId];
   next();
 });
 /** Pre condition param lessonId into req.currentLesson. */
@@ -1842,7 +1842,8 @@ app.get('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'), 
     res.render('admin/grades/edit', {
       page: 'admin/grades/edit',
       user: req.user,
-      grade: req.grade
+      grade: req.grade,
+      gradeId: req.params.gradeId
     });
   } else {
     req.flash('error', 'Whoops! Grade does not exist.');
