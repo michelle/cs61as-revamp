@@ -265,7 +265,7 @@ function checkUser(req, res, next) {
       delete req.session.user_id;
       res.redirect('/home');
     } else if(!req.currentUser.isActivated) {
-      req.flash('info', "It looks like you has not activated your account. Please enter your information below.");
+      req.flash('info', "It looks like you have not activated your account. Please enter your information below.");
       res.redirect('/settings');
     } else if (req.currentUser != GUEST
       && !(schema.emailRegEx.test(req.currentUser.email))) {
