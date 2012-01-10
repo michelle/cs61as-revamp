@@ -91,18 +91,26 @@ completedness of each section for class="completed" li elements. -->
     <h1>Solutions</h1>
     <ul class="nolist">
       <% if (currentLesson.homework.isCompleted) { %>
-        <a href="/solutions/homework/<%-n%>">
-        <li class="resource">
-          Homework <%-n%>
-        </li></a>
         <a href="/solutions/lab/<%-n%>">
         <li class="resource">
           Lab <%-n%>
         </li></a>
-        <% } else { %>
+        <a href="/solutions/homework/<%-n%>">
+        <li class="resource">
+          Homework <%-n%>
+        </li></a>
+      <% } else { %>
         <li class="bnote">
           Solutions for the homework will appear here when you finish it!
         </li>
+      <% } %>
+      <% for (var i = 0; i < currentLesson.extra.length; i += 1) { var extra = currentLesson.extra[i]; %>
+        <% if (extra.isCompleted) { %>
+          <a href="/solutions/extra/<%-currentLesson.number%>/<%-i%>">
+          <li class="resource">
+            <%-extra.name%>
+          </li></a>
+        <% } %>
       <% } %>
       <% for (var i = 0; i < currentUnit.projects.length; i += 1) { var project = currentUnit.projects[i]; %>
         <% if (currentLesson.number >= project.projectLessonNumber) { %>
