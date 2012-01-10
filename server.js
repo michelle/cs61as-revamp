@@ -1860,6 +1860,7 @@ app.post('/admin/grades/:username/:gradeId', checkPermit('canAccessAdminPanel'),
     req.grade.order = req.body.grade.order;
     req.grade.grade = req.body.grade.grade;
     req.grade.weight = req.body.grade.weight;
+    req.user.markModified('grades');
     req.user.save(function(err) {
       if (err) {
         log(err);
