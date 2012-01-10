@@ -137,7 +137,9 @@ function trace(msg) {
 /** My own middleware validator because express validator is so badly designed .*/
 function validator(req, res, next) {
   req.sanitize = function(obj, prop, op) {
-    req.body[obj][prop] = sanitizer(req.body[obj][prop])[op]().trim();
+    if (req.body[obj][prop]) {
+      req.body[obj][prop] = sanitizer(req.body[obj][prop])[op]().trim();
+    }
   };
   next();
 }
