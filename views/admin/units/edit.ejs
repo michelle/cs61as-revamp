@@ -22,9 +22,7 @@
         <span class="left boxy selecttextboxy noselect">projects</span>
         <select class="right manyselectboxy" name='unit[projects]' multiple="multiple">
           <option value="undefined">-- No Project --</option>
-          <% console.log(unit.projects) %>
           <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
-            <% console.log(project) %>
             <% if (unit.projects && unit.projects.indexOf(project.id) != -1) { %>
               <option value="<%-project.id%>" selected="selected"><%-project.name%></option>
             <% } else { %>

@@ -1025,7 +1025,7 @@ app.post('/admin/units/edit/:unit', checkPermit('canAccessAdminPanel'), checkPer
     req.unit.number = req.body.unit.number;
     req.unit.name = req.body.unit.name;
     req.unit.lessons = req.body.unit.lessons;
-    if (req.body.unit.projects.indexOf("undefined") != -1) {
+    if (!req.body.unit.projects || req.body.unit.projects.indexOf("undefined") != -1) {
       req.unit.projects = [];
     } else {
       req.unit.projects = req.body.unit.projects;
