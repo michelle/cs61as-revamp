@@ -2454,7 +2454,7 @@ app.get('/announcements', checkPermit('canReadLesson'), function(req, res) {
     });
   });
 });
-/** Feedback system. */
+/** Feedback system.
 // TODO: Style feedback
 // TODO: Make Google doc for general feedback.
 app.get('/feedback', checkPermit('canAccessDashboard'), function(req, res) {
