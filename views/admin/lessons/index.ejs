@@ -33,15 +33,9 @@
           <% } %>
         </select>
         <br>
-        <span class="left boxy selecttextboxy noselect">project</span>
-        <select class="right manyselectboxy" name='lesson[project]' multiple="multiple">
-          <% for (var i = 0; i < projects.length; i += 1) { var project = projects[i] ;%>
-            <option value="<%-project.id%>"><%-project.name%></option>
-          <% } %>
-        </select>
-        <br>
         <span class="left boxy selecttextboxy noselect">extra</span>
         <select class="right manyselectboxy" name='lesson[extra]' multiple="multiple">
+          <option value="undefined">-- No Extra --</option>
           <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i] ;%>
             <option value="<%-extra.id%>"><%-extra.name%></option>
           <% } %>
@@ -49,6 +43,7 @@
         <br>
         <span class="left boxy selecttextboxy noselect">videos</span>
         <select class="right manyselectboxy" name='lesson[videos]' multiple="multiple">
+          <option value="undefined">-- No Video --</option>
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
             <option value="<%-video.id%>"><%-video.name%></option>
           <% } %>
@@ -56,6 +51,7 @@
         <br>
         <span class="left boxy selecttextboxy noselect">readings</span>
         <select class="right manyselectboxy" name='lesson[readings]' multiple="multiple">
+          <option value="undefined">-- No Reading --</option>
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
             <option value="<%-reading.id%>"><%-reading.name%></option>
           <% } %>

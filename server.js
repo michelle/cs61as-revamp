@@ -1108,11 +1108,22 @@ app.post('/admin/lessons/add', checkPermit('canAccessAdminPanel'), checkPermit('
     name: req.body.lesson.name,
     unit: req.body.lesson.unit,
     homework: req.body.lesson.homework,
-    project: req.body.lesson.project,
-    extra: req.body.lesson.extra,
-    videos: req.body.lesson.videos,
-    readings: req.body.lesson.readings
   });
+  if (req.body.lesson.extra && req.body.lesson.extra.indexOf("undefined") != -1) {
+    lesson.extra = [];
+  } else {
+    lesson.extra = req.body.lesson.extra;
+  }
+  if (req.body.lesson.readings && req.body.lesson.readings.indexOf("undefined") != -1) {
+    lesson.readings = [];
+  } else {
+    lesson.readings = req.body.lesson.readings;
+  }
+  if (req.body.lesson.videos && req.body.lesson.readings.indexOf("undefined") != -1) {
+    lesson.readings = [];
+  } else {
+    lesson.readings = req.body.lesson.readings;
+  }
   lesson.save(function(err) {
     if (err) {
       log(err);
@@ -1135,24 +1146,21 @@ app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), check
       log(err);
       Homework.find({}).sort('name', 1).run(function(err, homeworks) {
         log(err);
-        Project.find({}).sort('projectLessonNumber', 1).run(function(err, projects) {
+        Extra.find({}).sort('name', 1).run(function(err, extras) {
           log(err);
-          Extra.find({}).sort('name', 1).run(function(err, extras) {
+          Video.find({}).sort('name', 1).run(function(err, videos) {
             log(err);
-            Video.find({}).sort('name', 1).run(function(err, videos) {
+            Reading.find({}).sort('name', 1).run(function(err, readings) {
               log(err);
-              Reading.find({}).sort('name', 1).run(function(err, readings) {
-                log(err);
-                res.render('admin/lessons/edit', {
-                  page: 'admin/lessons/edit',
-                  units: units,
-                  lesson: req.lesson,
-                  homeworks: homeworks,
-                  projects: projects,
-                  extras: extras,
-                  videos: videos,
-                  readings: readings
-                });
+              res.render('admin/lessons/edit', {
+                page: 'admin/lessons/edit',
+                units: units,
+                lesson: req.lesson,
+                homeworks: homeworks,
+                projects: projects,
+                extras: extras,
+                videos: videos,
+                readings: readings
               });
             });
           });
@@ -1173,11 +1181,21 @@ app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), chec
     req.lesson.name = req.body.lesson.name;
     req.lesson.unit = req.body.lesson.unit;
     req.lesson.homework = req.body.lesson.homework;
-    req.lesson.project = req.body.lesson.project;
-    req.lesson.extra = req.body.lesson.extra;
-    req.lesson.videos = req.body.lesson.videos;
-    req.lesson.readings = req.body.lesson.readings;
-
+    if (req.body.lesson.extra && req.body.lesson.extra.indexOf("undefined") != -1) {
+      lesson.extra = [];
+    } else {
+      lesson.extra = req.body.lesson.extra;
+    }
+    if (req.body.lesson.readings && req.body.lesson.readings.indexOf("undefined") != -1) {
+      lesson.readings = [];
+    } else {
+      lesson.readings = req.body.lesson.readings;
+    }
+    if (req.body.lesson.videos && req.body.lesson.readings.indexOf("undefined") != -1) {
+      lesson.readings = [];
+    } else {
+      lesson.readings = req.body.lesson.readings;
+    }
     req.lesson.save(function(err){
       if (err) {
         log(err);
