@@ -6,16 +6,6 @@
   <div class="contentpadding">
     <div id="accordion">
       <% for (var i = 0; i < lessons.length; i += 1) { var lesson = lessons[i]; var n = lesson.number; %>
-        <% if (projectLessons.indexOf(n.toString()) !== -1) {  %>
-          <% for (var p = 0; p < projects.length; p += 1) { var project = projects[p]; %>
-            <% if (project.projectLessonNumber.toString() == n.toString()) { %>
-              <h3 class="noselect projectHeader"><%-project.name%></h3>
-              <div class="links">
-                <a href="/project/<%-n%>/<%-p%>"><strong>Go to Project</strong></a>
-              </div>
-            <% } %>
-          <% } %>
-        <% } %>
         <h3 class="noselect boring" id="lesson<%-n%>"><%-n%> - <%-lesson.name%></h3>
         <div class="links">
           <% if (currentUser.canAccessDashboard()) { %>
@@ -30,9 +20,9 @@
             <br>
           <% } %>
           <% if (lesson.readings.length > 0) { %> <strong>Readings:</strong>
-            <% for (var k = 0; k < lesson.readings.length; k += 1) { var reading = lesson.readings[k]; %>
+            <% for (var j = 0; j < lesson.readings.length; j += 1) { var reading = lesson.readings[j]; %>
               <br>
-              <span class="indent">- <a href="/reading/<%-n%>/<%-k%>"><%-reading.name%></a></span>
+              <span class="indent">- <a href="/reading/<%-n%>/<%-j%>"><%-reading.name%></a></span>
             <% } %>
             <br>
           <% } %>
@@ -43,13 +33,25 @@
           <% } %>
           <br>
           <% if (lesson.extra.length > 0) { %> <strong>Extras for Experts:</strong>
-            <% for (var l = 0; l < lesson.extra.length; l += 1) { var extra = lesson.extra[l]; %>
+            <% for (var j = 0; j < lesson.extra.length; j += 1) { var extra = lesson.extra[j]; %>
               <br>
-              <span class="indent">- <a href="/extra/<%-n%>/<%-l%>"><%-extra.name%></a></span>
+              <span class="indent">- <a href="/extra/<%-n%>/<%-j%>"><%-extra.name%></a></span>
             <% } %>
             <br>
           <% } %>
         </div>
+        <% for (var j = 0; j < units.length; j += 1) { var unit = units[j]; %>
+          <% if (lesson.unit == unit.id) {  %>
+            <% for (var k = 0; k < unit.projects.length; k += 1) { var project = unit.projects[k]; %>
+              <% if (String(project.projectLessonNumber) == String(n)) { %>
+                <h3 class="noselect projectHeader"><%-project.name%></h3>
+                <div class="links">
+                  <a href="/project/<%-n%>/<%-k%>"><strong>Go to Project</strong></a>
+                </div>
+              <% } %>
+            <% } %>
+          <% } %>
+        <% } %>
       <% } %>
     </div>
   </div>

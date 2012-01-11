@@ -2072,23 +2072,19 @@ app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
   trace('GET /lessons');
   Lesson.find()
   .populate('homework')
-  .populate('projects')
   .populate('extra')
   .populate('videos')
   .populate('readings')
   .sort('number', 1)
   .run(function(err, lessons) {
     log(err);
-    Project.find({}, function(err, projects) {
-      var projectLessons = [];
-      for (var b in projects) {
-        projectLessons.push(projects[b].projectLessonNumber.toString());
-      }
+    Unit.find()
+    .populate('projects')
+    .run(function(err, units) {
       res.render('lessons', {
         page: 'lessons',
         lessons: lessons,
-        projects: projects,
-        projectLessons: projectLessons
+        units: units
       });
     });
   });
