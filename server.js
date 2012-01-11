@@ -1157,7 +1157,6 @@ app.get('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), check
                 units: units,
                 lesson: req.lesson,
                 homeworks: homeworks,
-                projects: projects,
                 extras: extras,
                 videos: videos,
                 readings: readings
@@ -1182,19 +1181,19 @@ app.post('/admin/lessons/edit/:lesson', checkPermit('canAccessAdminPanel'), chec
     req.lesson.unit = req.body.lesson.unit;
     req.lesson.homework = req.body.lesson.homework;
     if (req.body.lesson.extra && req.body.lesson.extra.indexOf("undefined") != -1) {
-      lesson.extra = [];
+      req.lesson.extra = [];
     } else {
-      lesson.extra = req.body.lesson.extra;
+      req.lesson.extra = req.body.lesson.extra;
     }
     if (req.body.lesson.readings && req.body.lesson.readings.indexOf("undefined") != -1) {
-      lesson.readings = [];
+      req.lesson.readings = [];
     } else {
-      lesson.readings = req.body.lesson.readings;
+      req.lesson.readings = req.body.lesson.readings;
     }
     if (req.body.lesson.videos && req.body.lesson.readings.indexOf("undefined") != -1) {
-      lesson.readings = [];
+      req.lesson.readings = [];
     } else {
-      lesson.readings = req.body.lesson.readings;
+      req.lesson.readings = req.body.lesson.readings;
     }
     req.lesson.save(function(err){
       if (err) {

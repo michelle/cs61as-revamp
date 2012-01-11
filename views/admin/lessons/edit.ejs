@@ -43,8 +43,8 @@
         <br>
         <span class="left boxy selecttextboxy noselect">extra</span>
         <select class="right manyselectboxy" name='lesson[extra]' multiple="multiple">
+          <option value="undefined">-- No Extra --</option>
           <% for (var i = 0; i < extras.length; i += 1) { var extra = extras[i] ;%>
-            <option value="undefined">-- No Extra --</option>
             <% if (lesson.extra && lesson.extra.indexOf(extra.id) != -1) { %>
               <option value="<%-extra.id%>" selected="selected"><%-extra.name%></option>
             <% } else { %>
@@ -55,8 +55,8 @@
         <br>
         <span class="left boxy selecttextboxy noselect">videos</span>
         <select class="right manyselectboxy" name='lesson[videos]' multiple="multiple">
+          <option value="undefined">-- No Video --</option>
           <% for (var i = 0; i < videos.length; i += 1) { var video = videos[i] ;%>
-            <option value="undefined">-- No Video --</option>
             <% if (lesson.videos && lesson.videos.indexOf(video.id) != -1) { %>
               <option value="<%-video.id%>" selected="selected"><%-video.name%></option>
             <% } else { %>
@@ -67,8 +67,8 @@
         <br>
         <span class="left boxy selecttextboxy noselect">readings</span>
         <select class="right manyselectboxy" name='lesson[readings]' multiple="multiple">
+          <option value="undefined">-- No Reading --</option>
           <% for (var i = 0; i < readings.length; i += 1) { var reading = readings[i] ;%>
-            <option value="undefined">-- No Reading --</option>
             <% if (lesson.readings && lesson.readings.indexOf(reading.id) != -1) { %>
               <option value="<%-reading.id%>" selected="selected"><%-reading.name%></option>
             <% } else { %>
