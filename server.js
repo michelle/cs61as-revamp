@@ -2272,7 +2272,23 @@ app.post('/homework/:lessonId', checkPermit('canWriteProgress'), loadProgress, f
     res.redirect('/dashboard');
   }
 });
-
+/** Project.
+ *  Defaults: display the one specified by currentUser.currentLesson.
+ *  Only displays progress control when the user has permission. */
+app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /project/:lessonId/:projectId');
+  if (req.currentUnit && req.project) {
+    res.render('project', {
+      page: 'project',
+      project: req.project,
+      projectId: req.params.projectId,
+      showControls: req.currentUser.canWriteProgress()
+    });
+  } else {
+    req.flash('error', 'Whoops! This project does not exist.');
+    res.redirect('/default');
+  }
+});
 /** Marking project as complete. */
 app.post('/project/:lessonId/:projectId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
   trace('POST /project/:lessonId/:projectId');
@@ -2414,23 +2430,6 @@ app.get('/solutions/extra/:lessonId/:extraId', checkPermit('canWriteProgress'), 
     });
   } else {
     req.flash('error', 'Whoops! This solution does not exist.');
-    res.redirect('/default');
-  }
-});
-/** Project.
- *  Defaults: display the one specified by currentUser.currentLesson.
- *  Only displays progress control when the user has permission. */
-app.get('/project/:lessonId/:projectId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
-  trace('GET /project/:lessonId/:projectId');
-  if (req.currentUnit && req.project) {
-    res.render('project', {
-      page: 'project',
-      project: req.project,
-      projectId: req.params.projectId,
-      showControls: req.currentUser.canWriteProgress()
-    });
-  } else {
-    req.flash('error', 'Whoops! This project does not exist.');
     res.redirect('/default');
   }
 });
