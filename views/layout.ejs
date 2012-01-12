@@ -17,16 +17,13 @@
 
 <script type="text/javascript" src="/js/index.js"></script>
 
-
-<% if (page === 'lessons' && currentUser) { %>
-  <!--script type="text/javascript">
-    // TODO: fix this so it works.
-    /*$(document).ready(function() {
-		  $('#accordion').accordion('activate', $('#lesson<%-currentUser.currentLesson%>'));
-		})*/
-  </script-->
+<% if (page === 'lessons') { %>
+  <script>
+  $(document).ready(function() {
+    $( "#accordion" ).accordion({ active: $("#lesson<%-currentUser.currentLesson%>") });
+  });
+  </script>
 <% } %>
-
 </head> 
  
 <body> 

@@ -2106,6 +2106,28 @@ app.get('/lessons', checkPermit('canReadLesson'), function(req, res) {
     });
   });
 });
+/** Viewing intro. */
+app.get('/intro/:lessonId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
+  trace('GET /intro/:lessonId');
+  if (req.currentLesson) {
+    req.currentUser.currentLesson = req.currentLesson.number;
+    if (req.currentUser.canWriteProgress()) {
+      req.currentUser.save(function(err) {
+        log(err);
+        res.render('intro', {
+          page: 'intro',
+        });
+      });
+    } else {
+      res.render('intro', {
+        page: 'intro',
+      });
+    }
+  } else {
+    req.flash('error', 'Whoops! This intro does not exist.');
+    res.redirect('/default');
+  }
+});
 /** Viewing webcast by its URL. */
 app.get('/webcast/:lessonId/:videoId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /webcast/:lessonId/:videoId');
@@ -2174,7 +2196,17 @@ app.get('/reading/:lessonId/:readingId', checkPermit('canReadLesson'), loadProgr
     res.redirect('/default');
   }
 });
-
+/** Marking reading as read. */
+app.post('/reading/:lessonId/:readingId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
+  trace('POST /reading/:lessonId/:readingId');
+  if(req.currentLesson && req.reading) {
+    req.reading.isCompleted = true;
+    res.redirect('/dashboard');
+  } else {
+    req.flash('error', 'Whoops! Reading does not exist.');
+    res.redirect('/dashboard');
+  }
+});
 /** Viewing extra. */
 app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress, function(req, res) {
   trace('GET /extra/:lessonId/:extraId');
@@ -2201,17 +2233,6 @@ app.get('/extra/:lessonId/:extraId', checkPermit('canReadLesson'), loadProgress,
   } else {
     req.flash('error', 'Whoops! This extra does not exist.');
     res.redirect('/default');
-  }
-});
-/** Marking reading as read. */
-app.post('/reading/:lessonId/:readingId', checkPermit('canWriteProgress'), loadProgress, function(req, res) {
-  trace('POST /reading/:lessonId/:readingId');
-  if(req.currentLesson && req.reading) {
-    req.reading.isCompleted = true;
-    res.redirect('/dashboard');
-  } else {
-    req.flash('error', 'Whoops! Reading does not exist.');
-    res.redirect('/dashboard');
   }
 });
 /** Marking extra as read. */
