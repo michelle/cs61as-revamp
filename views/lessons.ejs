@@ -28,7 +28,7 @@
             <% } %>
             <br>
           <% } %>
-          <% if (lesson.readings.length > 0) { %> <strong>Lecture notes:</strong>
+          <% if (lesson.readings.length > 0) { %> <strong>Readings:</strong>
             <% for (var j = 0; j < lesson.readings.length; j += 1) { var reading = lesson.readings[j]; %>
               <br>
               <span class="indent">- <a href="/reading/<%-n%>/<%-j%>"><%-reading.name%></a></span>
