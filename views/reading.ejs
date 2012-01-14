@@ -13,7 +13,11 @@
         </div>
       </div>
     <% } %>
-    <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/note' + readingId +'.ejs')%>
+    <% if (reading.SICP) { %>
+      <iframe src="http://<%-reading.location%>" scrolling="auto"></iframe>
+    <% } else { %>
+      <%-partial('cs61as/unit' + currentLesson.unit.number + '/' + currentLesson.number + '/note' + readingId +'.ejs')%>
+    <% } %>
     <% if (showControls) { %>
       <% if (!reading.isCompleted) {%>
       <center>
