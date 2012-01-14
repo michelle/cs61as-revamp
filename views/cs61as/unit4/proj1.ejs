@@ -1,0 +1,272 @@
+
+PART II.  These five problems (one per person and three common ones)
+are due Monday.  When you're done with them, the Logo interpreter
+will be complete.
+
+Note:  There is a point partway through this week when you have to combine
+results with your partner, in order to be able to do another separate part,
+following which comes yet another common part.  Therefore, you should be
+sure to complete through problem 7 by Thursday evening at the latest!
+
+
+PERSON A
+
+
+A5.  Infix arithmetic.  Logo-eval calls eval-prefix to find a Scheme-style
+expression and evaluate it.  Then it calls
+
+	(handle-infix value line-obj env)
+
+We have provided a "stub" version of handle-infix that doesn't actually
+handle infix, but merely returns the value you give it.  Your task is to
+write a version that really works.  The situation is this.  We are dealing
+with the instruction line
+
+	? print 3 + 2
+
+We are inside the logo-eval that's preparing to invoke PRINT.  It knows
+that PRINT requires one argument, so it recursively called logo-eval.
+(Actually logo-eval calls eval-prefix, which calls collect-n-args, which
+calls logo-eval.)  The inner logo-eval called eval-prefix, which
+found the expression 3, whose value is 3.  But the argument to PRINT isn't
+really just 3; it's 3 + 2.
+
+The job of handle-infix is to notice that the next token on the line is
+an infix operator (one of + - * / = < >), find the corresponding procedure,
+and apply it to the already-found value (in this case, 3) and the value of
+the expression after the infix operator (in this case, 2).  Remember that
+this following expression need not be a single token; you have to evaluate
+it using eval-prefix.  If the next token isn't an infix operator, you must
+put it back into the line and just return the already-found value.  Remember
+that there may be another infix operator after you deal with the first one,
+as in the instruction
+
+	? print 3 * 4 + 5
+	17
+
+We've provided a procedure called de-infix that takes an infix operator as
+argument and returns the name of the corresponding Logo primitive procedure.
+
+To further your understanding of this problem, answer the following
+question:  What difference would it make if your handle-infix invoked
+logo-eval instead of eval-prefix as suggested above?  Show a sample
+instruction for which this change would give a different result.
+
+By the way, don't forget that we are not asking you to handle the precedence
+of multiplication over addition correctly.  Your handle-infix will do all
+infix operations from left to right, unless parentheses are used.  (You
+don't have to deal with parentheses in handle-infix.  Logo-eval already
+knows about them.)
+
+
+**** Now skip over person B's problem to get to common problems 6 and 7.
+**** You must merge the results of A5 and B5 before you can solve
+**** those problems.
+
+
+PERSON B:
+
+B5.  Time to define procedures!  You are going to write eval-definition,
+a procedure that accepts a line-obj as argument.  (The corresponding
+feature in the metacircular evaluator also needs the environment as an
+argument, but recall that in Logo procedures are not part of the environment;
+they go in a separate, global list.)  The line-obj has just given out the
+token TO, and is ready to provide the procedure name and formal parameters.
+Your job is to read those, then enter into an interactive loop in which you
+read Logo lines and store them in a list, the procedure body.  You keep doing
+this until you see a line that contains only the word END.  You put together
+a procedure representation in the form
+
+	(list name 'compound arg-count (cons formals body))
+
+and you prepend this to the procedure list in the (Scheme) variable
+the-procedures.  The arg-count is the number of formal parameters you found.
+Formals is a list of the formal parameters, without the colons.  Body is the
+list of instruction lines, not including the END line.  Don't turn the lines
+into line-objects; that'll happen when the procedure is invoked.
+
+To print the prompt, say (prompt "-> ").
+
+It's going to be a little hard to test the results of your work until you
+can invoke user-defined procedures, which requires one more step.  Meanwhile
+you could leave Logo, and ask Scheme to look at the first element of
+the-procedures to see if you've done it right.
+
+
+**** You must merge the results of A5 and B5 before
+**** you can solve common problems 6 and 7.
+
+
+COMMON PROBLEMS, BOTH PARTNERS:
+
+6.  Evaluating procedure bodies.  In the metacircular evaluator, APPLY sets up an
+environment and uses eval-sequence to evaluate each expression in the
+procedure body.  The Logo interpreter does the same, except that the job
+of eval-sequence is different.  Its argument is a list of instruction
+lists.  Each of those lists must be turned into a line-object before it can
+be evaluated.  Also, we must take into account the fact that instructions
+are different from expressions; the instruction lines in the procedure body
+should generally return =NO-VALUE= when evaluated.  If not, eval-sequence
+must signal the error "You don't say what to do with" the value.
+
+The exceptions are the two primitive commands that can end a procedure
+invocation early, STOP (for commands) and OUTPUT (for operations).  If
+STOP is invoked, it will return the symbol =STOP=; if OUTPUT is invoked,
+it will return a pair whose car is =OUTPUT= and whose cdr is the desired
+return value:
+
+	(add-prim 'stop 0 (lambda () '=stop=))
+	(add-prim 'output 1 (lambda (x) (cons '=output= x)))
+
+If eval-sequence evaluates a STOP, it should immediately return =NO-VALUE=.
+If it gets an OUTPUT, it should immediately return the value provided (the
+cdr of that pair).
+
+
+7.  Dynamic scope.  In the metacircular evaluator, MC-APPLY handles
+compound (user-defined) procedures by setting up an environment and
+evaluating the procedure body (using eval-sequence) in that environment.
+LOGO-APPLY must do the same thing, but instead of Scheme's lexical scope,
+in which the new environment extends the one in which the procedure was
+created, it must follow Logo's dynamic scope, in which the new environment
+extends the current environment.
+
+The version of LOGO-APPLY we give you doesn't handle compound procedure
+calls.  Modify it as needed, along with any other changes required to go
+along with this one.  (Hint:  Start by looking at the MC-APPLY version.)
+
+
+**** Once you've solved these problems, you should be able to define and
+**** invoke procedures:
+
+	? make "x 3
+	? to scope :x
+	> helper 5
+	> end
+	? to helper :y
+	> print (sentence :x :y)
+	> end
+	? scope 4
+
+
+**** Now comes another split problem.
+
+PERSON A:
+
+A8.  Add the STEP and UNSTEP primitive commands.  They take a word as
+argument, which must be the name of a user-defined procedure.  STEP sets
+to true, and UNSTEP sets to false, a flag inside the procedure structure
+(you'll have to add this to the procedure ADT).  When a defined procedure
+is called, if the stepping flag is set, Logo should print each line of the
+procedure definition, followed by a ">>> " prompt, before evaluating that
+line, and then wait for the user to enter a line (it'll usually be an
+empty line, but in any case you can ignore what the user types; you're
+just waiting for him/her to type it).  Then run the line from the
+procedure.  For example:
+
+	? to garply
+	-> print "hello
+	-> print "goodbye
+	-> end
+	? garply
+	hello
+	goodbye
+	? step "garply
+	? garply
+	print "hello>>> 	[user hits return/enter key]
+	hello
+	print "goodbye>>> 
+	goodbye
+	? unstep "garply
+	? garply
+	hello
+	goodbye
+	?
+
+This is a Logo debugging assistance feature.  Try it on a recursive
+procedure!
+
+*** NOW SKIP AHEAD TO COMMON PROBLEM 9.
+
+
+PERSON B:
+
+B8.  Add the commands TEST, IFTRUE (abbreviation IFT), and IFFALSE
+(abbreviation IFF).  These are alternatives to the IF/IFELSE style of
+conditional evaluation, provided in Logo because an IFELSE that carries
+out several conditional instructions can lead to one very long instruction
+line, hard to read and hard to edit.  Here's how it works:
+
+The command TEST takes one argument, which must be TRUE or FALSE.  It
+remembers the value for later, and does nothing else.  Note:  If TEST is
+called inside a procedure, the argument value is remembered locally, but
+does not modify the caller's test result (or the global one).
+
+The command IFTRUE takes one argument, an instruction list.  If the
+remembered TEST value is TRUE, then the instruction list is run.  If the
+remembered value is FALSE, nothing happens.  The command IFFALSE is the
+same only backwards.  It is an error if IFTRUE or IFFALSE is used before
+any TEST has been done.  Note:  It is *not* an error to use IFTRUE or
+IFFALSE inside a procedure, before the procedure does a TEST, provided
+that a TEST has been done by the caller.  That is, each procedure call
+inherits its caller's test flag.
+
+Suggestion:  Put a variable with an untypeable-in name, such as the
+string " TEST", in every frame.
+
+
+*** THE REMAINING PROBLEM IS DONE BY BOTH PARTNERS TOGETHER.
+
+
+9.  Static variables.  This is a feature that isn't in normal versions of
+Logo, but our version will be extra powerful!  As we've discussed in class,
+one of the problems with dynamic scope is that you can't create local state
+variables by defining a procedure inside the scope of a variable the way we
+do in Scheme.  We are going to invent a mechanism by which a procedure
+definition can specify the names and initial values of local state variables.
+Here is an example showing the notation:
+
+	? to count :increase static :counter 2+3
+	-> make "counter :counter + :increase
+	-> print :counter
+	-> end
+
+	? count 20
+	25
+	? count 1
+	26
+
+	? print :counter
+	ERROR -- UNBOUND VARIABLE COUNTER
+
+In the first line of the procedure definition, STATIC is a keyword that
+indicates the end of the formal parameters and the beginning of alternating
+names and values of local state variables.  In the example shown here, there
+is only one local state variable, named COUNTER, with an initial value of 5.
+(Notice that the name is not evaluated, but the initial value expression is
+evaluated, in the global environment.)
+
+When the procedure is defined, it is given a local state variable named
+COUNTER whose value is 5.  Each time the procedure is called, it changes
+the value of that variable.  As the example shows, the name COUNTER is
+not defined in the global environment.
+
+To make this work, you must give every compound procedure a private frame
+containing its static variables.  This frame will be a fifth element of the
+list that represents a procedure.  When a compound procedure is invoked,
+you will still extend the current (dynamic) environment, but you'll extend
+it with two frames: the remembered static-variable frame, and the standard
+newly-created frame in which formal parameters are bound to actual arguments.
+
+Most of your work will be done in two places: the place where TO lines are
+parsed, and the place where procedures are invoked.
+
+
+The interpreter is now complete.  Congratulations!
+
+
+Optional for hotshots:  Handle infix precedence properly.
+
+(Of course there's a lot more that could be done, especially about error
+handling, but also including missing primitives.  Logo enthusiasts might
+like to try to invent LOCAL, CATCH, THROW, DEFINE, TEXT, etc.)
