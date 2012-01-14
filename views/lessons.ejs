@@ -31,7 +31,11 @@
           <% if (lesson.readings.length > 0) { %> <strong>Readings:</strong>
             <% for (var j = 0; j < lesson.readings.length; j += 1) { var reading = lesson.readings[j]; %>
               <br>
+              <% if (reading.SICP) { %>
+              <span class="indent">- <a href="http://<%-reading.location%>" target="_blank"><%-reading.name%></a></span>
+              <% } else { %>
               <span class="indent">- <a href="/reading/<%-n%>/<%-j%>"><%-reading.name%></a></span>
+              <% } %>
             <% } %>
             <br>
           <% } %>

@@ -41,11 +41,15 @@
           <% } %>
       <% } %>
       <% if (currentLesson.readings.length > 0) { %>
-      <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
-        <a href="/reading/<%-n%>/<%-k%>">
-        <li class="<% if (reading.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
-          <%-reading.name%>
-        </li></a>
+        <% for (var k = 0; k < currentLesson.readings.length; k += 1) { var reading = currentLesson.readings[k]; %>
+          <% if (reading.SICP) { %>
+            <a href="http://<%-reading.location%>" target="_blank">
+          <% } else { %>
+            <a href="/reading/<%-n%>/<%-k%>">
+          <% } %>
+          <li class="<% if (reading.isCompleted) { %>completed<% } else { %>incomplete<% } %>">
+            <%-reading.name%>
+          </li></a>
         <% } %>
       <% } %>
     </ul>
