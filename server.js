@@ -26,9 +26,16 @@ var schema = require('./schema.js');
 var fs = require('fs');
 var nodemailer = require('nodemailer');
 var sanitizer = require('validator').sanitize;
+var ldap = require('ldapjs');
 
 /** Database. */
 var db;
+
+/** LDAP Auth. */
+// TODO: SSL/TLS (critical!)
+var ldapclient = ldap.createClient({
+  url: 'ldap://ildap1.EECS.Berkeley.EDU:389'
+});
 
 /** Flash message support. */
 app.helpers(require('./dh.js').helpers);
@@ -278,6 +285,14 @@ function checkUser(req, res, next) {
     next();
   }
 }
+/** Create a LDAP authentication .*/
+function ldaplogin(username, password, next) {
+  ldapclient.bind('uid=' + username + ",ou=people,dc=EECS,dc=Berkeley,dc=EDU", password, next);
+};
+/** Create a LDAP authentication .*/
+function ldaplogout(next) {
+  ldapclient.unbind(next);
+};
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
 function loadLesson(req, res, next) {
@@ -810,45 +825,60 @@ app.get('/home', function(req, res) {
 });
 /** A standard login post request. */
 app.post('/login', function(req, res) {
-  trace('POST /login');
+  trace('POST /login with LDAP');
   req.sanitize('user', 'username', 'entityEncode');
   req.sanitize('user', 'password', 'entityEncode');
-  User.findOne({
-    username: req.body.user.username
-  }, function(err, user) {
-    log(err);
-    if (user && user.authenticate(req.body.user.password)) {
-      req.session.user_id = user._id;
-      if (req.body.user.rememberme) {
-        LoginToken.remove({ username: user.username }, function() {
-          var token = new LoginToken({ username: user.username });
-          token.save(function(err){
-            log(err);
-            res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
-            req.flash('info', 'Logged in successfully as %s', user.username);
-            res.redirect('/default');
-          });
-        });
-      } else {
-        req.flash('info', 'Logged in successfully as %s', user.username);
-        res.redirect('/default');
-      }
-    } else {
+
+  ldaplogin(req.body.user.username, req.body.user.password, function(err, result) {
+    if (err) {
+      log(err);
       req.flash('error', 'Invalid username or password.');
       res.redirect('/home');
+      return;
     }
+
+    User.findOne({
+      username: req.body.user.username
+    }, function(err, user) {
+      log(err);
+      if (user) {
+        req.session.user_id = user._id;
+        if (req.body.user.rememberme) {
+          LoginToken.remove({ username: user.username }, function() {
+            var token = new LoginToken({ username: user.username });
+            token.save(function(err){
+              log(err);
+              res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
+              req.flash('info', 'Logged in successfully as %s', user.username);
+              res.redirect('/default');
+            });
+          });
+        } else {
+          req.flash('info', 'Logged in successfully as %s', user.username);
+          res.redirect('/default');
+        }
+      } else {
+        req.flash('error', 'User %s is not created. Please contact your administrator and ask he or she to create it for you.', req.body.user.username);
+        res.redirect('/home');
+      }
+    });
   });
 });
 /** Logging out. */
 app.get('/logout', function(req, res) {
   trace('GET /logout');
   if (req.session) {
-    LoginToken.remove({ username: req.currentUser.username }, function() {});
-    res.clearCookie('rememberme');
-    delete req.session.user_id;
-    req.flash('info', 'Logged out successfully!');
+    ldaplogout(function(err) {
+      log(err);
+      LoginToken.remove({ username: req.currentUser.username }, function() {});
+      res.clearCookie('rememberme');
+      delete req.session.user_id;
+      req.flash('info', 'Logged out successfully!');
+      res.redirect('/home');
+    });
+  } else {
+    res.redirect('/home');
   }
-  res.redirect('/home');
 });
 /** Admin Control Panel. */
 app.get('/admin', checkPermit('canAccessAdminPanel'), function(req, res) {

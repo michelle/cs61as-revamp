@@ -17,6 +17,7 @@
     "connect-mongodb": "",
     "connect": "",
     "nodemailer": "",
+    "ldapjs": "",
     "validator": ""
   },
   "devDependencies": {}
