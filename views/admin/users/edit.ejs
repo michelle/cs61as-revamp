@@ -59,6 +59,13 @@
       <input type="checkbox" class="right textboxy" value="true" name='user[isActivated]'>
     <% } %>
     <br>
+    <span class="left boxy noselect">use school authentication</span>
+    <% if (user.forceLDAP) { %>
+      <input type="checkbox" class="right textboxy" checked="checked" value="true" name='user[forceLDAP]'>
+    <% } else { %>
+      <input type="checkbox" class="right textboxy" value="true" name='user[forceLDAP]'>
+    <% } %>
+    <br>
     <span class="left boxy noselect" required>permission</span>
     <input type="text" class="right textboxy" name='user[permission]' value='<%-user.permission%>' required>
     <div class="clear"></div>
