@@ -59,6 +59,10 @@ function defineModels(mongoose, fn) {
       required: true,
       type: Boolean
     },
+    requireLDAP: {
+      type: Boolean,
+      'default': false
+    },
     username: {
       type: String,
       match: usernameRegEx,

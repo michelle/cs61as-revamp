@@ -287,7 +287,10 @@ function checkUser(req, res, next) {
 }
 /** Create a LDAP authentication .*/
 function ldaplogin(username, password, next) {
-  ldapclient.bind('uid=' + username + ",ou=people,dc=EECS,dc=Berkeley,dc=EDU", password, next);
+  ldapclient.bind('uid=' + username + ",ou=people,dc=EECS,dc=Berkeley,dc=EDU", password, function(err, result) {
+    next(err, result);
+    ldaplogout();
+  });
 };
 /** Create a LDAP authentication .*/
 function ldaplogout(next) {
@@ -829,53 +832,88 @@ app.post('/login', function(req, res) {
   req.sanitize('user', 'username', 'entityEncode');
   req.sanitize('user', 'password', 'entityEncode');
 
-  ldaplogin(req.body.user.username, req.body.user.password, function(err, result) {
-    if (err) {
-      log(err);
-      req.flash('error', 'Invalid username or password.');
-      res.redirect('/home');
-      return;
-    }
-
-    User.findOne({
-      username: req.body.user.username
-    }, function(err, user) {
-      log(err);
-      if (user) {
-        req.session.user_id = user._id;
-        if (req.body.user.rememberme) {
-          LoginToken.remove({ username: user.username }, function() {
-            var token = new LoginToken({ username: user.username });
-            token.save(function(err){
-              log(err);
-              res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
-              req.flash('info', 'Logged in successfully as %s', user.username);
-              res.redirect('/default');
-            });
-          });
-        } else {
+  function login(user) {
+    req.session.user_id = user._id;
+    if (req.body.user.rememberme) {
+      LoginToken.remove({ username: user.username }, function() {
+        var token = new LoginToken({ username: user.username });
+        token.save(function(err){
+          log(err);
+          res.cookie('rememberme', token.cookieValue, { maxAge: COOKIE_LIFETIME });
           req.flash('info', 'Logged in successfully as %s', user.username);
           res.redirect('/default');
-        }
-      } else {
-        req.flash('error', 'User %s is not created. Please contact your administrator and ask he or she to create it for you.', req.body.user.username);
-        res.redirect('/home');
-      }
+        });
+      });
+    } else {
+      req.flash('info', 'Logged in successfully as %s', user.username);
+      res.redirect('/default');
+    }
+  }
+
+  function createUser() {
+    var user = new User({
+      username: req.body.user.username,
+      isEnable: true,
+      isActivated: false,
+      forceLDAP: true,
+      permission: User.Permissions.Student
     });
+    user.password = req.body.user.password;
+    return user;
+  }
+
+  User.findOne({
+    username: req.body.user.username
+  }, function(err, user) {
+    log(err);
+    if (!user) {
+      ldaplogin(req.body.user.username, req.body.user.password, function(err, result) {
+        if (err) {
+          log(err);
+          req.flash('error', 'Invalid username or password.');
+          res.redirect('/home');
+        } else {
+          var newuser = createUser();
+          newuser.save(function(err) {
+            if (err) {
+              log (err);
+              req.flash('error', 'User is not created. Please contact administrator');
+              res.redirect('/home');
+            } else {
+              login(newuser);
+            }
+          });
+        }
+      });
+    } else if (user && user.forceLDAP) {
+      console.log(user.requireLDAP);
+      ldaplogin(req.body.user.username, req.body.user.password, function(err, result) {
+        if (err) {
+          log(err);
+          req.flash('error', 'Invalid username or password.');
+          res.redirect('/home');
+        } else {
+          login(user);
+        }
+      });
+    } else if (user.authenticate(req.body.user.password)) {
+      login(user);
+    } else {
+      req.flash('error', 'Invalid username or password.');
+      res.redirect('/home');
+    }
   });
 });
 /** Logging out. */
 app.get('/logout', function(req, res) {
   trace('GET /logout');
   if (req.session) {
-    ldaplogout(function(err) {
-      log(err);
-      LoginToken.remove({ username: req.currentUser.username }, function() {});
-      res.clearCookie('rememberme');
-      delete req.session.user_id;
-      req.flash('info', 'Logged out successfully!');
-      res.redirect('/home');
-    });
+    log(err);
+    LoginToken.remove({ username: req.currentUser.username }, function() {});
+    res.clearCookie('rememberme');
+    delete req.session.user_id;
+    req.flash('info', 'Logged out successfully!');
+    res.redirect('/home');
   } else {
     res.redirect('/home');
   }
