@@ -877,7 +877,7 @@ app.post('/login', function(req, res) {
           newuser.save(function(err) {
             if (err) {
               log (err);
-              req.flash('error', 'User is not created. Please contact administrator');
+              req.flash('error', 'User is not created successfully. Please contact administrator');
               res.redirect('/home');
             } else {
               login(newuser);
@@ -908,7 +908,6 @@ app.post('/login', function(req, res) {
 app.get('/logout', function(req, res) {
   trace('GET /logout');
   if (req.session) {
-    log(err);
     LoginToken.remove({ username: req.currentUser.username }, function() {});
     res.clearCookie('rememberme');
     delete req.session.user_id;
@@ -1753,7 +1752,8 @@ app.post('/admin/users/add', checkPermit('canAccessAdminPanel'), checkPermit('ca
     username: req.body.user.username,
     fullname: req.body.user.fullname,
     isEnable: req.body.user.isEnable || false,
-    isActivated: req.body.user.isActivated || false
+    isActivated: req.body.user.isActivated || false,
+    forceLDAP: req.body.user.forceLDAP || false
   });
   if (req.body.user.email != "") {
     user.email = req.body.user.email;
@@ -1820,6 +1820,7 @@ app.post('/admin/users/edit/:userId', checkPermit('canAccessAdminPanel'), checkP
     req.user.fullname = req.body.user.fullname;
     req.user.isEnable = req.body.user.isEnable || false;
     req.user.isActivated = req.body.user.isActivated || false;
+    req.user.forceLDAP = req.body.user.forceLDAP || false;
     req.user.email = req.body.user.email;
     req.user.currentLesson = req.body.user.currentLesson;
     req.user.currentUnit = req.body.user.currentUnit;
@@ -2060,10 +2061,72 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
   req.sanitize('user', 'newpassword', 'entityEncode');
   req.sanitize('user', 'confirm', 'entityEncode');
   req.sanitize('user', 'email', 'entityEncode');
-  if (req.currentUser.authenticate(req.body.user.password)) {
+
+  function saveUser(next) {
+    req.currentUser.save(function(err) {
+      if (err) {
+        log(err);
+        flashErr(req, err);
+        if (err.err) {
+          req.flash('error', 'Email is registered. Please use your email.');
+        }
+        req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
+        res.redirect('/default');
+      } else {
+        next();
+      }
+    });
+  }
+
+  function sendConfirmation() {
+    var token = new ConfirmationToken({
+      user: req.currentUser
+    });
+    ConfirmationToken.remove({ user: req.currentUser }, function(err) {
+      log(err);
+      token.save(function(err) {
+        log(err);
+        sendEmailConfirmation(req, token, function(err) {
+          log(err);
+          if (err) {
+            req.flash('error', 'There is an error sending your confirmation email. Please contact administrator.');
+            res.redirect('/default');
+          } else {
+            req.flash('info', 'An confirmation email has been sent to you. Please check your email.');
+            res.redirect('/default');
+          }
+        });
+      });
+    });
+  }
+
+  function updateUserInformation() {
     req.currentUser.fullname = req.body.user.fullname;
     req.currentUser.units = req.body.user.units;
+    if (req.currentUser.email != req.body.user.email || !req.currentUser.isActivated) {
+      req.currentUser.email = req.body.user.email;
+      req.currentUser.isActivated = false;
+      saveUser(sendConfirmation);
+    } else {
+      req.currentUser.email = req.body.user.email;
+      saveUser(function () {
+        req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
+        res.redirect('/default');
+      });
+    }
+  }
 
+  if (req.currentUser.forceLDAP) {
+    ldaplogin(req.currentUser.username, req.body.user.password, function(err, result) {
+      if (err) {
+        log(err);
+        req.flash('error', 'Please enter your current password to make any changes.');
+        res.redirect('/settings');
+      } else {
+        updateUserInformation();
+      }
+    });
+  } else if (req.currentUser.authenticate(req.body.user.password)) {
     if (req.body.user.newpassword != '') {
       if (req.body.user.newpassword === req.body.user.confirm) {
         req.currentUser.password = req.body.user.newpassword;
@@ -2073,57 +2136,7 @@ app.post('/settings', checkPermit('canWritePassword'), function(req, res) {
         return;
       }
     }
-
-    if (req.currentUser.email != req.body.user.email || !req.currentUser.isActivated) {
-      req.currentUser.email = req.body.user.email;
-      req.currentUser.isActivated = false;
-      var token = new ConfirmationToken({
-        user: req.currentUser
-      });
-      req.currentUser.save(function(err) {
-        if (err) {
-          log(err);
-          flashErr(req, err);
-          if (err.err) {
-            req.flash('error', 'Email is registered. Please use your email.');
-          }
-          req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
-          res.redirect('/default');
-        } else {
-          ConfirmationToken.remove({ user: req.currentUser }, function(err) {
-            log(err);
-            token.save(function(err) {
-              log(err);
-              sendEmailConfirmation(req, token, function(err) {
-                log(err);
-                if (err) {
-                  req.flash('error', 'There is an error sending your confirmation email. Please contact administrator.');
-                  res.redirect('/default');
-                } else {
-                  req.flash('info', 'An confirmation email has been sent to you. Please check your email.');
-                  res.redirect('/default');
-                }
-              });
-            });
-          });
-        }
-      });
-    } else {
-      req.currentUser.email = req.body.user.email;
-      req.currentUser.save(function(err) {
-        if (err) {
-          log(err);
-          flashErr(req, err);
-          if (err.err) {
-            req.flash('error', 'Email is registered. Please use your email.');
-          }
-          req.flash('error', 'User %s was not saved successfully.', req.currentUser.username);
-        } else {
-          req.flash('info', 'User %s was saved successfully.', req.currentUser.username);
-        }
-        res.redirect('/default');
-      });
-    }
+    updateUserInformation();
   } else {
     req.flash('error', 'Please enter your current password to make any changes.');
     res.redirect('/settings');
