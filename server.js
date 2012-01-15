@@ -289,12 +289,8 @@ function checkUser(req, res, next) {
 function ldaplogin(username, password, next) {
   ldapclient.bind('uid=' + username + ",ou=people,dc=EECS,dc=Berkeley,dc=EDU", password, function(err, result) {
     next(err, result);
-    ldaplogout();
+    ldapclient.unbind(next);
   });
-};
-/** Create a LDAP authentication .*/
-function ldaplogout(next) {
-  ldapclient.unbind(next);
 };
 /** Set current lesson to the one specified by currentUser.currentLesson.
  *  Redirect to /home if currentUser.currentLesson points to an invalid lesson. */
