@@ -1,3 +1,347 @@
-<!-- Homework 2 (Higher-order Procedures) Solutions -->
+CS 61A		Week 2		 Homework Solutions
 
-Filler.
+Exercise 1.31(a):  
+
+;; you only needed to hand in one version
+;; but later this week you'll understand both:
+
+;; recursive version:
+<tt><pre>
+(define (product term a next b)
+  (if (> a b)
+      1       ;; Note multiplicative identity is 1 not 0
+      (* (term a)
+	 (product term (next a) next b))))
+</pre></tt>
+;; iterative version:
+<tt><pre>
+(define (product term a next b)
+  (define (iter a result)
+    (if (> a b)
+	result
+	(iter (next a) (* result (term a)))))
+  (iter a 1))
+</pre></tt>
+;; factorial
+<tt><pre>
+(define (! n) (product (lambda (x) x) 1 1+ n))
+</pre></tt>
+;; pi
+;; You have to run a few hundred terms to get a good approximation.
+;; There are several possible ways to arrange the terms.  Here is one
+;; way, in which the first term is 2/3, the second is 4/3, etc.
+
+<pre>
+(define (pi terms) (* 4 (product
+			 (lambda (x) (/ (* 2 (1+ (floor (/ x 2))))
+					(1+ (* 2 (ceiling (/ x 2))))))
+			 1 1+ terms)))
+</pre>
+
+;; Here is another way, in which the first term is (2/3)*(4/3), the
+;; second is (4/5)*(6/5), etc.  Notice that the value of a starts at
+;; 3 and is increased by 2 for each new term.
+<pre>
+(define (pi terms) (* 4 (product
+			 (lambda (x) (/ (* (-1+ x) (1+ x))
+					(* x x) ))
+			 3
+			 (lambda (x) (+ x 2))
+			 terms )))
+</pre>
+;; If you try to make it 2 * (4/3) * (4/3) * (6/5) * (6/5) * ... you'll
+;; get the wrong answer, because you'll have one more number in the
+;; numerator than in the denominator.
+
+
+Exercise 1.32(a):  
+
+;; you only needed to hand in one version
+
+;; recursive form
+<pre>
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+		(accumulate combiner null-value term (next a) next b))))
+</pre>
+;; iterative form
+<pre>
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+	result
+	(iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+</pre>
+;; sum and product
+<pre>
+(define (sum term a next b) (accumulate + 0 term a next b))
+
+(define (product term a next b) (accumulate * 1 term a next b))
+</pre>
+Exercise 1.33:  
+
+;; The problem only requires one version but this too can be
+;; recursive or iterative.  Recursive version:
+<pre>
+(define (filtered-accumulate combiner null-value term a next b predicate)
+  (cond ((> a b) null-value)
+	((predicate a)
+	 (combiner (term a)
+		   (filtered-accumulate combiner
+					null-value
+					term
+					(next a)
+					next
+					b
+					predicate)))
+	(else (filtered-accumulate combiner
+				   null-value
+				   term
+				   (next a)
+				   next
+				   b
+				   predicate))))
+</pre>
+;; Iterative version:
+<pre>
+(define (filtered-accumulate combiner null-value term a next b predicate)
+  (define (iter a result)
+    (cond ((> a b) result)
+	  ((predicate a) (iter (next a) (combiner (term a) result)))
+	  (else (iter (next a) result))))
+  (iter a null-value))
+</pre>
+;; (a) sum of squares of primes
+<pre>
+(define (sum-sq-prime a b)
+  (define (square x) (* x x))
+  (filtered-accumulate + 0 square a 1+ b prime?))
+</pre>
+;; (b) product of blah blah, using gcd from page 49
+<pre>
+(define (prod-of-some-numbers n)
+  (filtered-accumulate *
+		       1
+		       (lambda (x) x)
+		       1
+		       1+
+		       n
+		       (lambda (x) (= 1 (gcd x n)))))
+</pre>
+Exercise 1.40:
+<pre>
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))
+</pre>
+
+Exercise 1.41:
+<pre>
+(define (double f)
+  (lambda (x) (f (f x))))
+</pre>
+
+Why does (((double (double double)) inc) 5) return 21 and not 13?
+The crucial point is that DOUBLE is not associative.
+<pre>
+> (((double (double double)) inc) 5)
+21
+> ((double (double (double inc))) 5)
+13
+</pre>
+DOUBLE turns a function into one that applies the function twice.
+(DOUBLE DOUBLE) turns a function into one that applies the function
+four times.
+(DOUBLE (DOUBLE DOUBLE)) makes a function that applies (DOUBLE DOUBLE)
+twice -- that is, make a function that applies the argument function
+four times four times!
+
+Exercise 1.43:  
+<pre>
+(define (repeated f n)
+  (lambda (x)
+    (if (= n 0)
+        x
+        (f ((repeated f (- n 1)) x)))))
+</pre>
+or
+<pre>
+(define (repeated f n)
+  (lambda (x)
+    (if (= n 0)
+        x
+        (repeated f (- n 1)) (f x)))))
+</pre>
+or
+<pre>
+(define (repeated f n)
+  (if (= n 0)
+      (lambda (x) x)
+      (lambda (x) (f ((repeated f (- n 1)) x)))))
+</pre>
+We didn't assign 1.42, but if you followd the hint about it in 1.43,
+you'd end up with this:
+<pre>
+(define (repeated f n)
+  (if (= n 0)
+      (lambda (x) x)
+      (compose f (repeated f (- n 1)))))
+</pre>
+1.46
+
+This problem is a little complicated in its details because there are so
+many different procedures involved, with different domains and ranges.
+But don't let that keep you from seeing the beauty of this extremely
+general method!
+<pre>
+(define (iterative-improve good-enough? improve)
+  (define (iterate guess)
+    (if (good-enough? guess)
+	guess
+	(iterate (improve guess))))
+  iterate)
+
+(define (sqrt x)  ;; compare to bottom of page 30 of SICP
+  ((iterative-improve (lambda (guess) (< (abs (- (square guess) x)) 0.001))
+		      (lambda (guess) (average guess (/ x guess))))
+   1.0))
+</pre>
+Some people were confused about sqrt because the original good-enough? takes
+two arguments, and iterative-improve only allows for one.  But we are using
+lexical scope so that the lambda expressions used as arguments to
+iterative-improve have access to the starting value x.
+<pre>
+(define (fixed-point f first-guess)  ;; compare to page 69
+  ((iterative-improve (lambda (guess) (< (abs (- guess (f guess))) tolerance))
+		      f)
+   first-guess))
+</pre>
+Here the structure is a little different from what's in the book, because
+there is no variable NEXT to hold the next guess.  The solution above computes
+(f guess) twice for each guess.  If you don't like that, you could use a more
+complicated solution in which the argument to the good-enough procedure is a
+sentence containing both old and new guesses:
+<pre>
+(define (fixed-point f first-guess)
+  ((iterative-improve (lambda (guesses)
+			(< (abs (- (first guesses) (last guesses))) tolerance))
+		      (lambda (guesses)
+			(sentence (last guesses) (f (last guesses)))))
+   (sentence first-guess (f first-guess))))
+</pre>
+but I don't think the constant-factor efficiency improvement is worth the
+added complexity of the code.
+
+
+--------
+
+2.  EVERY:
+<pre>
+(define (every f sent)
+  (if (empty? sent)
+      '()
+      (se (f (first sent))
+	  (every f (butfirst sent)) )))
+</pre>
+
+--------
+
+Extra for experts:
+
+This is a really hard problem!  But its solution comes up enough in the
+literature that it has a name:  the Y combinator.  First here's the
+combinator alone:
+<pre>
+(lambda (f) (lambda (n) (f f n)))
+</pre>
+And here's the factorial function using it:
+<pre>
+(  (lambda (f) (lambda (n) (f f n)))
+   (lambda (fun x)
+     (if (= x 0)
+	 1
+	 (* x (fun fun (- x 1)))))  )
+</pre>
+And now here's (fact 5):
+<pre>
+(  (  (lambda (f) (lambda (n) (f f n)))
+      (lambda (fun x)
+	(if (= x 0)
+	    1
+	    (* x (fun fun (- x 1)))))  )
+   5)
+</pre>
+The trick is that instead of the factorial function taking a number as an
+argument, it takes TWO arguments, a function (which will really be itself when
+called) and a number.  The recursive call is done using the function provided
+as argument.
+
+The job of the Y combinator is to provide the function with itself as an
+argument.
+
+If that seems like a rabbit out of a hat, here's a longer explanation:
+
+The problem we're trying to solve is that factorial wants to be able to call
+itself recursively, and to do that it has to have a name for itself.  We have
+two ways to give something a name, and one of them, DEFINE, is ruled out in
+this problem.  That leaves procedure invocation, which associates formal
+parameters (the names) with actual arguments (the values).  So we could
+do this:
+<pre>
+((lambda (f n) (if (= n 0) 1 (* n (f f (- n 1)))))
+ (lambda (f n) (if (= n 0) 1 (* n (f f (- n 1)))))
+ 5)
+</pre>
+to get the factorial of 5.  Ordinarily we think of factorial as a function
+of one argument (N); here we've added a formal parameter F whose value is
+another copy of the same function.  If you work through this expression,
+you'll see that the first copy is called only for N=5; the other calls for
+all smaller values of N use the second copy, because (unlike the first) it
+is called with *itself* (the very same lambda-created procedure) as its
+argument.
+
+Now, it's a little ugly having to type the procedure twice.  Also, I sort of
+half lied when I said there are only two ways to give something a name.
+There's a kind of third way, LET, although that's really the same as creating
+and calling a procedure; and LET is good at avoiding having to type something
+twice.  So you might be tempted to say
+<pre>
+(let ((fact (lambda (n) (if (= n 0) 1 (* n (fact (- n 1)))))))
+  (fact 5))
+</pre>
+
+But this doesn't work, because the name "fact" doesn't mean that lambda-
+created procedure when the lambda expression is evaluated; that association
+holds only in the body of the let.  If that isn't clear, we can expand it:
+<pre>
+((lambda (fact) (FACT 5))
+ (lambda (n) (if (= n 0) 1 (* n (fact (- n 1))))))
+</pre>
+The capitalized FACT above is inside the lambda of which fact is the formal
+parameter, so the (lambda (n) ...) procedure is substituted for it.  But the
+name "fact" also appears on the second line of the expression, in the actual
+argument expression, and *that* isn't inside the (lambda (fact) ...), so
+there is no substitution; it will look for a global name fact.  Thus we have
+to have F (in the original solution above) take *itself* as an argument, so
+that the substitution happens in the right place.  We could do that with a
+LET form equivalent to the original solution:
+<pre>
+(let ((f (lambda (f n) (if (= n 0) 1 (* n (f f (- n 1)))))))
+  (f f 5))
+</pre>
+This one does work.  Notice that the body of the let, (f f 5), is almost
+like the Y combinator's body, except that the latter generalizes to a
+function of N instead of having 5 built in, like this LET expression:
+<pre>
+(let ((f (lambda (f n) (if (= n 0) 1 (* n (f f (- n 1)))))))
+  (lambda (n) (f f n)))
+</pre>
+Now just rearrange this to eliminate the LET abbreviation:
+<pre>
+((LAMBDA (F) (LAMBDA (N) (F F N)))
+ (lambda (f n) (if (= n 0) 1 (* n (f f (- n 1))))))
+</pre>
+This returns a function of N, the factorial function.  And the capitalized
+part is the Y combinator.
