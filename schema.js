@@ -59,7 +59,7 @@ function defineModels(mongoose, fn) {
       required: true,
       type: Boolean
     },
-    requireLDAP: {
+    forceLDAP: {
       type: Boolean,
       'default': false
     },
