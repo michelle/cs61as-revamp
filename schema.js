@@ -71,6 +71,10 @@ function defineModels(mongoose, fn) {
         unique: true
       }
     },
+    hashed_password: {
+      type: String,
+      required: true
+    },
     fullname: {
       // TODO: pattern
       type: String
@@ -94,10 +98,6 @@ function defineModels(mongoose, fn) {
     grades: {
       type: [Grade],
       'default': []
-    },
-    hashed_password: {
-      type: String,
-      required: true
     },
     units: {
       type: Number,
