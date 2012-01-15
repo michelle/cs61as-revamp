@@ -59,6 +59,10 @@ function defineModels(mongoose, fn) {
       required: true,
       type: Boolean
     },
+    forceLDAP: {
+      type: Boolean,
+      'default': false
+    },
     username: {
       type: String,
       match: usernameRegEx,
@@ -66,6 +70,10 @@ function defineModels(mongoose, fn) {
       index: {
         unique: true
       }
+    },
+    hashed_password: {
+      type: String,
+      required: true
     },
     fullname: {
       // TODO: pattern
@@ -90,10 +98,6 @@ function defineModels(mongoose, fn) {
     grades: {
       type: [Grade],
       'default': []
-    },
-    hashed_password: {
-      type: String,
-      required: true
     },
     units: {
       type: Number,
